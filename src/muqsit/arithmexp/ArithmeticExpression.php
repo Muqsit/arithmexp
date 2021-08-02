@@ -49,7 +49,7 @@ final class ArithmeticExpression{
 	 * @param array<string, float> $variables
 	 * @return float
 	 */
-	public function getValue(array $variables = []) : float{
+	public function solve(array $variables = []) : float{
 		return $this->tree->getValue($variables);
 	}
 }
