@@ -54,7 +54,6 @@ final class Tokenizer{
 				$token = null;
 			}
 		}
-		echo $this->operating_code, PHP_EOL;
 		return $tokens;
 	}
 
@@ -74,7 +73,6 @@ final class Tokenizer{
 			$tokens[] = new Token($token_type, $string, $pos, $pos + $length - 1);
 			$offset = $pos + $length;
 		}
-		echo $this->operating_code, PHP_EOL;
 		return $tokens;
 	}
 
