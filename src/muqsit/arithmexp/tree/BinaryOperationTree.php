@@ -18,6 +18,10 @@ final class BinaryOperationTree implements Tree{
 		$this->right = $right;
 	}
 
+	public function getChildren() : array{
+		return [$this->left, $this->right];
+	}
+
 	public function getValue(array $variables) : float{
 		return $this->operator->getValue($this->left->getValue($variables), $this->right->getValue($variables));
 	}

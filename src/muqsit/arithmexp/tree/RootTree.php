@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace muqsit\arithmexp\tree;
 
+use Generator;
 use muqsit\arithmexp\ArithmeticExpression;
 use muqsit\arithmexp\operator\Operator;
 use muqsit\arithmexp\token\Token;
@@ -11,6 +12,7 @@ use muqsit\arithmexp\token\TokenType;
 use muqsit\arithmexp\token\TokenUtil;
 use muqsit\arithmexp\util\ArithmeticExpressionException;
 use RuntimeException;
+use SplQueue;
 use SplStack;
 
 final class RootTree implements Tree{
@@ -147,6 +149,43 @@ final class RootTree implements Tree{
 		}
 
 		return new BinaryOperationTree($operator, $left, $right);
+	}
+
+	public function getChildren() : array{
+		return [$this->tree];
+	}
+
+	/**
+	 * @return Generator<Tree>
+	 */
+	public function getAllTrees() : Generator{
+		$queue = new SplQueue();
+		foreach($this->getChildren() as $child){
+			$queue->enqueue($child);
+		}
+
+		while(!$queue->isEmpty()){
+			$node = $queue->dequeue();
+			yield $node;
+
+			foreach($node->getChildren() as $child){
+				$queue->enqueue($child);
+			}
+		}
+	}
+
+	/**
+	 * @return array<string>
+	 */
+	public function getVariables() : array{
+		$variables = [];
+		foreach($this->getAllTrees() as $tree){
+			if($tree instanceof NumericVariableTree){
+				$variables[$tree->getVariableIdentifier()] = true;
+			}
+		}
+
+		return array_keys($variables);
 	}
 
 	/**

@@ -12,6 +12,10 @@ final class NumericConstantTree implements Tree{
 		$this->value = $value;
 	}
 
+	public function getChildren() : array{
+		return [];
+	}
+
 	public function getValue(array $variables) : float{
 		return $this->value;
 	}

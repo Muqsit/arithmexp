@@ -14,6 +14,14 @@ final class NumericVariableTree implements Tree{
 		$this->identifier = $identifier;
 	}
 
+	public function getVariableIdentifier() : string{
+		return $this->identifier;
+	}
+
+	public function getChildren() : array{
+		return [];
+	}
+
 	public function getValue(array $variables) : float{
 		return $variables[$this->identifier] ?? throw new ArithmeticExpressionException("Value of variable '{$this->identifier}' not specified");
 	}
