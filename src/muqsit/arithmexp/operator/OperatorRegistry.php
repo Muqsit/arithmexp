@@ -8,10 +8,10 @@ final class OperatorRegistry{
 
 	public static function default() : self{
 		$registry = new self();
-		$registry->register("*", new MultiplicationOperator(), 0);
-		$registry->register("/", new DivisionOperator(), 0);
-		$registry->register("+", new AdditionOperator(), 1);
-		$registry->register("-", new SubtractionOperator(), 1);
+		$registry->register("*", new MultiplicationOperator(null, null), 0);
+		$registry->register("/", new DivisionOperator(null, null), 0);
+		$registry->register("+", new AdditionOperator(0.0, null), 1);
+		$registry->register("-", new SubtractionOperator(0.0, null), 1);
 		return $registry;
 	}
 
