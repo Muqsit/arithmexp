@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace muqsit\arithmexp\tree;
 
 use muqsit\arithmexp\ArithmeticExpression;
+use muqsit\arithmexp\operator\Operator;
 use muqsit\arithmexp\token\Token;
 use muqsit\arithmexp\token\TokenType;
 use muqsit\arithmexp\token\TokenUtil;
@@ -77,17 +78,12 @@ final class RootTree implements Tree{
 						$changed = false;
 						foreach($entries as $index => $entry){
 							if($entry instanceof Token && $entry->type === TokenType::OPERATOR && isset($operators[$entry->text])){
-								$left = $entries[$index - 1];
-								$right = $entries[$index + 1];
-								$entries[$index - 1] = new BinaryOperationTree($operators[$entry->text], $left instanceof Tree ? $left : match($left->type){
-									TokenType::NUMBER => new NumericConstantTree((float) $left->text),
-									TokenType::SYMBOL => new NumericVariableTree($left->text),
-									default => throw new ArithmeticExpressionException("No left-side operand found for '" . TokenUtil::stringifyType($left->type) . "' at " . TokenUtil::stringifyValueAndPosition($left) . " while parsing '{$expression}'")
-								}, $right instanceof Tree ? $right : match($right->type){
-									TokenType::NUMBER => new NumericConstantTree((float) $right->text),
-									TokenType::SYMBOL => new NumericVariableTree($right->text),
-									default => throw new ArithmeticExpressionException("No right-side operand found for '" . TokenUtil::stringifyType($right->type) . "' at " . TokenUtil::stringifyValueAndPosition($right) . " while parsing '{$expression}'")
-								});
+								try{
+									$tree = $this->parseOperands($entry, $operators[$entry->text], $entries[$index - 1] ?? null, $entries[$index + 1] ?? null);
+								}catch(ArithmeticExpressionException $e){
+									throw new ArithmeticExpressionException("{$e->getMessage()} while parsing '{$expression}'", $e->getCode(), $e);
+								}
+								$entries[$index - 1] = $tree;
 								unset($entries[$index + 1], $entries[$index]);
 								$entries = array_values($entries);
 								$changed = true;
@@ -112,6 +108,32 @@ final class RootTree implements Tree{
 		}
 
 		$this->tree = current($simplified);
+	}
+
+	private function parseOperands(Token $operator_token, Operator $operator, Tree|Token|null $left, Tree|Token|null $right) : Tree{
+		if($left instanceof Token){
+			$left = match($left->type){
+				TokenType::NUMBER => new NumericConstantTree((float) $left->text),
+				TokenType::SYMBOL => new NumericVariableTree($left->text),
+				default => throw new ArithmeticExpressionException("No left-side operand found for '" . TokenUtil::stringifyType($operator_token->type) . "' at " . TokenUtil::stringifyValueAndPosition($operator_token))
+			};
+		}elseif($left === null){
+			$default = $operator->getDefaultLeftValue() ?? throw new ArithmeticExpressionException("No left-side operand found for '" . TokenUtil::stringifyType($operator_token->type) . "' at " . TokenUtil::stringifyValueAndPosition($operator_token));
+			$left = new NumericConstantTree($default);
+		}
+
+		if($right instanceof Token){
+			$right = match($right->type){
+				TokenType::NUMBER => new NumericConstantTree((float) $right->text),
+				TokenType::SYMBOL => new NumericVariableTree($right->text),
+				default => throw new ArithmeticExpressionException("No right-side operand found for '" . TokenUtil::stringifyType($operator_token->type) . "' at " . TokenUtil::stringifyValueAndPosition($operator_token))
+			};
+		}elseif($right === null){
+			$default = $operator->getDefaultLeftValue() ?? throw new ArithmeticExpressionException("No right-side operand found for '" . TokenUtil::stringifyType($operator_token->type) . "' at " . TokenUtil::stringifyValueAndPosition($operator_token));
+			$right = new NumericConstantTree($default);
+		}
+
+		return new BinaryOperationTree($operator, $left, $right);
 	}
 
 	/**
