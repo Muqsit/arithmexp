@@ -101,16 +101,16 @@ final class Tokenizer{
 	/**
 	 * @return Token[]
 	 */
-	private function tokenizeConstants() : array{
+	private function tokenizeSymbols() : array{
 		$tokens = [];
 		$matches = [];
 		preg_match_all('/[a-zA-Z_\x80-\xff][a-zA-Z0-9_\x80-\xff]*/m', $this->operating_code, $matches, PREG_SET_ORDER | PREG_OFFSET_CAPTURE, 0);
-		foreach($matches as [[$constant, $offset]]){
-			$length = strlen($constant);
+		foreach($matches as [[$symbol, $offset]]){
+			$length = strlen($symbol);
 			for($i = 0; $i < $length; ++$i){
 				$this->operating_code[$offset + $i] = self::CHAR_READ;
 			}
-			$tokens[] = new Token(TokenType::CONSTANT, $constant, $offset, $offset + $length - 1);
+			$tokens[] = new Token(TokenType::SYMBOL, $symbol, $offset, $offset + $length - 1);
 		}
 		return $tokens;
 	}
@@ -151,7 +151,7 @@ final class Tokenizer{
 	public function tokenize() : array{
 		$this->operating_code = $this->code;
 		$tokens = [
-			...$this->tokenizeConstants(),
+			...$this->tokenizeSymbols(),
 			...$this->tokenizeNumbers(),
 			...$this->tokenizeOperators(),
 			...$this->tokenizeRest(),

@@ -23,7 +23,7 @@ final class TokenUtil{
 			TokenType::BRACKET_CLOSE => "T_BRACKET_CLOSE",
 			TokenType::NUMBER => "T_NUMBER",
 			TokenType::OPERATOR => "T_OPERATOR",
-			TokenType::CONSTANT => "T_CONSTANT",
+			TokenType::SYMBOL => "T_SYMBOL",
 			default => "#{$type}"
 		};
 	}

@@ -12,7 +12,7 @@ final class TokenType{
 	public const BRACKET_CLOSE = 3;
 	public const NUMBER = 4;
 	public const OPERATOR = 5;
-	public const CONSTANT = 6;
+	public const SYMBOL = 6;
 
 	private function __construct(){
 	}

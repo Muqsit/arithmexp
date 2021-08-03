@@ -81,11 +81,11 @@ final class RootTree implements Tree{
 								$right = $entries[$index + 1];
 								$entries[$index - 1] = new BinaryOperationTree($operators[$entry->text], $left instanceof Tree ? $left : match($left->type){
 									TokenType::NUMBER => new NumericConstantTree((float) $left->text),
-									TokenType::CONSTANT => new NumericVariableTree($left->text),
+									TokenType::SYMBOL => new NumericVariableTree($left->text),
 									default => throw new ArithmeticExpressionException("No left-side operand found for '" . TokenUtil::stringifyType($left->type) . "' at " . TokenUtil::stringifyValueAndPosition($left) . " while parsing '{$expression}'")
 								}, $right instanceof Tree ? $right : match($right->type){
 									TokenType::NUMBER => new NumericConstantTree((float) $right->text),
-									TokenType::CONSTANT => new NumericVariableTree($right->text),
+									TokenType::SYMBOL => new NumericVariableTree($right->text),
 									default => throw new ArithmeticExpressionException("No right-side operand found for '" . TokenUtil::stringifyType($right->type) . "' at " . TokenUtil::stringifyValueAndPosition($right) . " while parsing '{$expression}'")
 								});
 								unset($entries[$index + 1], $entries[$index]);
