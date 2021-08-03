@@ -107,7 +107,20 @@ final class RootTree implements Tree{
 			throw new ArithmeticExpressionException("Failed to reduce sub-expression while parsing '{$expression}'");
 		}
 
-		$this->tree = current($simplified);
+		$final = current($simplified);
+		if($final instanceof Token){
+			$final = match($final->type){
+				TokenType::SYMBOL => new NumericVariableTree($final->text),
+				TokenType::NUMBER => new NumericConstantTree((float) $final->text),
+				default => throw new ArithmeticExpressionException("Failed to reduce sub-expression while parsing '{$expression}'")
+			};
+		}
+
+		if(!($final instanceof Tree)){
+			throw new ArithmeticExpressionException("Failed to reduce sub-expression while parsing '{$expression}'");
+		}
+
+		$this->tree = $final;
 	}
 
 	private function parseOperands(Token $operator_token, Operator $operator, Tree|Token|null $left, Tree|Token|null $right) : Tree{
