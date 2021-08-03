@@ -102,18 +102,17 @@ final class Tokenizer{
 	 * @return Token[]
 	 */
 	private function tokenizeConstants() : array{
-		$anywhere_characters = ["_"];
-		for($i = "a"; $i <= "z"; ++$i){
-			$anywhere_characters[] = $i;
+		$tokens = [];
+		$matches = [];
+		preg_match_all('/[a-zA-Z_\x80-\xff][a-zA-Z0-9_\x80-\xff]*/m', $this->operating_code, $matches, PREG_SET_ORDER | PREG_OFFSET_CAPTURE, 0);
+		foreach($matches as [[$constant, $offset]]){
+			$length = strlen($constant);
+			for($i = 0; $i < $length; ++$i){
+				$this->operating_code[$offset + $i] = self::CHAR_READ;
+			}
+			$tokens[] = new Token(TokenType::CONSTANT, $constant, $offset, $offset + $length - 1);
 		}
-		for($i = "A"; $i <= "Z"; ++$i){
-			$anywhere_characters[] = $i;
-		}
-		$leading_characters = [];
-		for($i = 0; $i < 10; ++$i){
-			$leading_characters[] = (string) $i;
-		}
-		return $this->tokenizeAnyCombinationOfChars(TokenType::CONSTANT, [], $anywhere_characters, $leading_characters);
+		return $tokens;
 	}
 
 	/**
