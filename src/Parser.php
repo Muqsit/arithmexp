@@ -41,6 +41,14 @@ final class Parser{
 		private Scanner $scanner
 	){}
 
+	public function getBinaryOperatorRegistry() : BinaryOperatorRegistry{
+		return $this->binary_operator_registry;
+	}
+
+	public function getConstantRegistry() : ConstantRegistry{
+		return $this->constant_registry;
+	}
+
 	/**
 	 * Parses a given mathematical expression for runtime evaluation.
 	 *
