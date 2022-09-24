@@ -1,0 +1,10 @@
+--- # Poggit-CI Manifest. Open the CI at https://poggit.pmmp.io/ci/Muqsit/arithmexp
+build-by-default: true
+branches:
+- master
+projects:
+  arithmexp:
+    path: ""
+    model: virion
+    type: library
+...
