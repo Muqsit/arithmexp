@@ -33,10 +33,6 @@ final class ConstantRegistry{
 	public function __construct(){
 	}
 
-	/**
-	 * @param string $operator
-	 * @param int|float $value
-	 */
 	public function register(string $operator, int|float $value) : void{
 		$this->registered[$operator] = $value;
 	}
