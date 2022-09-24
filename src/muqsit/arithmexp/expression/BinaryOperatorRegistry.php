@@ -13,7 +13,7 @@ final class BinaryOperatorRegistry{
 	public static function createDefault() : self{
 		$registry = new self();
 		$registry->register(BinaryOperatorToken::OPERATOR_TYPE_EXPONENTIAL, static fn(int|float $x, int|float $y) : int|float => $x ** $y);
-		$registry->register(BinaryOperatorToken::OPERATOR_TYPE_MODULO, static fn(int|float $x, int|float $y) : int|float => $x % $y);
+		$registry->register(BinaryOperatorToken::OPERATOR_TYPE_MODULO, static fn(int|float $x, int|float $y) : int => $x % $y);
 		$registry->register(BinaryOperatorToken::OPERATOR_TYPE_DIVISION, static fn(int|float $x, int|float $y) : int|float => $x / $y);
 		$registry->register(BinaryOperatorToken::OPERATOR_TYPE_MULTIPLICATION, static fn(int|float $x, int|float $y) : int|float => $x * $y);
 		$registry->register(BinaryOperatorToken::OPERATOR_TYPE_ADDITION, static fn(int|float $x, int|float $y) : int|float => $x + $y);
