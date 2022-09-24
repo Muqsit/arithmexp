@@ -18,23 +18,17 @@ final class Expression{
 
 	/**
 	 * @param BinaryOperatorRegistry $binary_operator_registry
-	 * @param ConstantRegistry $constant_registry
 	 * @param string $expression
 	 * @param ExpressionToken[] $postfix_expression_tokens
 	 */
 	public function __construct(
 		private BinaryOperatorRegistry $binary_operator_registry,
-		private ConstantRegistry $constant_registry,
 		private string $expression,
 		private array $postfix_expression_tokens
 	){}
 
 	public function getBinaryOperatorRegistry() : BinaryOperatorRegistry{
 		return $this->binary_operator_registry;
-	}
-
-	public function getConstantRegistry() : ConstantRegistry{
-		return $this->constant_registry;
 	}
 
 	public function getExpression() : string{
@@ -69,9 +63,7 @@ final class Expression{
 			return $token->value;
 		}
 		if($token instanceof VariableExpressionToken){
-			return $this->constant_registry->registered[$token->label] ??
-				$variable_values[$token->label] ??
-				throw new InvalidArgumentException("No value supplied for variable \"{$token->label}\" in \"{$this->expression}\"");
+			return $variable_values[$token->label] ?? throw new InvalidArgumentException("No value supplied for variable \"{$token->label}\" in \"{$this->expression}\"");
 		}
 		throw new RuntimeException("Don't know how to get value of " . $token::class);
 	}

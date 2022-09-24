@@ -64,9 +64,8 @@ final class Parser{
 		$this->convertTokenTreeToPostfixTokenTree($tokens);
 		return new Expression(
 			$this->binary_operator_registry,
-			$this->constant_registry,
 			$expression,
-			array_map(static function(Token $token) : ExpressionToken{
+			array_map(function(Token $token) : ExpressionToken{
 				if($token instanceof BinaryOperatorToken){
 					return new OperatorExpressionToken($token->getOperator());
 				}
@@ -74,7 +73,9 @@ final class Parser{
 					return new NumericLiteralExpressionToken($token->getValue());
 				}
 				if($token instanceof VariableToken){
-					return new VariableExpressionToken($token->getLabel());
+					$label = $token->getLabel();
+					$constant_value = $this->constant_registry->registered[$label] ?? null;
+					return $constant_value !== null ? new NumericLiteralExpressionToken($constant_value) : new VariableExpressionToken($label);
 				}
 				throw new RuntimeException("Don't know how to convert {$token->getType()->getName()} token to " . ExpressionToken::class);
 			}, $tokens)
