@@ -185,6 +185,7 @@ final class Parser{
 		if($tokens instanceof Token){
 			$tokens = [$tokens];
 		}elseif(count($tokens) !== 3 || !($tokens[1] instanceof BinaryOperatorToken)){
+			/** @var Token $invalid */
 			$invalid = $tokens[1];
 			throw new ParseException("Unexpected {$invalid->getType()->getName()} token encountered at \"" . substr($expression, $invalid->getStartPos(), $invalid->getEndPos() - $invalid->getStartPos()) . "\" ({$invalid->getStartPos()}:{$invalid->getEndPos()}) in \"{$expression}\"");
 		}
