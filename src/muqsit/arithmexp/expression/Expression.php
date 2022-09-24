@@ -109,7 +109,7 @@ final class Expression{
 	public function __debugInfo() : array{
 		return [
 			"expression" => $this->expression,
-			"postfix" => implode("", array_map("strval", $this->postfix_expression_tokens))
+			"postfix" => implode(" ", array_map("strval", $this->postfix_expression_tokens))
 		];
 	}
 }
