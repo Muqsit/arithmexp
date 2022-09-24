@@ -10,10 +10,8 @@ use muqsit\arithmexp\expression\token\ExpressionToken;
 use muqsit\arithmexp\expression\token\NumericLiteralExpressionToken;
 use muqsit\arithmexp\expression\token\OperatorExpressionToken;
 use muqsit\arithmexp\expression\token\VariableExpressionToken;
-use muqsit\arithmexp\ParseException;
 use RuntimeException;
 use function array_map;
-use function array_pop;
 use function implode;
 
 final class Expression{
