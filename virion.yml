@@ -1,5 +1,5 @@
-name: mathexp
+name: arithmexp
 antigen: muqsit\arithmexp
-api: [3.0.0, 4.0.0]
+api: 4.9.0
 version: 0.0.1
 author: Muqsit
