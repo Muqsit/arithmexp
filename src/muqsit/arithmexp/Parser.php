@@ -139,13 +139,13 @@ final class Parser{
 
 	/**
 	 * Transforms a given token tree in-place by grouping all binary operations for
-	 * low-complexity processing.
+	 * low-complexity processing, converting [TOK, BOP, TOK, BOP, TOK] to
+	 * [[[TOK, BOP, TOK], BOP, TOK]].
 	 *
 	 * @param Token[]|Token[][]|... $tokens
 	 * @param string[] $operators_by_precedence
 	 */
 	private function groupBinaryOperations(array &$tokens, array $operators_by_precedence) : void{
-		// convert [..., Node, BinaryOperatorToken, Node, ...] to [..., BinaryExpressionNode, ...]
 		$stack = [&$tokens];
 		while(($index = array_key_last($stack)) !== null){
 			$entry = &$stack[$index];
