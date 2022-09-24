@@ -18,7 +18,7 @@ final class BinaryOperatorRegistry{
 		return $registry;
 	}
 
-	/** @var array<string, Closure(int|float, int|float) : int|float> */
+	/** @var array<string, Closure(int|float, int|float) : (int|float)> */
 	private array $registered = [];
 
 	public function __construct(){
@@ -26,14 +26,14 @@ final class BinaryOperatorRegistry{
 
 	/**
 	 * @param string $operator
-	 * @param Closure(int|float, int|float) : int|float $operation
+	 * @param Closure(int|float, int|float) : (int|float) $operation
 	 */
 	public function register(string $operator, Closure $operation) : void{
 		$this->registered[$operator] = $operation;
 	}
 
 	/**
-	 * @return array<string, Closure(int|float, int|float) : int|float>
+	 * @return array<string, Closure(int|float, int|float) : (int|float)>
 	 */
 	public function getRegistered() : array{
 		return $this->registered;

@@ -24,6 +24,9 @@ abstract class SimpleToken implements Token{
 		return $this->end_pos;
 	}
 
+	/**
+	 * @return array<string, mixed>
+	 */
 	public function __debugInfo() : array{
 		return [
 			"type" => $this->type->getName(),

@@ -22,6 +22,7 @@ use RuntimeException;
 use function array_key_last;
 use function array_map;
 use function array_splice;
+use function assert;
 use function count;
 use function is_array;
 
@@ -112,7 +113,7 @@ final class Parser{
 	 * instances together with the operand with [NumericLiteralToken(val: +1 or -1),
 	 * BinaryOperatorToken(op: *), <Token> (Operand)].
 	 *
-	 * @param Token[]|Token[]|... $tokens
+	 * @param Token[]|Token[][] $tokens
 	 */
 	private function transformUnaryOperatorTokens(array &$tokens) : void{
 		$stack = [&$tokens];
@@ -142,7 +143,7 @@ final class Parser{
 	 * low-complexity processing, converting [TOK, BOP, TOK, BOP, TOK] to
 	 * [[[TOK, BOP, TOK], BOP, TOK]].
 	 *
-	 * @param Token[]|Token[][]|... $tokens
+	 * @param Token[]|Token[][] $tokens
 	 * @param string[] $operators_by_precedence
 	 */
 	private function groupBinaryOperations(array &$tokens, array $operators_by_precedence) : void{
@@ -179,6 +180,7 @@ final class Parser{
 			}
 		}
 
+		/** @var Token|Token[]|Token[][] $tokens */
 		if($tokens instanceof Token){
 			$tokens = [$tokens];
 		}
@@ -187,7 +189,7 @@ final class Parser{
 	/**
 	 * Transforms a given token tree in-place to a flattened postfix representation.
 	 *
-	 * @param Token[]|Token[][]|... $postfix_token_tree
+	 * @param Token[]|Token[][] $postfix_token_tree
 	 */
 	public function convertTokenTreeToPostfixTokenTree(array &$postfix_token_tree) : void{
 		$stack = [&$postfix_token_tree];

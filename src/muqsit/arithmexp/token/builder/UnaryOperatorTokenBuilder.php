@@ -20,7 +20,7 @@ final class UnaryOperatorTokenBuilder implements TokenBuilder{
 	}
 
 	/**
-	 * @param string[] $operators
+	 * @param array<UnaryOperatorToken::OPERATOR_*> $operators
 	 */
 	public function __construct(
 		private array $operators

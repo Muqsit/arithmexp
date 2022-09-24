@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace muqsit\arithmexp\token;
 
-use RuntimeException;
-
 final class UnaryOperatorToken extends SimpleToken{
 
 	public const OPERATOR_NEGATIVE = "-";
@@ -34,8 +32,7 @@ final class UnaryOperatorToken extends SimpleToken{
 	public function getFactor() : float{
 		return match($this->operator){
 			self::OPERATOR_POSITIVE => +1,
-			self::OPERATOR_NEGATIVE => -1,
-			default => throw new RuntimeException("Factor of unary operator \"{$this->operator}\" is unknown")
+			self::OPERATOR_NEGATIVE => -1
 		};
 	}
 

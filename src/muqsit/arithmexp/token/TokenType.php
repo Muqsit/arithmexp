@@ -64,6 +64,9 @@ final class TokenType{
 		return $this->identifier === $identifier;
 	}
 
+	/**
+	 * @return array<string, mixed>
+	 */
 	public function __debugInfo() : array{
 		return [
 			"identifier" => $this->identifier,

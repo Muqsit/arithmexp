@@ -10,6 +10,7 @@ use muqsit\arithmexp\expression\token\ExpressionToken;
 use muqsit\arithmexp\expression\token\NumericLiteralExpressionToken;
 use muqsit\arithmexp\expression\token\OperatorExpressionToken;
 use muqsit\arithmexp\expression\token\VariableExpressionToken;
+use muqsit\arithmexp\ParseException;
 use RuntimeException;
 use function array_map;
 use function array_pop;
@@ -86,7 +87,7 @@ final class Expression{
 		$stack = [];
 		foreach($this->postfix_expression_tokens as $token){
 			if($token instanceof OperatorExpressionToken){
-				$right = array_pop($stack);
+				$right = array_pop($stack) ?? throw new ParseException("No right operand supplied in expression \"{$this->expression}\"");
 				$left = array_pop($stack);
 				$stack[] = $this->binary_operator_registry->evaluate($token->operator, $left, $right);
 			}else{
@@ -102,7 +103,10 @@ final class Expression{
 		return $result;
 	}
 
-	public function __debugInfo() : ?array{
+	/**
+	 * @return array<string, mixed>
+	 */
+	public function __debugInfo() : array{
 		return [
 			"expression" => $this->expression,
 			"postfix" => implode("", array_map("strval", $this->postfix_expression_tokens))
