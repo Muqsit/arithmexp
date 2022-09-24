@@ -60,7 +60,7 @@ final class Parser{
 		$tokens = $this->scanner->scan($expression);
 		$this->deparenthesizeTokens($tokens);
 		$this->transformUnaryOperatorTokens($tokens);
-		$this->groupBinaryOperations($tokens, ["/", "*", "+", "-"]);
+		$this->groupBinaryOperations($tokens);
 		$this->convertTokenTreeToPostfixTokenTree($tokens);
 		return new Expression(
 			$this->binary_operator_registry,
@@ -144,9 +144,8 @@ final class Parser{
 	 * [[[TOK, BOP, TOK], BOP, TOK]].
 	 *
 	 * @param Token[]|Token[][] $tokens
-	 * @param string[] $operators_by_precedence
 	 */
-	private function groupBinaryOperations(array &$tokens, array $operators_by_precedence) : void{
+	private function groupBinaryOperations(array &$tokens) : void{
 		$stack = [&$tokens];
 		while(($index = array_key_last($stack)) !== null){
 			$entry = &$stack[$index];
@@ -160,7 +159,7 @@ final class Parser{
 				}
 			}
 
-			foreach($operators_by_precedence as $operator){
+			foreach(BinaryOperatorToken::OPERATOR_PRECEDENCE as $operator){
 				$index = count($entry);
 				while(--$index >= 0){
 					$value = $entry[$index];
