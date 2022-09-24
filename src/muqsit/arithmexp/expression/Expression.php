@@ -14,7 +14,6 @@ use muqsit\arithmexp\ParseException;
 use RuntimeException;
 use function array_map;
 use function array_pop;
-use function current;
 use function implode;
 
 final class Expression{
@@ -95,12 +94,7 @@ final class Expression{
 			}
 		}
 
-		$result = current($stack);
-		if($result === false){
-			throw new RuntimeException("Could not evaluate \"{$this->expression}\"");
-		}
-
-		return $result;
+		return $stack[0] ?? throw new RuntimeException("Could not evaluate \"{$this->expression}\"");
 	}
 
 	/**
