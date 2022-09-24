@@ -1,0 +1,17 @@
+{
+    "name": "muqsit/arithmexp",
+    "description": "Parses mathematical expression strings for evaluation",
+    "type": "library",
+    "autoload": {
+        "psr-4": {
+            "muqsit\\arithmexp\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Muqsit",
+            "email": "notmuqsit@gmail.com"
+        }
+    ],
+    "require": {}
+}
