@@ -4,7 +4,7 @@
     "type": "library",
     "autoload": {
         "psr-4": {
-            "muqsit\\arithmexp\\": "src/"
+            "muqsit\\arithmexp\\": "src/muqsit/arithmexp"
         }
     },
     "authors": [
