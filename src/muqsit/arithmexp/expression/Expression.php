@@ -84,13 +84,13 @@ final class Expression{
 	 */
 	public function evaluate(array $variable_values = []) : int|float{
 		$stack = [];
+		$ptr = -1;
 		foreach($this->postfix_expression_tokens as $token){
 			if($token instanceof OperatorExpressionToken){
-				$right = array_pop($stack) ?? throw new ParseException("No right operand supplied in expression \"{$this->expression}\"");
-				$left = array_pop($stack);
-				$stack[] = $this->binary_operator_registry->evaluate($token->operator, $left, $right);
+				$stack[$ptr - 1] = $this->binary_operator_registry->evaluate($token->operator, $stack[$ptr - 1], $stack[$ptr]);
+				--$ptr;
 			}else{
-				$stack[] = $this->getValueOf($token, $variable_values);
+				$stack[++$ptr] = $this->getValueOf($token, $variable_values);
 			}
 		}
 
