@@ -22,7 +22,6 @@ use RuntimeException;
 use function array_key_last;
 use function array_map;
 use function array_splice;
-use function assert;
 use function count;
 use function is_array;
 
