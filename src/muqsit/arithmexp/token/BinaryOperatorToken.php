@@ -6,7 +6,7 @@ namespace muqsit\arithmexp\token;
 
 final class BinaryOperatorToken extends SimpleToken{
 
-	/** @var self::OPERATOR_TYPE_*[] */
+	/** @var array<self::OPERATOR_TYPE_*> */
 	public const OPERATOR_PRECEDENCE =  [
 		self::OPERATOR_TYPE_EXPONENTIAL,
 		self::OPERATOR_TYPE_MODULO,
