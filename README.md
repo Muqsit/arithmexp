@@ -1,6 +1,6 @@
 # arithmexp
 [`arithmexp`](https://github.com/Muqsit/arithmexp) is a mathematical expression parser and calculator library written in PHP.
-The library provides support for [variable substitution (`x`, `v1`, etc.)](https://github.com/Muqsit/arithmexp/new/master#evaluating-a-mathematical-expression) and [registering of constants (`pi`, `ln2`, etc.)]().
+The library provides support for [variable substitution (`x`, `v1`, etc.)](https://github.com/Muqsit/arithmexp#evaluating-a-mathematical-expression) and [registering of constants (`pi`, `ln2`, etc.)](https://github.com/Muqsit/arithmexp#working-with-constants).
 
 ## Installation with composer
 ```
