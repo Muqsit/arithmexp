@@ -2,6 +2,9 @@
     "name": "muqsit/arithmexp",
     "description": "Parses mathematical expression strings for evaluation",
     "type": "library",
+    "require": {
+        "php": "^8.0"
+    },
     "autoload": {
         "psr-4": {
             "muqsit\\arithmexp\\": "src/muqsit/arithmexp"
@@ -12,6 +15,5 @@
             "name": "Muqsit",
             "email": "notmuqsit@gmail.com"
         }
-    ],
-    "require": {}
+    ]
 }
