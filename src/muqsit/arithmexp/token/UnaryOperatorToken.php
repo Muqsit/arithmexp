@@ -6,13 +6,13 @@ namespace muqsit\arithmexp\token;
 
 final class UnaryOperatorToken extends SimpleToken{
 
-	public const OPERATOR_NEGATIVE = "-";
-	public const OPERATOR_POSITIVE = "+";
+	public const OPERATOR_TYPE_NEGATIVE = "-";
+	public const OPERATOR_TYPE_POSITIVE = "+";
 
 	/**
 	 * @param int $start_pos
 	 * @param int $end_pos
-	 * @param self::OPERATOR_* $operator
+	 * @param self::OPERATOR_TYPE_* $operator
 	 */
 	public function __construct(
 		int $start_pos,
@@ -31,8 +31,8 @@ final class UnaryOperatorToken extends SimpleToken{
 
 	public function getFactor() : float{
 		return match($this->operator){
-			self::OPERATOR_POSITIVE => +1,
-			self::OPERATOR_NEGATIVE => -1
+			self::OPERATOR_TYPE_POSITIVE => +1,
+			self::OPERATOR_TYPE_NEGATIVE => -1
 		};
 	}
 

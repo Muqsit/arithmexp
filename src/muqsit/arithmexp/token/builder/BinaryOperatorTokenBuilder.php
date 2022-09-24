@@ -14,15 +14,15 @@ final class BinaryOperatorTokenBuilder implements TokenBuilder{
 
 	public static function createDefault() : self{
 		return new self([
-			BinaryOperatorToken::OPERATOR_DIVISION,
-			BinaryOperatorToken::OPERATOR_MULTIPLICATION,
-			BinaryOperatorToken::OPERATOR_ADDITION,
-			BinaryOperatorToken::OPERATOR_SUBTRACTION
+			BinaryOperatorToken::OPERATOR_TYPE_DIVISION,
+			BinaryOperatorToken::OPERATOR_TYPE_MULTIPLICATION,
+			BinaryOperatorToken::OPERATOR_TYPE_ADDITION,
+			BinaryOperatorToken::OPERATOR_TYPE_SUBTRACTION
 		]);
 	}
 
 	/**
-	 * @param array<BinaryOperatorToken::OPERATOR_*> $operators
+	 * @param array<BinaryOperatorToken::OPERATOR_TYPE_*> $operators
 	 */
 	public function __construct(
 		private array $operators

@@ -14,13 +14,13 @@ final class UnaryOperatorTokenBuilder implements TokenBuilder{
 
 	public static function createDefault() : self{
 		return new self([
-			UnaryOperatorToken::OPERATOR_NEGATIVE,
-			UnaryOperatorToken::OPERATOR_POSITIVE
+			UnaryOperatorToken::OPERATOR_TYPE_NEGATIVE,
+			UnaryOperatorToken::OPERATOR_TYPE_POSITIVE
 		]);
 	}
 
 	/**
-	 * @param array<UnaryOperatorToken::OPERATOR_*> $operators
+	 * @param array<UnaryOperatorToken::OPERATOR_TYPE_*> $operators
 	 */
 	public function __construct(
 		private array $operators

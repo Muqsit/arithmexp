@@ -131,7 +131,7 @@ final class Parser{
 
 				array_splice($entry, $i, 2, [
 					new NumericLiteralToken($token->getStartPos(), $token->getEndPos(), $token->getFactor()),
-					new BinaryOperatorToken($token->getStartPos(), $token->getEndPos(), BinaryOperatorToken::OPERATOR_MULTIPLICATION),
+					new BinaryOperatorToken($token->getStartPos(), $token->getEndPos(), BinaryOperatorToken::OPERATOR_TYPE_MULTIPLICATION),
 					$entry[$i + 1]
 				]);
 			}
