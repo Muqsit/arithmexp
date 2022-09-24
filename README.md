@@ -8,8 +8,8 @@ composer require muqsit/arithmexp
 ```
 
 ## Evaluating a mathematical expression
-To evaluate a mathematical expression, a [`Parser`](https://github.com/Muqsit/arithmexp/blob/master/src/Parser.php) instance must first be constructed.
-The mathematical expression string must be passed in `Parser::parse()` to obtain a reusable [`Expression`](https://github.com/Muqsit/arithmexp/blob/master/src/expression/Expression.php) instance.
+To evaluate a mathematical expression, a [`Parser`](https://github.com/Muqsit/arithmexp/blob/master/src/muqsit/arithmexp/Parser.php) instance must first be constructed.
+The mathematical expression string must be passed in `Parser::parse()` to obtain a reusable [`Expression`](https://github.com/Muqsit/arithmexp/blob/master/src/muqsit/arithmexp/expression/Expression.php) instance.
 The value of the mathematical expression can then be evaluated by invoking `Expression::evaluate()`.
 ```php
 $parser = Parser::createDefault();
