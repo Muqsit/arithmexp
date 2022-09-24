@@ -5,9 +5,7 @@ declare(strict_types=1);
 namespace muqsit\arithmexp\expression;
 
 use Generator;
-use InvalidArgumentException;
 use muqsit\arithmexp\expression\token\ExpressionToken;
-use muqsit\arithmexp\expression\token\NumericLiteralExpressionToken;
 use muqsit\arithmexp\expression\token\OperatorExpressionToken;
 use muqsit\arithmexp\expression\token\VariableExpressionToken;
 use RuntimeException;
@@ -54,21 +52,6 @@ final class Expression{
 	}
 
 	/**
-	 * @param ExpressionToken $token
-	 * @param array<string, int|float> $variable_values
-	 * @return int|float
-	 */
-	private function getValueOf(ExpressionToken $token, array $variable_values) : int|float{
-		if($token instanceof NumericLiteralExpressionToken){
-			return $token->value;
-		}
-		if($token instanceof VariableExpressionToken){
-			return $variable_values[$token->label] ?? throw new InvalidArgumentException("No value supplied for variable \"{$token->label}\" in \"{$this->expression}\"");
-		}
-		throw new RuntimeException("Don't know how to get value of " . $token::class);
-	}
-
-	/**
 	 * @param array<string, int|float> $variable_values
 	 * @return int|float
 	 */
@@ -80,7 +63,7 @@ final class Expression{
 				$stack[$ptr - 1] = $this->binary_operator_registry->evaluate($token->operator, $stack[$ptr - 1], $stack[$ptr]);
 				--$ptr;
 			}else{
-				$stack[++$ptr] = $this->getValueOf($token, $variable_values);
+				$stack[++$ptr] = $token->getValue($this, $variable_values);
 			}
 		}
 
