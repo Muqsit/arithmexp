@@ -23,7 +23,7 @@ final class UnaryOperatorToken extends SimpleToken{
 	}
 
 	/**
-	 * @return self::OPERATOR_*
+	 * @return self::OPERATOR_TYPE_*
 	 */
 	public function getOperator() : string{
 		return $this->operator;
