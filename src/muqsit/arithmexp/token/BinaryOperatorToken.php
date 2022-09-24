@@ -8,12 +8,16 @@ final class BinaryOperatorToken extends SimpleToken{
 
 	/** @var self::OPERATOR_TYPE_*[] */
 	public const OPERATOR_PRECEDENCE =  [
+		self::OPERATOR_TYPE_EXPONENTIAL,
+		self::OPERATOR_TYPE_MODULO,
 		self::OPERATOR_TYPE_DIVISION,
 		self::OPERATOR_TYPE_MULTIPLICATION,
 		self::OPERATOR_TYPE_ADDITION,
 		self::OPERATOR_TYPE_SUBTRACTION
 	];
 
+	public const OPERATOR_TYPE_EXPONENTIAL = "**";
+	public const OPERATOR_TYPE_MODULO = "%";
 	public const OPERATOR_TYPE_ADDITION = "+";
 	public const OPERATOR_TYPE_DIVISION = "/";
 	public const OPERATOR_TYPE_MULTIPLICATION = "*";
