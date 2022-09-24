@@ -24,6 +24,7 @@ use function array_map;
 use function array_splice;
 use function count;
 use function is_array;
+use function substr;
 
 final class Parser{
 
@@ -59,7 +60,7 @@ final class Parser{
 		$tokens = $this->scanner->scan($expression);
 		$this->deparenthesizeTokens($tokens);
 		$this->transformUnaryOperatorTokens($tokens);
-		$this->groupBinaryOperations($tokens);
+		$this->groupBinaryOperations($expression, $tokens);
 		$this->convertTokenTreeToPostfixTokenTree($tokens);
 		return new Expression(
 			$this->binary_operator_registry,
@@ -142,9 +143,10 @@ final class Parser{
 	 * low-complexity processing, converting [TOK, BOP, TOK, BOP, TOK] to
 	 * [[[TOK, BOP, TOK], BOP, TOK]].
 	 *
+	 * @param string $expression
 	 * @param Token[]|Token[][] $tokens
 	 */
-	private function groupBinaryOperations(array &$tokens) : void{
+	private function groupBinaryOperations(string $expression, array &$tokens) : void{
 		$stack = [&$tokens];
 		while(($index = array_key_last($stack)) !== null){
 			$entry = &$stack[$index];
@@ -181,6 +183,9 @@ final class Parser{
 		/** @var Token|Token[]|Token[][] $tokens */
 		if($tokens instanceof Token){
 			$tokens = [$tokens];
+		}elseif(count($tokens) !== 3 || !($tokens[1] instanceof BinaryOperatorToken)){
+			$invalid = $tokens[1];
+			throw new ParseException("Unexpected {$invalid->getType()->getName()} token encountered at \"" . substr($expression, $invalid->getStartPos(), $invalid->getEndPos() - $invalid->getStartPos()) . "\" ({$invalid->getStartPos()}:{$invalid->getEndPos()}) in \"{$expression}\"");
 		}
 	}
 
