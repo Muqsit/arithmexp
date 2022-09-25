@@ -61,7 +61,7 @@ final class Expression{
 			}
 		}
 
-		return $stack[0] ?? throw new RuntimeException("Could not evaluate \"{$this->expression}\"");
+		return $stack[$ptr] ?? throw new RuntimeException("Could not evaluate \"{$this->expression}\"");
 	}
 
 	/**
