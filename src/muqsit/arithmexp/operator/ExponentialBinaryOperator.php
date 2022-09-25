@@ -10,7 +10,7 @@ final class ExponentialBinaryOperator extends SimpleBinaryOperator{
 		return new self("**", "Exponential", BinaryOperatorPrecedence::EXPONENTIAL, BinaryOperatorAssignmentType::RIGHT);
 	}
 
-	public function operate(float|int $x, float|int $y) : int|float{
+	public function operate(int|float $x, int|float $y) : int|float{
 		return $x ** $y;
 	}
 }

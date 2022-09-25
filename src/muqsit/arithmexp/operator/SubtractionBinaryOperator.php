@@ -10,7 +10,7 @@ final class SubtractionBinaryOperator extends SimpleBinaryOperator{
 		return new self("-", "Subtraction", BinaryOperatorPrecedence::ADDITION_SUBTRACTION, BinaryOperatorAssignmentType::LEFT);
 	}
 
-	public function operate(float|int $x, float|int $y) : int|float{
+	public function operate(int|float $x, int|float $y) : int|float{
 		return $x - $y;
 	}
 }
