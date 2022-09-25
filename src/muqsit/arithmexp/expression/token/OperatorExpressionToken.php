@@ -5,12 +5,13 @@ declare(strict_types=1);
 namespace muqsit\arithmexp\expression\token;
 
 use muqsit\arithmexp\expression\Expression;
+use muqsit\arithmexp\operator\BinaryOperator;
 use RuntimeException;
 
 final class OperatorExpressionToken implements ExpressionToken{
 
 	public function __construct(
-		public string $operator
+		public BinaryOperator $operator
 	){}
 
 	public function getValue(Expression $expression, array $variables) : int|float{
@@ -18,6 +19,6 @@ final class OperatorExpressionToken implements ExpressionToken{
 	}
 
 	public function __toString() : string{
-		return $this->operator;
+		return $this->operator->getSymbol();
 	}
 }

@@ -65,24 +65,20 @@ final class Parser{
 		$this->transformUnaryOperatorTokens($tokens);
 		$this->groupBinaryOperations($expression, $tokens);
 		$this->convertTokenTreeToPostfixTokenTree($tokens);
-		return new Expression(
-			$this->binary_operator_registry,
-			$expression,
-			array_map(function(Token $token) : ExpressionToken{
-				if($token instanceof BinaryOperatorToken){
-					return new OperatorExpressionToken($token->getOperator());
-				}
-				if($token instanceof NumericLiteralToken){
-					return new NumericLiteralExpressionToken($token->getValue());
-				}
-				if($token instanceof VariableToken){
-					$label = $token->getLabel();
-					$constant_value = $this->constant_registry->registered[$label] ?? null;
-					return $constant_value !== null ? new NumericLiteralExpressionToken($constant_value) : new VariableExpressionToken($label);
-				}
-				throw new RuntimeException("Don't know how to convert {$token->getType()->getName()} token to " . ExpressionToken::class);
-			}, $tokens)
-		);
+		return new Expression($expression, array_map(function(Token $token) : ExpressionToken{
+			if($token instanceof BinaryOperatorToken){
+				return new OperatorExpressionToken($this->binary_operator_registry->get($token->getOperator()));
+			}
+			if($token instanceof NumericLiteralToken){
+				return new NumericLiteralExpressionToken($token->getValue());
+			}
+			if($token instanceof VariableToken){
+				$label = $token->getLabel();
+				$constant_value = $this->constant_registry->registered[$label] ?? null;
+				return $constant_value !== null ? new NumericLiteralExpressionToken($constant_value) : new VariableExpressionToken($label);
+			}
+			throw new RuntimeException("Don't know how to convert {$token->getType()->getName()} token to " . ExpressionToken::class);
+		}, $tokens));
 	}
 
 	/**
