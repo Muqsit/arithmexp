@@ -1,6 +1,6 @@
 {
     "name": "muqsit/arithmexp",
-    "description": "Parses mathematical expression strings for evaluation",
+    "description": "Mathematical expression parser and evaluator for PHP",
     "type": "library",
     "require": {
         "php": "^8.0"
