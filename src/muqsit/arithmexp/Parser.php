@@ -4,13 +4,15 @@ declare(strict_types=1);
 
 namespace muqsit\arithmexp;
 
-use muqsit\arithmexp\expression\BinaryOperatorRegistry;
 use muqsit\arithmexp\expression\ConstantRegistry;
 use muqsit\arithmexp\expression\Expression;
 use muqsit\arithmexp\expression\token\ExpressionToken;
 use muqsit\arithmexp\expression\token\NumericLiteralExpressionToken;
 use muqsit\arithmexp\expression\token\OperatorExpressionToken;
 use muqsit\arithmexp\expression\token\VariableExpressionToken;
+use muqsit\arithmexp\operator\BinaryOperatorAssignmentType;
+use muqsit\arithmexp\operator\BinaryOperatorRegistry;
+use muqsit\arithmexp\operator\MultiplicationBinaryOperator;
 use muqsit\arithmexp\token\BinaryOperatorToken;
 use muqsit\arithmexp\token\LeftParenthesisToken;
 use muqsit\arithmexp\token\NumericLiteralToken;
@@ -29,10 +31,11 @@ use function substr;
 final class Parser{
 
 	public static function createDefault() : self{
+		$binary_operator_registry = BinaryOperatorRegistry::createDefault();
 		return new self(
-			BinaryOperatorRegistry::createDefault(),
+			$binary_operator_registry,
 			ConstantRegistry::createDefault(),
-			Scanner::createDefault()
+			Scanner::createDefault($binary_operator_registry)
 		);
 	}
 
@@ -118,6 +121,7 @@ final class Parser{
 	 */
 	private function transformUnaryOperatorTokens(array &$tokens) : void{
 		$stack = [&$tokens];
+		$binary_operator_symbol = MultiplicationBinaryOperator::createDefault()->getSymbol();
 		while(($index = array_key_last($stack)) !== null){
 			$entry = &$stack[$index];
 			unset($stack[$index]);
@@ -132,7 +136,7 @@ final class Parser{
 
 				array_splice($entry, $i, 2, [
 					new NumericLiteralToken($token->getStartPos(), $token->getEndPos(), $token->getFactor()),
-					new BinaryOperatorToken($token->getStartPos(), $token->getEndPos(), BinaryOperatorToken::OPERATOR_TYPE_MULTIPLICATION),
+					new BinaryOperatorToken($token->getStartPos(), $token->getEndPos(), $binary_operator_symbol),
 					$entry[$i + 1]
 				]);
 			}
@@ -161,19 +165,41 @@ final class Parser{
 				}
 			}
 
-			foreach(BinaryOperatorToken::OPERATOR_PRECEDENCE as $operator){
-				$index = count($entry);
-				while(--$index >= 0){
-					$value = $entry[$index];
-					if($value instanceof BinaryOperatorToken && $value->getOperator() === $operator){
-						array_splice($entry, $index - 1, 3, [[
-							$entry[$index - 1],
-							$value,
-							$entry[$index + 1]
-						]]);
-						$index = count($entry);
+			foreach($this->binary_operator_registry->getRegisteredByPrecedence() as $list){
+				$assignment_type = $list->getAssignmentType();
+				$operators = $list->getOperators();
+				if($assignment_type === BinaryOperatorAssignmentType::LEFT){
+					$index = -1;
+					$count = count($entry);
+					while(++$index < $count){
+						$value = $entry[$index];
+						if($value instanceof BinaryOperatorToken && isset($operators[$value->getOperator()])){
+							array_splice($entry, $index - 1, 3, [[
+								$entry[$index - 1],
+								$value,
+								$entry[$index + 1]
+							]]);
+							$index = -1;
+							$count = count($entry);
+						}
 					}
+				}elseif($assignment_type === BinaryOperatorAssignmentType::RIGHT){
+					$index = count($entry);
+					while(--$index >= 0){
+						$value = $entry[$index];
+						if($value instanceof BinaryOperatorToken && isset($operators[$value->getOperator()])){
+							array_splice($entry, $index - 1, 3, [[
+								$entry[$index - 1],
+								$value,
+								$entry[$index + 1]
+							]]);
+							$index = count($entry);
+						}
+					}
+				}else{
+					throw new RuntimeException("Invalid value supplied for binary operator assignment: {$assignment_type}");
 				}
+
 				if(count($entry) === 1){
 					$entry = $entry[0];
 					break;

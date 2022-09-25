@@ -5,26 +5,24 @@ declare(strict_types=1);
 namespace muqsit\arithmexp\token\builder;
 
 use Generator;
+use muqsit\arithmexp\operator\BinaryOperatorRegistry;
 use muqsit\arithmexp\token\BinaryOperatorToken;
 use muqsit\arithmexp\token\NumericLiteralToken;
 use muqsit\arithmexp\token\RightParenthesisToken;
 use muqsit\arithmexp\token\VariableToken;
+use function array_keys;
+use function usort;
 
 final class BinaryOperatorTokenBuilder implements TokenBuilder{
 
-	public static function createDefault() : self{
-		return new self([
-			BinaryOperatorToken::OPERATOR_TYPE_EXPONENTIAL,
-			BinaryOperatorToken::OPERATOR_TYPE_MODULO,
-			BinaryOperatorToken::OPERATOR_TYPE_DIVISION,
-			BinaryOperatorToken::OPERATOR_TYPE_MULTIPLICATION,
-			BinaryOperatorToken::OPERATOR_TYPE_ADDITION,
-			BinaryOperatorToken::OPERATOR_TYPE_SUBTRACTION
-		]);
+	public static function createDefault(BinaryOperatorRegistry $binary_operator_registry) : self{
+		$operators = array_keys($binary_operator_registry->getRegistered());
+		usort($operators, static fn(string $a, string $b) : int => strlen($b) <=> strlen($a));
+		return new self($operators);
 	}
 
 	/**
-	 * @param array<BinaryOperatorToken::OPERATOR_TYPE_*> $operators
+	 * @param string[] $operators
 	 */
 	public function __construct(
 		private array $operators

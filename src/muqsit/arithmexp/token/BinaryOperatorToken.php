@@ -6,28 +6,6 @@ namespace muqsit\arithmexp\token;
 
 final class BinaryOperatorToken extends SimpleToken{
 
-	/** @var array<self::OPERATOR_TYPE_*> */
-	public const OPERATOR_PRECEDENCE =  [
-		self::OPERATOR_TYPE_EXPONENTIAL,
-		self::OPERATOR_TYPE_MODULO,
-		self::OPERATOR_TYPE_DIVISION,
-		self::OPERATOR_TYPE_MULTIPLICATION,
-		self::OPERATOR_TYPE_ADDITION,
-		self::OPERATOR_TYPE_SUBTRACTION
-	];
-
-	public const OPERATOR_TYPE_EXPONENTIAL = "**";
-	public const OPERATOR_TYPE_MODULO = "%";
-	public const OPERATOR_TYPE_ADDITION = "+";
-	public const OPERATOR_TYPE_DIVISION = "/";
-	public const OPERATOR_TYPE_MULTIPLICATION = "*";
-	public const OPERATOR_TYPE_SUBTRACTION = "-";
-
-	/**
-	 * @param int $start_pos
-	 * @param int $end_pos
-	 * @param self::OPERATOR_TYPE_* $operator
-	 */
 	public function __construct(
 		int $start_pos,
 		int $end_pos,
@@ -36,9 +14,6 @@ final class BinaryOperatorToken extends SimpleToken{
 		parent::__construct(TokenType::BINARY_OPERATOR(), $start_pos, $end_pos);
 	}
 
-	/**
-	 * @return self::OPERATOR_TYPE_*
-	 */
 	public function getOperator() : string{
 		return $this->operator;
 	}
