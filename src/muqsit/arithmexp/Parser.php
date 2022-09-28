@@ -9,7 +9,6 @@ use muqsit\arithmexp\expression\Expression;
 use muqsit\arithmexp\expression\token\ExpressionToken;
 use muqsit\arithmexp\expression\token\FunctionCallExpressionToken;
 use muqsit\arithmexp\expression\token\NumericLiteralExpressionToken;
-use muqsit\arithmexp\expression\token\OperatorExpressionToken;
 use muqsit\arithmexp\expression\token\VariableExpressionToken;
 use muqsit\arithmexp\function\FunctionRegistry;
 use muqsit\arithmexp\operator\BinaryOperatorAssignmentType;
@@ -76,7 +75,8 @@ final class Parser{
 		$this->convertTokenTreeToPostfixTokenTree($expression, $tokens);
 		return new Expression($expression, array_map(function(Token $token) : ExpressionToken{
 			if($token instanceof BinaryOperatorToken){
-				return new OperatorExpressionToken($this->binary_operator_registry->get($token->getOperator()));
+				$operator = $this->binary_operator_registry->get($token->getOperator());
+				return new FunctionCallExpressionToken($operator->getSymbol(), 2, $operator->getOperator());
 			}
 			if($token instanceof FunctionCallToken){
 				$name = $token->getFunction();
