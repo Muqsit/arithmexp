@@ -135,7 +135,7 @@ final class Parser{
 	 */
 	private function transformUnaryOperatorTokens(array &$tokens) : void{
 		$stack = [&$tokens];
-		$binary_operator_symbol = MultiplicationBinaryOperator::createDefault()->getSymbol();
+		$binary_operator_symbol = $this->binary_operator_registry->get("*")->getSymbol();
 		while(($index = array_key_last($stack)) !== null){
 			$entry = &$stack[$index];
 			unset($stack[$index]);

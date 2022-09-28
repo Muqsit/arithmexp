@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace muqsit\arithmexp\operator;
 
+use Closure;
+
 interface BinaryOperator{
 
 	public function getSymbol() : string;
@@ -17,5 +19,8 @@ interface BinaryOperator{
 	 */
 	public function getAssignmentType() : int;
 
-	public function operate(int|float $x, int|float $y) : int|float;
+	/**
+	 * @return Closure(int|float, int|float) : (int|float)
+	 */
+	public function getOperator() : Closure;
 }

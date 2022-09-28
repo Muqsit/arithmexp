@@ -56,7 +56,7 @@ final class Expression{
 		$ptr = -1;
 		foreach($this->postfix_expression_tokens as $token){
 			if($token instanceof OperatorExpressionToken){
-				$stack[$ptr - 1] = $token->operator->operate($stack[$ptr - 1], $stack[$ptr]);
+				$stack[$ptr - 1] = $token->operator->getOperator()($stack[$ptr - 1], $stack[$ptr]);
 			}elseif($token instanceof FunctionCallExpressionToken){
 				$ptr -= $token->argument_count - 1;
 				$stack[$ptr] = ($token->function)(...array_slice($stack, $ptr, $token->argument_count));
