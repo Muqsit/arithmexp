@@ -300,7 +300,7 @@ final class Parser{
 					}else{
 						throw new ParseException(
 							"Cannot resolve function call at \"" . substr($expression, $token->getStartPos(), $token->getEndPos() - $token->getStartPos()) . "\" ({$token->getStartPos()}:{$token->getEndPos()}) in \"{$expression}\": " .
-							"Function \"{$token->getFunction()}\" does not have a default value for parameter #{$parameter}"
+							"Function \"{$token->getFunction()}\" does not have a default value for parameter #" . ($j + 1)
 						);
 					}
 				}
