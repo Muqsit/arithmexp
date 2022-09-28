@@ -69,13 +69,19 @@ final class Parser{
 		$tokens = $this->scanner->scan($expression);
 		$this->deparenthesizeTokens($tokens);
 		$this->transformFunctionCallTokens($expression, $tokens);
-		$this->transformUnaryOperatorTokens($tokens);
+		$this->groupUnaryOperatorTokens($tokens);
 		$this->groupBinaryOperations($tokens);
 		$this->convertTokenTreeToPostfixTokenTree($expression, $tokens);
 		return new Expression($expression, array_map(function(Token $token) : ExpressionToken{
 			if($token instanceof BinaryOperatorToken){
 				$operator = $this->binary_operator_registry->get($token->getOperator());
-				return new FunctionCallExpressionToken($operator->getSymbol(), 2, $operator->getOperator());
+				return new FunctionCallExpressionToken("BO<{$operator->getSymbol()}>", 2, $operator->getOperator());
+			}
+			if($token instanceof UnaryOperatorToken){
+				return new FunctionCallExpressionToken("UO<{$token->getOperator()}>", 1, match($token->getOperator()){
+					UnaryOperatorToken::OPERATOR_TYPE_NEGATIVE => static fn(int|float $x) : int|float => -$x,
+					UnaryOperatorToken::OPERATOR_TYPE_POSITIVE => static fn(int|float $x) : int|float => +$x
+				});
 			}
 			if($token instanceof FunctionCallToken){
 				$name = $token->getFunction();
@@ -126,15 +132,13 @@ final class Parser{
 	}
 
 	/**
-	 * Transforms a given token tree in-place by replacing {@see UnaryOperatorToken}
-	 * instances together with the operand with [NumericLiteralToken(val: +1 or -1),
-	 * BinaryOperatorToken(op: *), <Token> (Operand)].
+	 * Transforms a given token tree in-place by grouping {@see UnaryOperatorToken}
+	 * instances together with its operand.
 	 *
 	 * @param Token[]|Token[][] $tokens
 	 */
-	private function transformUnaryOperatorTokens(array &$tokens) : void{
+	private function groupUnaryOperatorTokens(array &$tokens) : void{
 		$stack = [&$tokens];
-		$binary_operator_symbol = $this->binary_operator_registry->get("*")->getSymbol();
 		while(($index = array_key_last($stack)) !== null){
 			$entry = &$stack[$index];
 			unset($stack[$index]);
@@ -147,11 +151,7 @@ final class Parser{
 					continue;
 				}
 
-				array_splice($entry, $i, 2, [
-					new NumericLiteralToken($token->getStartPos(), $token->getEndPos(), $token->getFactor()),
-					new BinaryOperatorToken($token->getStartPos(), $token->getEndPos(), $binary_operator_symbol),
-					$entry[$i + 1]
-				]);
+				array_splice($entry, $i, 2, [[$token, $entry[$i + 1]]]);
 			}
 		}
 	}
