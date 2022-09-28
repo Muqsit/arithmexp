@@ -17,7 +17,7 @@ final class BinaryOperatorRegistry{
 		$registry->register(new SimpleBinaryOperator("+", "Addition", BinaryOperatorPrecedence::ADDITION_SUBTRACTION, BinaryOperatorAssignmentType::LEFT, static fn(int|float $x, int|float $y) : int|float => $x + $y));
 		$registry->register(new SimpleBinaryOperator("/", "Division", BinaryOperatorPrecedence::MULTIPLICATION_DIVISION_MODULO, BinaryOperatorAssignmentType::LEFT, static fn(int|float $x, int|float $y) : int|float => $x / $y));
 		$registry->register(new SimpleBinaryOperator("**", "Exponential", BinaryOperatorPrecedence::EXPONENTIAL, BinaryOperatorAssignmentType::RIGHT, static fn(int|float $x, int|float $y) : int|float => $x ** $y));
-		$registry->register(new SimpleBinaryOperator("%", "Modulo", BinaryOperatorPrecedence::MULTIPLICATION_DIVISION_MODULO, BinaryOperatorAssignmentType::LEFT, static fn(int|float $x, int|float $y) : int|float => $x % $y));
+		$registry->register(new SimpleBinaryOperator("%", "Modulo", BinaryOperatorPrecedence::MULTIPLICATION_DIVISION_MODULO, BinaryOperatorAssignmentType::LEFT, static fn(int|float $x, int|float $y) : int => $x % $y));
 		$registry->register(new SimpleBinaryOperator("*", "Multiplication", BinaryOperatorPrecedence::MULTIPLICATION_DIVISION_MODULO, BinaryOperatorAssignmentType::LEFT, static fn(int|float $x, int|float $y) : int|float => $x * $y));
 		$registry->register(new SimpleBinaryOperator("-", "Subtraction", BinaryOperatorPrecedence::ADDITION_SUBTRACTION, BinaryOperatorAssignmentType::LEFT, static fn(int|float $x, int|float $y) : int|float => $x - $y));
 		return $registry;
