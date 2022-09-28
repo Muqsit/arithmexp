@@ -45,4 +45,7 @@ final class BinaryOperatorTokenBuilder implements TokenBuilder{
 			}
 		}
 	}
+
+	public function transform(TokenBuilderState $state) : void{
+	}
 }

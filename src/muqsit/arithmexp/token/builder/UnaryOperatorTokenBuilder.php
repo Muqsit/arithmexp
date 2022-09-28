@@ -46,4 +46,7 @@ final class UnaryOperatorTokenBuilder implements TokenBuilder{
 			}
 		}
 	}
+
+	public function transform(TokenBuilderState $state) : void{
+	}
 }

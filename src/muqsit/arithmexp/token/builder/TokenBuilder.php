@@ -17,4 +17,11 @@ interface TokenBuilder{
 	 * @return Generator<Token>
 	 */
 	public function build(TokenBuilderState $state) : Generator;
+
+	/**
+	 * Transforms a token builder state after scanning is complete.
+	 *
+	 * @param TokenBuilderState $state
+	 */
+	public function transform(TokenBuilderState $state) : void;
 }

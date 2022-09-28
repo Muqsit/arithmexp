@@ -33,4 +33,7 @@ final class NumericLiteralTokenBuilder implements TokenBuilder{
 			yield new NumericLiteralToken($start, $offset, $numeric_value);
 		}
 	}
+
+	public function transform(TokenBuilderState $state) : void{
+	}
 }

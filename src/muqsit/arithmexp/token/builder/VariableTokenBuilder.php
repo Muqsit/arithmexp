@@ -33,4 +33,7 @@ final class VariableTokenBuilder implements TokenBuilder{
 			yield new VariableToken($start, $offset, $name);
 		}
 	}
+
+	public function transform(TokenBuilderState $state) : void{
+	}
 }

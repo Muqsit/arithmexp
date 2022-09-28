@@ -6,6 +6,7 @@ namespace muqsit\arithmexp;
 
 use muqsit\arithmexp\operator\BinaryOperatorRegistry;
 use muqsit\arithmexp\token\builder\BinaryOperatorTokenBuilder;
+use muqsit\arithmexp\token\builder\FunctionCallTokenBuilder;
 use muqsit\arithmexp\token\builder\NumericLiteralTokenBuilder;
 use muqsit\arithmexp\token\builder\ParenthesisTokenBuilder;
 use muqsit\arithmexp\token\builder\TokenBuilder;
@@ -21,6 +22,7 @@ final class Scanner{
 		return new self([
 			new ParenthesisTokenBuilder(),
 			new NumericLiteralTokenBuilder(),
+			new FunctionCallTokenBuilder(),
 			new VariableTokenBuilder(),
 			UnaryOperatorTokenBuilder::createDefault(),
 			BinaryOperatorTokenBuilder::createDefault($binary_operator_registry)
@@ -73,6 +75,10 @@ final class Scanner{
 
 			$state->offset = $last_token_end;
 			$state->unknown_token_seq = 0;
+		}
+
+		foreach($this->token_scanners as $scanner){
+			$scanner->transform($state);
 		}
 
 		return $state->captured_tokens;

@@ -7,13 +7,17 @@ namespace muqsit\arithmexp;
 use muqsit\arithmexp\expression\ConstantRegistry;
 use muqsit\arithmexp\expression\Expression;
 use muqsit\arithmexp\expression\token\ExpressionToken;
+use muqsit\arithmexp\expression\token\FunctionCallExpressionToken;
 use muqsit\arithmexp\expression\token\NumericLiteralExpressionToken;
 use muqsit\arithmexp\expression\token\OperatorExpressionToken;
 use muqsit\arithmexp\expression\token\VariableExpressionToken;
+use muqsit\arithmexp\function\FunctionRegistry;
 use muqsit\arithmexp\operator\BinaryOperatorAssignmentType;
 use muqsit\arithmexp\operator\BinaryOperatorRegistry;
 use muqsit\arithmexp\operator\MultiplicationBinaryOperator;
 use muqsit\arithmexp\token\BinaryOperatorToken;
+use muqsit\arithmexp\token\FunctionCallArgumentSeparatorToken;
+use muqsit\arithmexp\token\FunctionCallToken;
 use muqsit\arithmexp\token\LeftParenthesisToken;
 use muqsit\arithmexp\token\NumericLiteralToken;
 use muqsit\arithmexp\token\RightParenthesisToken;
@@ -23,7 +27,9 @@ use muqsit\arithmexp\token\VariableToken;
 use RuntimeException;
 use function array_key_last;
 use function array_map;
+use function array_shift;
 use function array_splice;
+use function array_unshift;
 use function count;
 use function is_array;
 use function substr;
@@ -35,6 +41,7 @@ final class Parser{
 		return new self(
 			$binary_operator_registry,
 			ConstantRegistry::createDefault(),
+			FunctionRegistry::createDefault(),
 			Scanner::createDefault($binary_operator_registry)
 		);
 	}
@@ -42,6 +49,7 @@ final class Parser{
 	public function __construct(
 		private BinaryOperatorRegistry $binary_operator_registry,
 		private ConstantRegistry $constant_registry,
+		private FunctionRegistry $function_registry,
 		private Scanner $scanner
 	){}
 
@@ -62,12 +70,18 @@ final class Parser{
 	public function parse(string $expression) : Expression{
 		$tokens = $this->scanner->scan($expression);
 		$this->deparenthesizeTokens($tokens);
+		$this->transformFunctionCallTokens($expression, $tokens);
 		$this->transformUnaryOperatorTokens($tokens);
-		$this->groupBinaryOperations($expression, $tokens);
-		$this->convertTokenTreeToPostfixTokenTree($tokens);
+		$this->groupBinaryOperations($tokens);
+		$this->convertTokenTreeToPostfixTokenTree($expression, $tokens);
 		return new Expression($expression, array_map(function(Token $token) : ExpressionToken{
 			if($token instanceof BinaryOperatorToken){
 				return new OperatorExpressionToken($this->binary_operator_registry->get($token->getOperator()));
+			}
+			if($token instanceof FunctionCallToken){
+				$name = $token->getFunction();
+				$function = $this->function_registry->get($name);
+				return new FunctionCallExpressionToken($name, count($function->fallback_param_values), $function->closure);
 			}
 			if($token instanceof NumericLiteralToken){
 				return new NumericLiteralExpressionToken($token->getValue());
@@ -103,7 +117,11 @@ final class Parser{
 				$group[] = $tokens[$j++];
 			}
 
-			array_splice($tokens, $i, 1 + ($j - $i), count($group) === 1 ? $group : [$group]);
+			array_splice($tokens, $i, 1 + ($j - $i), match(count($group)){
+				0 => [],
+				1 => $group,
+				default => [$group]
+			});
 			$i = count($tokens) - 1;
 		}
 	}
@@ -144,19 +162,23 @@ final class Parser{
 	 * low-complexity processing, converting [TOK, BOP, TOK, BOP, TOK] to
 	 * [[[TOK, BOP, TOK], BOP, TOK]].
 	 *
-	 * @param string $expression
 	 * @param Token[]|Token[][] $tokens
 	 */
-	private function groupBinaryOperations(string $expression, array &$tokens) : void{
+	private function groupBinaryOperations(array &$tokens) : void{
 		$stack = [&$tokens];
 		while(($index = array_key_last($stack)) !== null){
 			$entry = &$stack[$index];
 			unset($stack[$index]);
 
 			foreach($entry as $i => $value){
-				if(is_array($value) && count($value) !== 3){
-					$stack[] = &$entry;
-					$stack[] = &$entry[$i];
+				if(is_array($value)){
+					foreach($value as $token){
+						if($token instanceof BinaryOperatorToken){
+							$stack[] = &$entry;
+							$stack[] = &$entry[$i];
+							break;
+						}
+					}
 					continue 2;
 				}
 			}
@@ -206,23 +228,108 @@ final class Parser{
 		/** @var Token|Token[]|Token[][] $tokens */
 		if($tokens instanceof Token){
 			$tokens = [$tokens];
-		}elseif(count($tokens) !== 3 || !($tokens[1] instanceof BinaryOperatorToken)){
-			/** @var Token $invalid */
-			$invalid = $tokens[1];
-			throw new ParseException("Unexpected {$invalid->getType()->getName()} token encountered at \"" . substr($expression, $invalid->getStartPos(), $invalid->getEndPos() - $invalid->getStartPos()) . "\" ({$invalid->getStartPos()}:{$invalid->getEndPos()}) in \"{$expression}\"");
 		}
+	}
+
+	/**
+	 * Transforms a given token tree in-place by grouping all function calls with their
+	 * parameters and resolving optional function parameters by their default values.
+	 *
+	 * @param string $expression
+	 * @param Token[]|Token[][] $token_tree
+	 */
+	private function transformFunctionCallTokens(string $expression, array &$token_tree) : void{
+		for($i = count($token_tree) - 1; $i >= 0; --$i){
+			$token = $token_tree[$i];
+			if(is_array($token)){
+				$this->transformFunctionCallTokens($expression, $token_tree[$i]);
+				continue;
+			}
+
+			if(!($token instanceof FunctionCallToken)){
+				continue;
+			}
+
+			$function = $this->function_registry->get($token->getFunction());
+
+			$param_tokens = isset($token_tree[$i + 1]) ? (
+				is_array($token_tree[$i + 1]) ? $token_tree[$i + 1] : [$token_tree[$i + 1]]
+			) : [];
+
+			if(isset($param_tokens[0]) && $param_tokens[0] instanceof FunctionCallArgumentSeparatorToken){
+				array_unshift($param_tokens, null);
+			}
+
+			$last = array_key_last($param_tokens);
+			if($last !== null && $param_tokens[$last] instanceof FunctionCallArgumentSeparatorToken){
+				$param_tokens[] = null;
+			}
+
+			for($j = count($param_tokens) - 1; $j >= 1; --$j){
+				if(
+					$param_tokens[$j] instanceof FunctionCallArgumentSeparatorToken &&
+					$param_tokens[$j - 1] instanceof FunctionCallArgumentSeparatorToken
+				){
+					array_splice($param_tokens, $j - 1, 2, [$param_tokens[$j - 1], null, $param_tokens[$j]]);
+				}
+			}
+
+			$params = [];
+			for($j = 0, $max = count($param_tokens); $j < $max; ++$j){
+				$param_token = $param_tokens[$j];
+				if(
+					$param_token instanceof FunctionCallArgumentSeparatorToken &&
+					$param_tokens[$j - 1] instanceof FunctionCallArgumentSeparatorToken
+				){
+					throw new ParseException("Unexpected {$param_token->getType()->getName()} token encountered at \"" . substr($expression, $param_token->getStartPos(), $param_token->getEndPos() - $param_token->getStartPos()) . "\" ({$param_token->getStartPos()}:{$param_token->getEndPos()}) in \"{$expression}\"");
+				}
+				if($j % 2 === 0){
+					$params[] = $param_token;
+				}
+			}
+
+			for($j = count($params), $max = count($function->fallback_param_values); $j < $max; ++$j){
+				$params[] = null;
+			}
+
+			$l = 0;
+			for($j = 0, $max = count($params); $j < $max; ++$j){
+				if($params[$j] === null){
+					if(isset($function->fallback_param_values[$j])){
+						$params[$j] = new NumericLiteralToken($token->getStartPos() + $l, $token->getEndPos() + $l, $function->fallback_param_values[$j]);
+						++$l;
+					}else{
+						$this->onNoFunctionCallDefaultValue($expression, $token, $j + 1);
+					}
+				}
+			}
+
+			array_splice($token_tree, $i, 2, [[$token, ...$params]]);
+		}
+	}
+
+	private function onNoFunctionCallDefaultValue(string $expression, FunctionCallToken $token, int $parameter) : Token{
+		throw new ParseException(
+			"Cannot resolve function call at \"" . substr($expression, $token->getStartPos(), $token->getEndPos() - $token->getStartPos()) . "\" ({$token->getStartPos()}:{$token->getEndPos()}) in \"{$expression}\": " .
+			"Function \"{$token->getFunction()}\" does not have a default value for parameter #{$parameter}"
+		);
 	}
 
 	/**
 	 * Transforms a given token tree in-place to a flattened postfix representation.
 	 *
+	 * @param string $expression
 	 * @param Token[]|Token[][] $postfix_token_tree
 	 */
-	public function convertTokenTreeToPostfixTokenTree(array &$postfix_token_tree) : void{
+	public function convertTokenTreeToPostfixTokenTree(string $expression, array &$postfix_token_tree) : void{
 		$stack = [&$postfix_token_tree];
 		while(($index = array_key_last($stack)) !== null){
 			$entry = &$stack[$index];
 			unset($stack[$index]);
+
+			if($entry[0] instanceof FunctionCallToken){
+				$entry[] = array_shift($entry);
+			}
 
 			$count = count($entry);
 			if($count === 3 && $entry[1] instanceof BinaryOperatorToken){

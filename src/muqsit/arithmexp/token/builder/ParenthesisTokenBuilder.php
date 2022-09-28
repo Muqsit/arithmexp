@@ -21,4 +21,7 @@ final class ParenthesisTokenBuilder implements TokenBuilder{
 			yield new RightParenthesisToken($state->offset, $state->offset + 1);
 		}
 	}
+
+	public function transform(TokenBuilderState $state) : void{
+	}
 }
