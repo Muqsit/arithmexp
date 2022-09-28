@@ -21,7 +21,7 @@ use muqsit\arithmexp\token\NumericLiteralToken;
 use muqsit\arithmexp\token\RightParenthesisToken;
 use muqsit\arithmexp\token\Token;
 use muqsit\arithmexp\token\UnaryOperatorToken;
-use muqsit\arithmexp\token\VariableToken;
+use muqsit\arithmexp\token\IdentifierToken;
 use RuntimeException;
 use function array_key_last;
 use function array_map;
@@ -85,7 +85,7 @@ final class Parser{
 			if($token instanceof NumericLiteralToken){
 				return new NumericLiteralExpressionToken($token->getValue());
 			}
-			if($token instanceof VariableToken){
+			if($token instanceof IdentifierToken){
 				$label = $token->getLabel();
 				$constant_value = $this->constant_registry->registered[$label] ?? null;
 				return $constant_value !== null ? new NumericLiteralExpressionToken($constant_value) : new VariableExpressionToken($label);

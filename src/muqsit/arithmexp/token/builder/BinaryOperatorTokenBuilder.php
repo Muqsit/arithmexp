@@ -9,7 +9,7 @@ use muqsit\arithmexp\operator\BinaryOperatorRegistry;
 use muqsit\arithmexp\token\BinaryOperatorToken;
 use muqsit\arithmexp\token\NumericLiteralToken;
 use muqsit\arithmexp\token\RightParenthesisToken;
-use muqsit\arithmexp\token\VariableToken;
+use muqsit\arithmexp\token\IdentifierToken;
 use function array_keys;
 use function usort;
 
@@ -33,7 +33,7 @@ final class BinaryOperatorTokenBuilder implements TokenBuilder{
 		if(
 			$token instanceof NumericLiteralToken ||
 			$token instanceof RightParenthesisToken ||
-			$token instanceof VariableToken
+			$token instanceof IdentifierToken
 		){
 			$offset = $state->offset;
 			$expression = $state->expression;

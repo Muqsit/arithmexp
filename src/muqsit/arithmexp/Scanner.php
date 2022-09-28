@@ -12,7 +12,7 @@ use muqsit\arithmexp\token\builder\ParenthesisTokenBuilder;
 use muqsit\arithmexp\token\builder\TokenBuilder;
 use muqsit\arithmexp\token\builder\TokenBuilderState;
 use muqsit\arithmexp\token\builder\UnaryOperatorTokenBuilder;
-use muqsit\arithmexp\token\builder\VariableTokenBuilder;
+use muqsit\arithmexp\token\builder\IdentifierTokenBuilder;
 use muqsit\arithmexp\token\Token;
 use RuntimeException;
 
@@ -23,7 +23,7 @@ final class Scanner{
 			new ParenthesisTokenBuilder(),
 			new NumericLiteralTokenBuilder(),
 			new FunctionCallTokenBuilder(),
-			new VariableTokenBuilder(),
+			new IdentifierTokenBuilder(),
 			UnaryOperatorTokenBuilder::createDefault(),
 			BinaryOperatorTokenBuilder::createDefault($binary_operator_registry)
 		]);

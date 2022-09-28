@@ -8,7 +8,7 @@ use Generator;
 use muqsit\arithmexp\token\NumericLiteralToken;
 use muqsit\arithmexp\token\RightParenthesisToken;
 use muqsit\arithmexp\token\UnaryOperatorToken;
-use muqsit\arithmexp\token\VariableToken;
+use muqsit\arithmexp\token\IdentifierToken;
 
 final class UnaryOperatorTokenBuilder implements TokenBuilder{
 
@@ -31,7 +31,7 @@ final class UnaryOperatorTokenBuilder implements TokenBuilder{
 		if(
 			!($token instanceof NumericLiteralToken) &&
 			!($token instanceof RightParenthesisToken) &&
-			!($token instanceof VariableToken)
+			!($token instanceof IdentifierToken)
 		){
 			$offset = $state->offset;
 			$expression = $state->expression;

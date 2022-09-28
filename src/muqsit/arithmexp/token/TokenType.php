@@ -9,11 +9,11 @@ final class TokenType{
 	public const BINARY_OPERATOR = 0;
 	public const FUNCTION_CALL = 1;
 	public const FUNCTION_CALL_ARGUMENT_SEPARATOR = 2;
-	public const NUMERIC_LITERAL = 3;
-	public const PARENTHESIS_LEFT = 4;
-	public const PARENTHESIS_RIGHT = 5;
-	public const UNARY_OPERATOR = 6;
-	public const VARIABLE = 7;
+	public const IDENTIFIER = 3;
+	public const NUMERIC_LITERAL = 4;
+	public const PARENTHESIS_LEFT = 5;
+	public const PARENTHESIS_RIGHT = 6;
+	public const UNARY_OPERATOR = 7;
 
 	public static function BINARY_OPERATOR() : self{
 		static $instance = null;
@@ -28,6 +28,11 @@ final class TokenType{
 	public static function FUNCTION_CALL_ARGUMENT_SEPARATOR() : self{
 		static $instance = null;
 		return $instance ??= new self(self::FUNCTION_CALL_ARGUMENT_SEPARATOR, "Function Call Argument Separator");
+	}
+
+	public static function IDENTIFIER() : self{
+		static $instance = null;
+		return $instance ??= new self(self::IDENTIFIER, "Identifier");
 	}
 
 	public static function NUMERIC_LITERAL() : self{
@@ -48,11 +53,6 @@ final class TokenType{
 	public static function UNARY_OPERATOR() : self{
 		static $instance = null;
 		return $instance ??= new self(self::UNARY_OPERATOR, "Unary Operator");
-	}
-
-	public static function VARIABLE() : self{
-		static $instance = null;
-		return $instance ??= new self(self::VARIABLE, "Variable");
 	}
 
 	private function __construct(

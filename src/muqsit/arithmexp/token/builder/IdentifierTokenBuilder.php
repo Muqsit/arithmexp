@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace muqsit\arithmexp\token\builder;
 
 use Generator;
-use muqsit\arithmexp\token\VariableToken;
+use muqsit\arithmexp\token\IdentifierToken;
 
-final class VariableTokenBuilder implements TokenBuilder{
+final class IdentifierTokenBuilder implements TokenBuilder{
 
 	public function __construct(){
 	}
@@ -30,7 +30,7 @@ final class VariableTokenBuilder implements TokenBuilder{
 		}
 
 		if($name !== ""){
-			yield new VariableToken($start, $offset, $name);
+			yield new IdentifierToken($start, $offset, $name);
 		}
 	}
 
