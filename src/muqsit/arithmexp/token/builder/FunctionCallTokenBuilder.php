@@ -29,7 +29,7 @@ final class FunctionCallTokenBuilder implements TokenBuilder{
 		for($i = count($state->captured_tokens) - 1; $i >= 0; --$i){
 			$token = $state->captured_tokens[$i];
 			if($token instanceof VariableToken){
-				if($state->captured_tokens[$i + 1] instanceof LeftParenthesisToken && $right_parentheses > 0){
+				if(isset($state->captured_tokens[$i + 1]) && $state->captured_tokens[$i + 1] instanceof LeftParenthesisToken && $right_parentheses > 0){
 					$state->captured_tokens[$i] = new FunctionCallToken($token->getStartPos(), $token->getEndPos(), $token->getLabel());
 					--$right_parentheses;
 				}
