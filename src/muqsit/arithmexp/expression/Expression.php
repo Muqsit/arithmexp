@@ -7,7 +7,6 @@ namespace muqsit\arithmexp\expression;
 use Generator;
 use muqsit\arithmexp\expression\token\ExpressionToken;
 use muqsit\arithmexp\expression\token\FunctionCallExpressionToken;
-use muqsit\arithmexp\expression\token\OperatorExpressionToken;
 use muqsit\arithmexp\expression\token\VariableExpressionToken;
 use RuntimeException;
 use function array_map;
@@ -55,9 +54,7 @@ final class Expression{
 		$stack = [];
 		$ptr = -1;
 		foreach($this->postfix_expression_tokens as $token){
-			if($token instanceof OperatorExpressionToken){
-				$stack[$ptr - 1] = $token->operator->getOperator()($stack[$ptr - 1], $stack[$ptr]);
-			}elseif($token instanceof FunctionCallExpressionToken){
+			if($token instanceof FunctionCallExpressionToken){
 				$ptr -= $token->argument_count - 1;
 				$stack[$ptr] = ($token->function)(...array_slice($stack, $ptr, $token->argument_count));
 			}else{
