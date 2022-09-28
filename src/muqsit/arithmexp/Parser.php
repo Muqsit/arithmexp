@@ -31,6 +31,7 @@ use function array_unshift;
 use function count;
 use function is_array;
 use function substr;
+use function var_dump;
 
 final class Parser{
 
@@ -164,63 +165,55 @@ final class Parser{
 	 * @param Token[]|Token[][] $tokens
 	 */
 	private function groupBinaryOperations(array &$tokens) : void{
-		$stack = [&$tokens];
-		while(($index = array_key_last($stack)) !== null){
-			$entry = &$stack[$index];
-			unset($stack[$index]);
-
-			foreach($entry as $i => $value){
-				if(is_array($value)){
-					foreach($value as $token){
-						if($token instanceof BinaryOperatorToken){
-							$stack[] = &$entry;
-							$stack[] = &$entry[$i];
-							break;
-						}
+		foreach($tokens as $i => $value){
+			if(is_array($value)){
+				foreach($value as $token){
+					if($token instanceof BinaryOperatorToken){
+						$this->groupBinaryOperations($tokens[$i]);
+						break;
 					}
-					continue 2;
 				}
 			}
+		}
 
-			foreach($this->binary_operator_registry->getRegisteredByPrecedence() as $list){
-				$assignment_type = $list->getAssignmentType();
-				$operators = $list->getOperators();
-				if($assignment_type === BinaryOperatorAssignmentType::LEFT){
-					$index = -1;
-					$count = count($entry);
-					while(++$index < $count){
-						$value = $entry[$index];
-						if($value instanceof BinaryOperatorToken && isset($operators[$value->getOperator()])){
-							array_splice($entry, $index - 1, 3, [[
-								$entry[$index - 1],
-								$value,
-								$entry[$index + 1]
-							]]);
-							$index = -1;
-							$count = count($entry);
-						}
+		foreach($this->binary_operator_registry->getRegisteredByPrecedence() as $list){
+			$assignment_type = $list->getAssignmentType();
+			$operators = $list->getOperators();
+			if($assignment_type === BinaryOperatorAssignmentType::LEFT){
+				$index = -1;
+				$count = count($tokens);
+				while(++$index < $count){
+					$value = $tokens[$index];
+					if($value instanceof BinaryOperatorToken && isset($operators[$value->getOperator()])){
+						array_splice($tokens, $index - 1, 3, [[
+							$tokens[$index - 1],
+							$value,
+							$tokens[$index + 1]
+						]]);
+						$index = -1;
+						$count = count($tokens);
 					}
-				}elseif($assignment_type === BinaryOperatorAssignmentType::RIGHT){
-					$index = count($entry);
-					while(--$index >= 0){
-						$value = $entry[$index];
-						if($value instanceof BinaryOperatorToken && isset($operators[$value->getOperator()])){
-							array_splice($entry, $index - 1, 3, [[
-								$entry[$index - 1],
-								$value,
-								$entry[$index + 1]
-							]]);
-							$index = count($entry);
-						}
-					}
-				}else{
-					throw new RuntimeException("Invalid value supplied for binary operator assignment: {$assignment_type}");
 				}
+			}elseif($assignment_type === BinaryOperatorAssignmentType::RIGHT){
+				$index = count($tokens);
+				while(--$index >= 0){
+					$value = $tokens[$index];
+					if($value instanceof BinaryOperatorToken && isset($operators[$value->getOperator()])){
+						array_splice($tokens, $index - 1, 3, [[
+							$tokens[$index - 1],
+							$value,
+							$tokens[$index + 1]
+						]]);
+						$index = count($tokens);
+					}
+				}
+			}else{
+				throw new RuntimeException("Invalid value supplied for binary operator assignment: {$assignment_type}");
+			}
 
-				if(count($entry) === 1){
-					$entry = $entry[0];
-					break;
-				}
+			if(count($tokens) === 1){
+				$tokens = $tokens[0];
+				break;
 			}
 		}
 
