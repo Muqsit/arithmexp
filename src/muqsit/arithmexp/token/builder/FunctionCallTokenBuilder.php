@@ -7,9 +7,9 @@ namespace muqsit\arithmexp\token\builder;
 use Generator;
 use muqsit\arithmexp\token\FunctionCallArgumentSeparatorToken;
 use muqsit\arithmexp\token\FunctionCallToken;
+use muqsit\arithmexp\token\IdentifierToken;
 use muqsit\arithmexp\token\LeftParenthesisToken;
 use muqsit\arithmexp\token\RightParenthesisToken;
-use muqsit\arithmexp\token\IdentifierToken;
 use function count;
 
 final class FunctionCallTokenBuilder implements TokenBuilder{

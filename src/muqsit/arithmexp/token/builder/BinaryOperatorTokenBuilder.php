@@ -7,9 +7,9 @@ namespace muqsit\arithmexp\token\builder;
 use Generator;
 use muqsit\arithmexp\operator\BinaryOperatorRegistry;
 use muqsit\arithmexp\token\BinaryOperatorToken;
+use muqsit\arithmexp\token\IdentifierToken;
 use muqsit\arithmexp\token\NumericLiteralToken;
 use muqsit\arithmexp\token\RightParenthesisToken;
-use muqsit\arithmexp\token\IdentifierToken;
 use function array_keys;
 use function usort;
 

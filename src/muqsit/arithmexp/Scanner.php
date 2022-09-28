@@ -7,12 +7,12 @@ namespace muqsit\arithmexp;
 use muqsit\arithmexp\operator\BinaryOperatorRegistry;
 use muqsit\arithmexp\token\builder\BinaryOperatorTokenBuilder;
 use muqsit\arithmexp\token\builder\FunctionCallTokenBuilder;
+use muqsit\arithmexp\token\builder\IdentifierTokenBuilder;
 use muqsit\arithmexp\token\builder\NumericLiteralTokenBuilder;
 use muqsit\arithmexp\token\builder\ParenthesisTokenBuilder;
 use muqsit\arithmexp\token\builder\TokenBuilder;
 use muqsit\arithmexp\token\builder\TokenBuilderState;
 use muqsit\arithmexp\token\builder\UnaryOperatorTokenBuilder;
-use muqsit\arithmexp\token\builder\IdentifierTokenBuilder;
 use muqsit\arithmexp\token\Token;
 use RuntimeException;
 

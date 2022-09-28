@@ -16,12 +16,12 @@ use muqsit\arithmexp\operator\BinaryOperatorRegistry;
 use muqsit\arithmexp\token\BinaryOperatorToken;
 use muqsit\arithmexp\token\FunctionCallArgumentSeparatorToken;
 use muqsit\arithmexp\token\FunctionCallToken;
+use muqsit\arithmexp\token\IdentifierToken;
 use muqsit\arithmexp\token\LeftParenthesisToken;
 use muqsit\arithmexp\token\NumericLiteralToken;
 use muqsit\arithmexp\token\RightParenthesisToken;
 use muqsit\arithmexp\token\Token;
 use muqsit\arithmexp\token\UnaryOperatorToken;
-use muqsit\arithmexp\token\IdentifierToken;
 use RuntimeException;
 use function array_key_last;
 use function array_map;
@@ -31,7 +31,6 @@ use function array_unshift;
 use function count;
 use function is_array;
 use function substr;
-use function var_dump;
 
 final class Parser{
 

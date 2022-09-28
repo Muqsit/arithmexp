@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace muqsit\arithmexp\token\builder;
 
 use Generator;
+use muqsit\arithmexp\token\IdentifierToken;
 use muqsit\arithmexp\token\NumericLiteralToken;
 use muqsit\arithmexp\token\RightParenthesisToken;
 use muqsit\arithmexp\token\UnaryOperatorToken;
-use muqsit\arithmexp\token\IdentifierToken;
 
 final class UnaryOperatorTokenBuilder implements TokenBuilder{
 
