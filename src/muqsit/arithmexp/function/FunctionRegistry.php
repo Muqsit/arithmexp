@@ -11,8 +11,6 @@ final class FunctionRegistry{
 
 	public static function createDefault() : self{
 		$registry = new self();
-		$registry->register("fn1", static fn(int|float $x = 7, int|float $y = 8) : int|float => $x + $y);
-		$registry->register("fn2", static fn(int|float $x, int|float $y) : int|float => $x - $y);
 		return $registry;
 	}
 
