@@ -304,6 +304,13 @@ final class Parser{
 				}
 			}
 
+			if(count($params) > count($function->fallback_param_values)){
+				throw new ParseException(
+					"Too many parameters supplied to function call at \"" . substr($expression, $token->getStartPos(), $token->getEndPos() - $token->getStartPos()) . "\" ({$token->getStartPos()}:{$token->getEndPos()}) in \"{$expression}\": " .
+					"Expected " . count($function->fallback_param_values) . " parameter" . (count($function->fallback_param_values) === 1 ? "" : "s") . ", got " . count($params) . " parameter" . (count($params) === 1 ? "" : "s")
+				);
+			}
+
 			array_splice($token_tree, $i, 2, [[$token, ...$params]]);
 		}
 	}
