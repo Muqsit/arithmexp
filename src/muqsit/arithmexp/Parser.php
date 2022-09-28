@@ -298,7 +298,10 @@ final class Parser{
 						$params[$j] = new NumericLiteralToken($token->getStartPos() + $l, $token->getEndPos() + $l, $function->fallback_param_values[$j]);
 						++$l;
 					}else{
-						$this->onNoFunctionCallDefaultValue($expression, $token, $j + 1);
+						throw new ParseException(
+							"Cannot resolve function call at \"" . substr($expression, $token->getStartPos(), $token->getEndPos() - $token->getStartPos()) . "\" ({$token->getStartPos()}:{$token->getEndPos()}) in \"{$expression}\": " .
+							"Function \"{$token->getFunction()}\" does not have a default value for parameter #{$parameter}"
+						);
 					}
 				}
 			}
@@ -312,13 +315,6 @@ final class Parser{
 
 			array_splice($token_tree, $i, 2, [[$token, ...$params]]);
 		}
-	}
-
-	private function onNoFunctionCallDefaultValue(string $expression, FunctionCallToken $token, int $parameter) : Token{
-		throw new ParseException(
-			"Cannot resolve function call at \"" . substr($expression, $token->getStartPos(), $token->getEndPos() - $token->getStartPos()) . "\" ({$token->getStartPos()}:{$token->getEndPos()}) in \"{$expression}\": " .
-			"Function \"{$token->getFunction()}\" does not have a default value for parameter #{$parameter}"
-		);
 	}
 
 	/**
