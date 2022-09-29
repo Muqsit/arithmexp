@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace muqsit\arithmexp\operator;
 
 use Closure;
+use muqsit\arithmexp\operator\assignment\BinaryOperatorAssignment;
 
 final class SimpleBinaryOperator implements BinaryOperator{
 
@@ -12,14 +13,14 @@ final class SimpleBinaryOperator implements BinaryOperator{
 	 * @param string $symbol
 	 * @param string $name
 	 * @param int $precedence
-	 * @param BinaryOperatorAssignmentType::* $assignment_type
+	 * @param BinaryOperatorAssignment $assignment_type
 	 * @param Closure(int|float, int|float) : (int|float) $operator
 	 */
 	public function __construct(
 		private string $symbol,
 		private string $name,
 		private int $precedence,
-		private int $assignment_type,
+		private BinaryOperatorAssignment $assignment_type,
 		private Closure $operator
 	){}
 
@@ -35,7 +36,7 @@ final class SimpleBinaryOperator implements BinaryOperator{
 		return $this->precedence;
 	}
 
-	public function getAssignmentType() : int{
+	public function getAssignment() : BinaryOperatorAssignment{
 		return $this->assignment_type;
 	}
 

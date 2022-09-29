@@ -4,22 +4,21 @@ declare(strict_types=1);
 
 namespace muqsit\arithmexp\operator;
 
+use muqsit\arithmexp\operator\assignment\BinaryOperatorAssignment;
+
 final class BinaryOperatorList{
 
 	/**
-	 * @param BinaryOperatorAssignmentType::* $assignment_type
+	 * @param BinaryOperatorAssignment $assignment
 	 * @param array<string, BinaryOperator> $operators
 	 */
 	public function __construct(
-		private int $assignment_type,
+		private BinaryOperatorAssignment $assignment,
 		private array $operators
 	){}
 
-	/**
-	 * @return BinaryOperatorAssignmentType::*
-	 */
-	public function getAssignmentType() : int{
-		return $this->assignment_type;
+	public function getAssignment() : BinaryOperatorAssignment{
+		return $this->assignment;
 	}
 
 	/**

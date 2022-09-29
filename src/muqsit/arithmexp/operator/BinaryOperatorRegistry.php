@@ -5,6 +5,9 @@ declare(strict_types=1);
 namespace muqsit\arithmexp\operator;
 
 use InvalidArgumentException;
+use muqsit\arithmexp\operator\assignment\BinaryOperatorAssignment;
+use muqsit\arithmexp\operator\assignment\LeftBinaryOperatorAssignment;
+use muqsit\arithmexp\operator\assignment\RightBinaryOperatorAssignment;
 use function array_key_first;
 use function array_map;
 use function count;
@@ -14,12 +17,12 @@ final class BinaryOperatorRegistry{
 
 	public static function createDefault() : self{
 		$registry = new self();
-		$registry->register(new SimpleBinaryOperator("+", "Addition", BinaryOperatorPrecedence::ADDITION_SUBTRACTION, BinaryOperatorAssignmentType::LEFT, static fn(int|float $x, int|float $y) : int|float => $x + $y));
-		$registry->register(new SimpleBinaryOperator("/", "Division", BinaryOperatorPrecedence::MULTIPLICATION_DIVISION_MODULO, BinaryOperatorAssignmentType::LEFT, static fn(int|float $x, int|float $y) : int|float => $x / $y));
-		$registry->register(new SimpleBinaryOperator("**", "Exponential", BinaryOperatorPrecedence::EXPONENTIAL, BinaryOperatorAssignmentType::RIGHT, static fn(int|float $x, int|float $y) : int|float => $x ** $y));
-		$registry->register(new SimpleBinaryOperator("%", "Modulo", BinaryOperatorPrecedence::MULTIPLICATION_DIVISION_MODULO, BinaryOperatorAssignmentType::LEFT, static fn(int|float $x, int|float $y) : int => $x % $y));
-		$registry->register(new SimpleBinaryOperator("*", "Multiplication", BinaryOperatorPrecedence::MULTIPLICATION_DIVISION_MODULO, BinaryOperatorAssignmentType::LEFT, static fn(int|float $x, int|float $y) : int|float => $x * $y));
-		$registry->register(new SimpleBinaryOperator("-", "Subtraction", BinaryOperatorPrecedence::ADDITION_SUBTRACTION, BinaryOperatorAssignmentType::LEFT, static fn(int|float $x, int|float $y) : int|float => $x - $y));
+		$registry->register(new SimpleBinaryOperator("+", "Addition", BinaryOperatorPrecedence::ADDITION_SUBTRACTION, LeftBinaryOperatorAssignment::instance(), static fn(int|float $x, int|float $y) : int|float => $x + $y));
+		$registry->register(new SimpleBinaryOperator("/", "Division", BinaryOperatorPrecedence::MULTIPLICATION_DIVISION_MODULO, LeftBinaryOperatorAssignment::instance(), static fn(int|float $x, int|float $y) : int|float => $x / $y));
+		$registry->register(new SimpleBinaryOperator("**", "Exponential", BinaryOperatorPrecedence::EXPONENTIAL, RightBinaryOperatorAssignment::instance(), static fn(int|float $x, int|float $y) : int|float => $x ** $y));
+		$registry->register(new SimpleBinaryOperator("%", "Modulo", BinaryOperatorPrecedence::MULTIPLICATION_DIVISION_MODULO, LeftBinaryOperatorAssignment::instance(), static fn(int|float $x, int|float $y) : int => $x % $y));
+		$registry->register(new SimpleBinaryOperator("*", "Multiplication", BinaryOperatorPrecedence::MULTIPLICATION_DIVISION_MODULO, LeftBinaryOperatorAssignment::instance(), static fn(int|float $x, int|float $y) : int|float => $x * $y));
+		$registry->register(new SimpleBinaryOperator("-", "Subtraction", BinaryOperatorPrecedence::ADDITION_SUBTRACTION, LeftBinaryOperatorAssignment::instance(), static fn(int|float $x, int|float $y) : int|float => $x - $y));
 		return $registry;
 	}
 
@@ -64,11 +67,14 @@ final class BinaryOperatorRegistry{
 
 		$result = [];
 		foreach($sorted_indexed as $list){
-			$assignments = array_unique(array_map(static fn(BinaryOperator $operator) : int => $operator->getAssignmentType(), $list));
+			$assignments = array_unique(array_map(static fn(BinaryOperator $operator) : int => $operator->getAssignment()->getType(), $list));
 			if(count($assignments) > 1){
 				throw new InvalidArgumentException("Cannot process binary operators of the same precedence but with different assignment types");
 			}
-			$result[] = new BinaryOperatorList($assignments[array_key_first($assignments)], $list);
+			$result[] = new BinaryOperatorList(match($assignments[array_key_first($assignments)]){
+				BinaryOperatorAssignment::TYPE_LEFT => LeftBinaryOperatorAssignment::instance(),
+				BinaryOperatorAssignment::TYPE_RIGHT => RightBinaryOperatorAssignment::instance()
+			}, $list);
 		}
 
 		$this->registered_by_precedence = $result;

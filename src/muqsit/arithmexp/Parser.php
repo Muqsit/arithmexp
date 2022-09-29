@@ -12,7 +12,6 @@ use muqsit\arithmexp\expression\token\FunctionCallExpressionToken;
 use muqsit\arithmexp\expression\token\NumericLiteralExpressionToken;
 use muqsit\arithmexp\expression\token\VariableExpressionToken;
 use muqsit\arithmexp\function\FunctionRegistry;
-use muqsit\arithmexp\operator\BinaryOperatorAssignmentType;
 use muqsit\arithmexp\operator\BinaryOperatorRegistry;
 use muqsit\arithmexp\token\BinaryOperatorToken;
 use muqsit\arithmexp\token\FunctionCallArgumentSeparatorToken;
@@ -201,40 +200,14 @@ final class Parser{
 				}
 			}
 		}
-
 		foreach($this->binary_operator_registry->getRegisteredByPrecedence() as $list){
-			$assignment_type = $list->getAssignmentType();
 			$operators = $list->getOperators();
-			if($assignment_type === BinaryOperatorAssignmentType::LEFT){
-				$index = -1;
-				$count = count($tokens);
-				while(++$index < $count){
-					$value = $tokens[$index];
-					if($value instanceof BinaryOperatorToken && isset($operators[$value->getOperator()])){
-						array_splice($tokens, $index - 1, 3, [[
-							$tokens[$index - 1] ?? throw new ParseException("No left operand specified for binary operator at \"" . substr($expression, $value->getStartPos(), $value->getEndPos() - $value->getStartPos()) . "\" ({$value->getStartPos()}:{$value->getEndPos()}) in \"{$expression}\""),
-							$value,
-							$tokens[$index + 1] ?? throw new ParseException("No right operand specified for binary operator at \"" . substr($expression, $value->getStartPos(), $value->getEndPos() - $value->getStartPos()) . "\" ({$value->getStartPos()}:{$value->getEndPos()}) in \"{$expression}\"")
-						]]);
-						$index = -1;
-						$count = count($tokens);
-					}
-				}
-			}elseif($assignment_type === BinaryOperatorAssignmentType::RIGHT){
-				$index = count($tokens);
-				while(--$index >= 0){
-					$value = $tokens[$index];
-					if($value instanceof BinaryOperatorToken && isset($operators[$value->getOperator()])){
-						array_splice($tokens, $index - 1, 3, [[
-							$tokens[$index - 1],
-							$value,
-							$tokens[$index + 1]
-						]]);
-						$index = count($tokens);
-					}
-				}
-			}else{
-				throw new RuntimeException("Invalid value supplied for binary operator assignment: {$assignment_type}");
+			foreach($list->getAssignment()->traverse($operators, $tokens) as $index => $value){
+				array_splice($tokens, $index - 1, 3, [[
+					$tokens[$index - 1] ?? throw new ParseException("No left operand specified for binary operator at \"" . substr($expression, $value->getStartPos(), $value->getEndPos() - $value->getStartPos()) . "\" ({$value->getStartPos()}:{$value->getEndPos()}) in \"{$expression}\""),
+					$value,
+					$tokens[$index + 1] ?? throw new ParseException("No right operand specified for binary operator at \"" . substr($expression, $value->getStartPos(), $value->getEndPos() - $value->getStartPos()) . "\" ({$value->getStartPos()}:{$value->getEndPos()}) in \"{$expression}\"")
+				]]);
 			}
 		}
 	}
