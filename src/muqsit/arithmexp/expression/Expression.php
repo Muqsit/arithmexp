@@ -60,7 +60,7 @@ final class Expression{
 				}
 
 				$params = array_slice($postfix_expression_tokens, $i - $token->argument_count, $token->argument_count);
-				if(count(array_filter($params, static fn(ExpressionToken $token) : bool => !$token->isDeterministic())) > 0){
+				if(count(array_filter($params, static fn(ExpressionToken $token) : bool => $token instanceof FunctionCallExpressionToken || !$token->isDeterministic())) > 0){
 					continue;
 				}
 
