@@ -100,24 +100,24 @@ final class Parser{
 				$operator = $this->binary_operator_registry->get($token->getOperator());
 				return new FunctionCallExpressionToken("BO<{$operator->getSymbol()}>", 2, $operator->getOperator(), true);
 			}
-			if($token instanceof UnaryOperatorToken){
-				return new FunctionCallExpressionToken("UO<{$token->getOperator()}>", 1, match($token->getOperator()){
-					UnaryOperatorToken::OPERATOR_TYPE_NEGATIVE => static fn(int|float $x) : int|float => -$x,
-					UnaryOperatorToken::OPERATOR_TYPE_POSITIVE => static fn(int|float $x) : int|float => +$x
-				}, true);
-			}
 			if($token instanceof FunctionCallToken){
 				$name = $token->getFunction();
 				$function = $this->function_registry->get($name);
 				return new FunctionCallExpressionToken($name, count($function->fallback_param_values), $function->closure, $function->deterministic);
 			}
-			if($token instanceof NumericLiteralToken){
-				return new NumericLiteralExpressionToken($token->getValue());
-			}
 			if($token instanceof IdentifierToken){
 				$label = $token->getLabel();
 				$constant_value = $this->constant_registry->registered[$label] ?? null;
 				return $constant_value !== null ? new NumericLiteralExpressionToken($constant_value) : new VariableExpressionToken($label);
+			}
+			if($token instanceof NumericLiteralToken){
+				return new NumericLiteralExpressionToken($token->getValue());
+			}
+			if($token instanceof UnaryOperatorToken){
+				return new FunctionCallExpressionToken("UO<{$token->getOperator()}>", 1, match($token->getOperator()){
+					UnaryOperatorToken::OPERATOR_TYPE_NEGATIVE => static fn(int|float $x) : int|float => -$x,
+					UnaryOperatorToken::OPERATOR_TYPE_POSITIVE => static fn(int|float $x) : int|float => +$x
+				}, true);
 			}
 			throw new RuntimeException("Don't know how to convert {$token->getType()->getName()} token to " . ExpressionToken::class);
 		}, $tokens));
