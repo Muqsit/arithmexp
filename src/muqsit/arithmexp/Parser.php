@@ -92,7 +92,7 @@ final class Parser{
 
 		$this->transformFunctionCallTokens($expression, $tokens);
 		$this->groupUnaryOperatorTokens($tokens);
-		$this->groupBinaryOperations($tokens);
+		$this->groupBinaryOperations($expression, $tokens);
 		$this->convertTokenTreeToPostfixTokenTree($tokens);
 		return new Expression($expression, array_map(function(Token $token) : ExpressionToken{
 			if($token instanceof BinaryOperatorToken){
@@ -183,14 +183,15 @@ final class Parser{
 	 * low-complexity processing, converting [TOK, BOP, TOK, BOP, TOK] to
 	 * [[[TOK, BOP, TOK], BOP, TOK]].
 	 *
+	 * @param string $expression
 	 * @param Token[]|Token[][] $tokens
 	 */
-	private function groupBinaryOperations(array &$tokens) : void{
+	private function groupBinaryOperations(string $expression, array &$tokens) : void{
 		foreach($tokens as $i => $value){
 			if(is_array($value)){
 				foreach($value as $token){
 					if($token instanceof BinaryOperatorToken){
-						$this->groupBinaryOperations($tokens[$i]);
+						$this->groupBinaryOperations($expression, $tokens[$i]);
 						break;
 					}
 				}
@@ -209,7 +210,7 @@ final class Parser{
 						array_splice($tokens, $index - 1, 3, [[
 							$tokens[$index - 1],
 							$value,
-							$tokens[$index + 1]
+							$tokens[$index + 1] ?? throw new ParseException("No right operand specified for binary operator at \"" . substr($expression, $value->getStartPos(), $value->getEndPos() - $value->getStartPos()) . "\" ({$value->getStartPos()}:{$value->getEndPos()}) in \"{$expression}\"")
 						]]);
 						$index = -1;
 						$count = count($tokens);
