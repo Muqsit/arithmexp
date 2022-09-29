@@ -31,6 +31,7 @@ use function array_unshift;
 use function count;
 use function is_array;
 use function substr;
+use function var_dump;
 
 final class Parser{
 
@@ -103,7 +104,7 @@ final class Parser{
 			if($token instanceof FunctionCallToken){
 				$name = $token->getFunction();
 				$function = $this->function_registry->get($name);
-				return new FunctionCallExpressionToken($name, count($function->fallback_param_values), $function->closure, $function->deterministic);
+				return new FunctionCallExpressionToken($name, $token->getArgumentCount(), $function->closure, $function->deterministic);
 			}
 			if($token instanceof IdentifierToken){
 				$label = $token->getLabel();
@@ -257,7 +258,8 @@ final class Parser{
 				throw new ParseException("Cannot resolve function call at \"" . substr($expression, $token->getStartPos(), $token->getEndPos() - $token->getStartPos()) . "\" ({$token->getStartPos()}:{$token->getEndPos()}) in \"{$expression}\": {$e->getMessage()}");
 			}
 
-			$param_tokens = isset($token_tree[$i + 1]) ? (
+			$args_c = $token->getArgumentCount();
+			$param_tokens = isset($token_tree[$i + 1]) && $args_c > 0 ? (
 				is_array($token_tree[$i + 1]) ? $token_tree[$i + 1] : [$token_tree[$i + 1]]
 			) : [];
 
@@ -312,14 +314,18 @@ final class Parser{
 				}
 			}
 
-			if(count($params) > count($function->fallback_param_values)){
+			if(count($params) !== $args_c){
+				throw new RuntimeException("Failed to parse complete list of arguments (" . count($params) . " !== {$args_c}) in function call at \"" . substr($expression, $token->getStartPos(), $token->getEndPos() - $token->getStartPos()) . "\" ({$token->getStartPos()}:{$token->getEndPos()}) in \"{$expression}\"");
+			}
+
+			if(!$function->variadic && count($params) > count($function->fallback_param_values)){
 				throw new ParseException(
 					"Too many parameters supplied to function call at \"" . substr($expression, $token->getStartPos(), $token->getEndPos() - $token->getStartPos()) . "\" ({$token->getStartPos()}:{$token->getEndPos()}) in \"{$expression}\": " .
 					"Expected " . count($function->fallback_param_values) . " parameter" . (count($function->fallback_param_values) === 1 ? "" : "s") . ", got " . count($params) . " parameter" . (count($params) === 1 ? "" : "s")
 				);
 			}
 
-			array_splice($token_tree, $i, 2, [[$token, ...$params]]);
+			array_splice($token_tree, $i, $args_c > 0 ? 2 : 1, [[$token, ...$params]]);
 		}
 	}
 

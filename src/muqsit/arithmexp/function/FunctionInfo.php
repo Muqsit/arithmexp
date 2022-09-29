@@ -6,16 +6,17 @@ namespace muqsit\arithmexp\function;
 
 use Closure;
 use ReflectionFunction;
+use ReflectionParameter;
+use function array_map;
 
 final class FunctionInfo{
 
 	public static function from(Closure $callback, bool $deterministic) : self{
-		$fallback_param_values = [];
 		$_function = new ReflectionFunction($callback);
-		foreach($_function->getParameters() as $_parameter){
-			$fallback_param_values[] = $_parameter->isDefaultValueAvailable() ? $_parameter->getDefaultValue() : null;
-		}
-		return new self($callback, $fallback_param_values, $deterministic);
+		return new self($callback, array_map(
+			static fn(ReflectionParameter $_parameter) : int|float|null => $_parameter->isDefaultValueAvailable() ? $_parameter->getDefaultValue() : null,
+			$_function->getParameters()
+		), $_function->isVariadic(), $deterministic);
 	}
 
 	/**
@@ -26,6 +27,7 @@ final class FunctionInfo{
 	public function __construct(
 		public Closure $closure,
 		public array $fallback_param_values,
+		public bool $variadic,
 		public bool $deterministic
 	){}
 }
