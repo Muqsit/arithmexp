@@ -39,7 +39,6 @@ final class FunctionRegistry{
 		$registry->register("min", Closure::fromCallable("min"), true);
 		$registry->register("mt_getrandmax", Closure::fromCallable("mt_getrandmax"), true);
 		$registry->register("mt_rand", Closure::fromCallable("mt_rand"));
-		$registry->register("mt_srand", Closure::fromCallable("mt_srand"));
 		$registry->register("pi", Closure::fromCallable("pi"), true);
 		$registry->register("pow", Closure::fromCallable("pow"), true);
 		$registry->register("rad2deg", Closure::fromCallable("rad2deg"), true);
