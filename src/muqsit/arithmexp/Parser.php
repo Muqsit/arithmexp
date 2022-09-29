@@ -85,6 +85,11 @@ final class Parser{
 	public function parseExpression(string $expression) : Expression{
 		$tokens = $this->scanner->scan($expression);
 		$this->deparenthesizeTokens($tokens);
+
+		if(count($tokens) === 0){
+			throw new ParseException("Cannot parse empty expression \"{$expression}\"");
+		}
+
 		$this->transformFunctionCallTokens($expression, $tokens);
 		$this->groupUnaryOperatorTokens($tokens);
 		$this->groupBinaryOperations($tokens);
