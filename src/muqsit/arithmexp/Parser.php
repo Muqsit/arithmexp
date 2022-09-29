@@ -60,6 +60,10 @@ final class Parser{
 		return $this->constant_registry;
 	}
 
+	public function getFunctionRegistry() : FunctionRegistry{
+		return $this->function_registry;
+	}
+
 	/**
 	 * Parses a given mathematical expression for runtime evaluation.
 	 *
