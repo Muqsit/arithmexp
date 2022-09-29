@@ -209,16 +209,6 @@ final class Parser{
 			}else{
 				throw new RuntimeException("Invalid value supplied for binary operator assignment: {$assignment_type}");
 			}
-
-			if(count($tokens) === 1){
-				$tokens = $tokens[0];
-				break;
-			}
-		}
-
-		/** @var Token|Token[]|Token[][] $tokens */
-		if($tokens instanceof Token){
-			$tokens = [$tokens];
 		}
 	}
 
