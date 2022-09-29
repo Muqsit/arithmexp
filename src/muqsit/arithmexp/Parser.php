@@ -83,7 +83,7 @@ final class Parser{
 	 */
 	public function parseExpression(string $expression) : Expression{
 		$tokens = $this->scanner->scan($expression);
-		$this->deparenthesizeTokens($tokens);
+		$this->deparenthesizeTokens($expression, $tokens);
 
 		if(count($tokens) === 0){
 			throw new ParseException("Cannot parse empty expression \"{$expression}\"");
@@ -127,28 +127,43 @@ final class Parser{
 	 *
 	 * This transforms [LP, NUM, OP, NUM, RP, OP, NUM] to [[NUM, OP, NUM], OP, NUM].
 	 *
+	 * @param string $expression
 	 * @param Token[] $tokens
 	 */
-	private function deparenthesizeTokens(array &$tokens) : void{
+	private function deparenthesizeTokens(string $expression, array &$tokens) : void{
+		$right_parens = [];
+		$right_parens_found = 0;
 		for($i = count($tokens) - 1; $i >= 0; --$i){
 			$token = $tokens[$i];
 			if(!($token instanceof LeftParenthesisToken)){
+				if($token instanceof RightParenthesisToken){
+					$right_parens[] = $token;
+				}
 				continue;
 			}
 
 			/** @var Token[] $group */
 			$group = [];
 			$j = $i + 1;
-			while(!($tokens[$j] instanceof RightParenthesisToken)){
+			while(!(
+				($tokens[$j] ?? throw new ParseException("No closing parenthesis specified for opening parenthesis at \"" . substr($expression, $token->getStartPos(), $token->getEndPos() - $token->getStartPos()) . "\" ({$token->getStartPos()}:{$token->getEndPos()}) in \"{$expression}\""))
+				instanceof RightParenthesisToken
+			)){
 				$group[] = $tokens[$j++];
 			}
 
+			++$right_parens_found;
 			array_splice($tokens, $i, 1 + ($j - $i), match(count($group)){
 				0 => [],
 				1 => $group,
 				default => [$group]
 			});
 			$i = count($tokens) - 1;
+		}
+
+		if(isset($right_parens[$right_parens_found])){
+			$token = $right_parens[$right_parens_found];
+			throw new ParseException("No opening parenthesis specified for closing parenthesis at \"" . substr($expression, $token->getStartPos(), $token->getEndPos() - $token->getStartPos()) . "\" ({$token->getStartPos()}:{$token->getEndPos()}) in \"{$expression}\"");
 		}
 	}
 
