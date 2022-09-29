@@ -31,7 +31,6 @@ use function array_unshift;
 use function count;
 use function is_array;
 use function substr;
-use function var_dump;
 
 final class Parser{
 
