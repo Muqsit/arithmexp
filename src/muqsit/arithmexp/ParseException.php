@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace muqsit\arithmexp;
 
-use RuntimeException;
+use Exception;
 
-final class ParseException extends RuntimeException{
+final class ParseException extends Exception{
 }

@@ -70,6 +70,7 @@ final class Parser{
 	 *
 	 * @param string $expression
 	 * @return Expression
+	 * @throws ParseException
 	 */
 	public function parse(string $expression) : Expression{
 		return $this->parseExpression($expression)->precomputed();
@@ -80,6 +81,7 @@ final class Parser{
 	 *
 	 * @param string $expression
 	 * @return Expression
+	 * @throws ParseException
 	 */
 	public function parseExpression(string $expression) : Expression{
 		$tokens = $this->scanner->scan($expression);
@@ -129,6 +131,7 @@ final class Parser{
 	 *
 	 * @param string $expression
 	 * @param Token[] $tokens
+	 * @throws ParseException
 	 */
 	private function deparenthesizeTokens(string $expression, array &$tokens) : void{
 		$right_parens = [];
@@ -173,6 +176,7 @@ final class Parser{
 	 *
 	 * @param string $expression
 	 * @param Token[]|Token[][] $tokens
+	 * @throws ParseException
 	 */
 	private function groupUnaryOperatorTokens(string $expression, array &$tokens) : void{
 		$stack = [&$tokens];
@@ -203,6 +207,7 @@ final class Parser{
 	 *
 	 * @param string $expression
 	 * @param Token[]|Token[][] $tokens
+	 * @throws ParseException
 	 */
 	private function groupBinaryOperations(string $expression, array &$tokens) : void{
 		foreach($tokens as $i => $value){
@@ -233,6 +238,7 @@ final class Parser{
 	 *
 	 * @param string $expression
 	 * @param Token[]|Token[][] $token_tree
+	 * @throws ParseException
 	 */
 	private function transformFunctionCallTokens(string $expression, array &$token_tree) : void{
 		for($i = count($token_tree) - 1; $i >= 0; --$i){

@@ -41,6 +41,7 @@ final class Scanner{
 	 *
 	 * @param string $expression
 	 * @return Token[]
+	 * @throws ParseException
 	 */
 	public function scan(string $expression) : array{
 		reset($this->token_scanners);
