@@ -212,7 +212,7 @@ final class Parser{
 					$value = $tokens[$index];
 					if($value instanceof BinaryOperatorToken && isset($operators[$value->getOperator()])){
 						array_splice($tokens, $index - 1, 3, [[
-							$tokens[$index - 1],
+							$tokens[$index - 1] ?? throw new ParseException("No left operand specified for binary operator at \"" . substr($expression, $value->getStartPos(), $value->getEndPos() - $value->getStartPos()) . "\" ({$value->getStartPos()}:{$value->getEndPos()}) in \"{$expression}\""),
 							$value,
 							$tokens[$index + 1] ?? throw new ParseException("No right operand specified for binary operator at \"" . substr($expression, $value->getStartPos(), $value->getEndPos() - $value->getStartPos()) . "\" ({$value->getStartPos()}:{$value->getEndPos()}) in \"{$expression}\"")
 						]]);
