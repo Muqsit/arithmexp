@@ -23,17 +23,4 @@ $expression = $parser->parse("x + y");
 var_dump($expression->evaluate(["x" => 2, "y" => 3])); // int(5)
 var_dump($expression->evaluate(["x" => 1.5, "y" => 1.5])); // float(3)
 ```
-The return value type of the evaluation is consistent with that of PHP's. As such, `int + int` returns an `int` value, whereas a `float + int|float` returns a `float` value.
-
-## Working with constants
-The library registers a handful of constants by default (a list of pre-defined constants can be found [here](https://github.com/Muqsit/arithmexp/wiki/List-of-pre-defined-constants)).
-These constants can be used right away in mathematical expressions.
-```php
-var_dump($parser->parse("pi / 2")->evaluate()); // float(1.5707963267948966)
-```
-
-Constants may be dynamically registered for a given parser by invoking `ConstantRegistry::register()`.
-```php
-$parser->getConstantRegistry()->register("k", M_PI / 2);
-var_dump($parser->parse("k + 1")->evaluate()); // float(2.5707963267948966)
-```
+The return value type of the evaluation is consistent with that of PHP's. As such, `int + int` returns an `int` value, whereas a `float + int|float` returns a `float` value. See documentation notes in the [**wiki**](https://github.com/Muqsit/arithmexp) for more details.
