@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace muqsit\arithmexp;
 
+use InvalidArgumentException;
 use muqsit\arithmexp\expression\ConstantRegistry;
 use muqsit\arithmexp\expression\Expression;
 use muqsit\arithmexp\expression\token\ExpressionToken;
@@ -231,7 +232,11 @@ final class Parser{
 				continue;
 			}
 
-			$function = $this->function_registry->get($token->getFunction());
+			try{
+				$function = $this->function_registry->get($token->getFunction());
+			}catch(InvalidArgumentException $e){
+				throw new ParseException("Cannot resolve function call at \"" . substr($expression, $token->getStartPos(), $token->getEndPos() - $token->getStartPos()) . "\" ({$token->getStartPos()}:{$token->getEndPos()}) in \"{$expression}\": {$e->getMessage()}");
+			}
 
 			$param_tokens = isset($token_tree[$i + 1]) ? (
 				is_array($token_tree[$i + 1]) ? $token_tree[$i + 1] : [$token_tree[$i + 1]]
