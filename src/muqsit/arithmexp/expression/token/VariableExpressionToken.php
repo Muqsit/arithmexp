@@ -13,6 +13,10 @@ final class VariableExpressionToken implements ExpressionToken{
 		public string $label
 	){}
 
+	public function isDeterministic() : bool{
+		return false;
+	}
+
 	public function getValue(Expression $expression, array $variables) : int|float{
 		return $variables[$this->label] ?? throw new InvalidArgumentException("No value supplied for variable \"{$this->label}\" in \"{$expression->getExpression()}\"");
 	}

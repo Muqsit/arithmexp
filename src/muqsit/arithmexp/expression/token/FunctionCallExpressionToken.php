@@ -13,8 +13,13 @@ final class FunctionCallExpressionToken implements ExpressionToken{
 	public function __construct(
 		public string $name,
 		public int $argument_count,
-		public Closure $function
+		public Closure $function,
+		public bool $deterministic
 	){}
+
+	public function isDeterministic() : bool{
+		return $this->deterministic;
+	}
 
 	public function getValue(Expression $expression, array $variables) : int|float{
 		throw new RuntimeException("Don't know how to get value of " . self::class);

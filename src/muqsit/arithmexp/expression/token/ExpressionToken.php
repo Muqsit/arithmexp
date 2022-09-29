@@ -9,6 +9,8 @@ use Stringable;
 
 interface ExpressionToken extends Stringable{
 
+	public function isDeterministic() : bool;
+
 	/**
 	 * @param Expression $expression
 	 * @param array<string, int|float> $variables

@@ -12,6 +12,10 @@ final class NumericLiteralExpressionToken implements ExpressionToken{
 		public int|float $value
 	){}
 
+	public function isDeterministic() : bool{
+		return true;
+	}
+
 	public function getValue(Expression $expression, array $variables) : int|float{
 		return $this->value;
 	}

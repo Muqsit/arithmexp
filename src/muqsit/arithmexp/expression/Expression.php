@@ -7,10 +7,14 @@ namespace muqsit\arithmexp\expression;
 use Generator;
 use muqsit\arithmexp\expression\token\ExpressionToken;
 use muqsit\arithmexp\expression\token\FunctionCallExpressionToken;
+use muqsit\arithmexp\expression\token\NumericLiteralExpressionToken;
 use muqsit\arithmexp\expression\token\VariableExpressionToken;
 use RuntimeException;
+use function array_filter;
 use function array_map;
 use function array_slice;
+use function array_splice;
+use function count;
 use function implode;
 
 final class Expression{
@@ -44,6 +48,28 @@ final class Expression{
 				yield $token->label;
 			}
 		}
+	}
+
+	public function precomputed() : self{
+		$postfix_expression_tokens = $this->postfix_expression_tokens;
+		do{
+			$found = false;
+			foreach($postfix_expression_tokens as $i => $token){
+				if(!($token instanceof FunctionCallExpressionToken) || !$token->isDeterministic()){
+					continue;
+				}
+
+				$params = array_slice($postfix_expression_tokens, $i - $token->argument_count, $token->argument_count);
+				if(count(array_filter($params, static fn(ExpressionToken $token) : bool => !$token->isDeterministic())) > 0){
+					continue;
+				}
+
+				array_splice($postfix_expression_tokens, $i - $token->argument_count, $token->argument_count + 1, [new NumericLiteralExpressionToken(($token->function)(...array_map(fn(ExpressionToken $token) : int|float => $token->getValue($this, []), $params)))]);
+				$found = true;
+				break;
+			}
+		}while($found);
+		return new self($this->expression, $postfix_expression_tokens);
 	}
 
 	/**

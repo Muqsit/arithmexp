@@ -66,11 +66,23 @@ final class Parser{
 
 	/**
 	 * Parses a given mathematical expression for runtime evaluation.
+	 * This method precomputes the expression, deferring runtime evaluation of
+	 * segments of the mathematical expression to the parser.
 	 *
 	 * @param string $expression
 	 * @return Expression
 	 */
 	public function parse(string $expression) : Expression{
+		return $this->parseExpression($expression)->precomputed();
+	}
+
+	/**
+	 * Parses a given mathematical expression for runtime evaluation.
+	 *
+	 * @param string $expression
+	 * @return Expression
+	 */
+	public function parseExpression(string $expression) : Expression{
 		$tokens = $this->scanner->scan($expression);
 		$this->deparenthesizeTokens($tokens);
 		$this->transformFunctionCallTokens($expression, $tokens);
@@ -80,18 +92,18 @@ final class Parser{
 		return new Expression($expression, array_map(function(Token $token) : ExpressionToken{
 			if($token instanceof BinaryOperatorToken){
 				$operator = $this->binary_operator_registry->get($token->getOperator());
-				return new FunctionCallExpressionToken("BO<{$operator->getSymbol()}>", 2, $operator->getOperator());
+				return new FunctionCallExpressionToken("BO<{$operator->getSymbol()}>", 2, $operator->getOperator(), true);
 			}
 			if($token instanceof UnaryOperatorToken){
 				return new FunctionCallExpressionToken("UO<{$token->getOperator()}>", 1, match($token->getOperator()){
 					UnaryOperatorToken::OPERATOR_TYPE_NEGATIVE => static fn(int|float $x) : int|float => -$x,
 					UnaryOperatorToken::OPERATOR_TYPE_POSITIVE => static fn(int|float $x) : int|float => +$x
-				});
+				}, true);
 			}
 			if($token instanceof FunctionCallToken){
 				$name = $token->getFunction();
 				$function = $this->function_registry->get($name);
-				return new FunctionCallExpressionToken($name, count($function->fallback_param_values), $function->closure);
+				return new FunctionCallExpressionToken($name, count($function->fallback_param_values), $function->closure, $function->deterministic);
 			}
 			if($token instanceof NumericLiteralToken){
 				return new NumericLiteralExpressionToken($token->getValue());
