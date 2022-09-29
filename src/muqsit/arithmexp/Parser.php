@@ -91,7 +91,7 @@ final class Parser{
 		}
 
 		$this->transformFunctionCallTokens($expression, $tokens);
-		$this->groupUnaryOperatorTokens($tokens);
+		$this->groupUnaryOperatorTokens($expression, $tokens);
 		$this->groupBinaryOperations($expression, $tokens);
 		$this->convertTokenTreeToPostfixTokenTree($tokens);
 		return new Expression($expression, array_map(function(Token $token) : ExpressionToken{
@@ -157,9 +157,10 @@ final class Parser{
 	 * Transforms a given token tree in-place by grouping {@see UnaryOperatorToken}
 	 * instances together with its operand.
 	 *
+	 * @param string $expression
 	 * @param Token[]|Token[][] $tokens
 	 */
-	private function groupUnaryOperatorTokens(array &$tokens) : void{
+	private function groupUnaryOperatorTokens(string $expression, array &$tokens) : void{
 		$stack = [&$tokens];
 		while(($index = array_key_last($stack)) !== null){
 			$entry = &$stack[$index];
@@ -173,7 +174,10 @@ final class Parser{
 					continue;
 				}
 
-				array_splice($entry, $i, 2, [[$token, $entry[$i + 1]]]);
+				array_splice($entry, $i, 2, [[
+					$token,
+					$entry[$i + 1] ?? throw new ParseException("No right operand specified for unary operator at \"" . substr($expression, $token->getStartPos(), $token->getEndPos() - $token->getStartPos()) . "\" ({$token->getStartPos()}:{$token->getEndPos()}) in \"{$expression}\"")
+				]]);
 			}
 		}
 	}
