@@ -336,6 +336,9 @@ final class Parser{
 			}
 
 			$count = count($entry);
+			if($count === 2 && $entry[0] instanceof UnaryOperatorToken){
+				$entry = [&$entry[1], &$entry[0]];
+			}
 			if($count === 3 && $entry[1] instanceof BinaryOperatorToken){
 				$entry = [&$entry[0], &$entry[2], $entry[1]];
 			}
