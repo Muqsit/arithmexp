@@ -161,7 +161,6 @@ final class Parser{
 				1 => $group,
 				default => [$group]
 			});
-			$i = count($tokens) - 1;
 		}
 
 		if(isset($right_parens[$right_parens_found])){
