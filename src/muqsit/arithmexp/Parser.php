@@ -72,7 +72,7 @@ final class Parser{
 		$this->transformFunctionCallTokens($expression, $tokens);
 		$this->groupUnaryOperatorTokens($tokens);
 		$this->groupBinaryOperations($tokens);
-		$this->convertTokenTreeToPostfixTokenTree($expression, $tokens);
+		$this->convertTokenTreeToPostfixTokenTree($tokens);
 		return new Expression($expression, array_map(function(Token $token) : ExpressionToken{
 			if($token instanceof BinaryOperatorToken){
 				$operator = $this->binary_operator_registry->get($token->getOperator());
@@ -307,10 +307,9 @@ final class Parser{
 	/**
 	 * Transforms a given token tree in-place to a flattened postfix representation.
 	 *
-	 * @param string $expression
 	 * @param Token[]|Token[][] $postfix_token_tree
 	 */
-	public function convertTokenTreeToPostfixTokenTree(string $expression, array &$postfix_token_tree) : void{
+	public function convertTokenTreeToPostfixTokenTree(array &$postfix_token_tree) : void{
 		$stack = [&$postfix_token_tree];
 		while(($index = array_key_last($stack)) !== null){
 			$entry = &$stack[$index];
