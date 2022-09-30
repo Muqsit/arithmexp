@@ -74,4 +74,18 @@ final class ExpressionTest extends TestCase{
 		$disable_fcall = true;
 		$this->assertEquals($expression->evaluate(), 2 ** 2 + 4);
 	}
+
+	public function testVariadicFunctionCallWithNoArgs() : void{
+		$expect = -1809580488;
+		$variadic_fn = static fn(int ...$_) : int => $expect;
+		$this->getParser()->getFunctionRegistry()->register("variadic_no_args_fn", $variadic_fn);
+		$this->assertEquals($this->getParser()->parse("variadic_no_args_fn()")->evaluate(), $expect);
+	}
+
+	public function testVariadicFunctionCallWithVariableArgs() : void{
+		$args = [-1272994651, -1912325829, 1481428815, 1337167590, -1613511579];
+		$variadic_fn = static fn(int ...$numbers) : int => array_sum($numbers);
+		$this->getParser()->getFunctionRegistry()->register("variadic_var_args_fn", $variadic_fn);
+		$this->assertEquals($this->getParser()->parse("variadic_var_args_fn(" . implode(", ", $args) . ")")->evaluate(), $variadic_fn(...$args));
+	}
 }
