@@ -6,7 +6,7 @@ use muqsit\arithmexp\ParseException;
 use muqsit\arithmexp\Parser;
 use PHPUnit\Framework\TestCase;
 
-final class ExpressionTest extends TestCase{
+final class ParserTest extends TestCase{
 
 	private Parser $parser;
 
