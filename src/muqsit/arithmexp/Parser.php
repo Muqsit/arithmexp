@@ -21,6 +21,7 @@ use muqsit\arithmexp\token\LeftParenthesisToken;
 use muqsit\arithmexp\token\NumericLiteralToken;
 use muqsit\arithmexp\token\RightParenthesisToken;
 use muqsit\arithmexp\token\Token;
+use muqsit\arithmexp\token\TokenType;
 use muqsit\arithmexp\token\UnaryOperatorToken;
 use RuntimeException;
 use function array_key_last;
@@ -234,6 +235,9 @@ final class Parser{
 	}
 
 	/**
+	 * Transforms a given token tree in-place by grouping all function calls with
+	 * their argument list.
+	 *
 	 * @param Token[]|Token[][] $token_tree
 	 */
 	private function groupFunctionCallTokens(array &$token_tree) : void{
@@ -254,8 +258,8 @@ final class Parser{
 	}
 
 	/**
-	 * Transforms a given token tree in-place by grouping all function calls with their
-	 * parameters and resolving optional function parameters by their default values.
+	 * Transforms a given token tree in-place by resolving optional function parameters
+	 * by their default values.
 	 *
 	 * @param string $expression
 	 * @param Token[]|Token[][] $token_tree
