@@ -283,10 +283,7 @@ final class Parser{
 			$params = [];
 			for($j = 0, $max = count($param_tokens); $j < $max; ++$j){
 				$param_token = $param_tokens[$j];
-				if(
-					$param_token instanceof FunctionCallArgumentSeparatorToken &&
-					$param_tokens[$j - 1] instanceof FunctionCallArgumentSeparatorToken
-				){
+				if($j % 2 === 0 ? $param_token instanceof FunctionCallArgumentSeparatorToken : !($param_token instanceof FunctionCallArgumentSeparatorToken)){
 					throw new ParseException("Unexpected {$param_token->getType()->getName()} token encountered at \"" . substr($expression, $param_token->getStartPos(), $param_token->getEndPos() - $param_token->getStartPos()) . "\" ({$param_token->getStartPos()}:{$param_token->getEndPos()}) in \"{$expression}\"");
 				}
 				if($j % 2 === 0){
