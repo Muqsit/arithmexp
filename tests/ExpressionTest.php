@@ -59,4 +59,19 @@ final class ExpressionTest extends TestCase{
 			$do_capture(static fn() => $fcall_order_test_fn(1) + $fcall_order_test_fn(2, $fcall_order_test_fn(3), $fcall_order_test_fn(4)) ** $fcall_order_test_fn(5, $fcall_order_test_fn(6)))
 		);
 	}
+
+	public function testDeterministicFunctionCall() : void{
+		$disable_fcall = false;
+		$deterministic_fn = static function(int $value) use(&$disable_fcall) : int{
+			if($disable_fcall){
+				throw new RuntimeException("Attempted to call disabled function");
+			}
+			return $value;
+		};
+
+		$this->getParser()->getFunctionRegistry()->register("deterministic_fn", $deterministic_fn, true);
+		$expression = $this->getParser()->parse("2 ** deterministic_fn(2) + deterministic_fn(deterministic_fn(4))");
+		$disable_fcall = true;
+		$this->assertEquals($expression->evaluate(), 2 ** 2 + 4);
+	}
 }
