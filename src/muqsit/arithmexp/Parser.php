@@ -32,7 +32,6 @@ use function assert;
 use function count;
 use function is_array;
 use function substr;
-use function var_dump;
 
 final class Parser{
 
@@ -93,9 +92,10 @@ final class Parser{
 			throw new ParseException("Cannot parse empty expression \"{$expression}\"");
 		}
 
-		$this->transformFunctionCallTokens($expression, $tokens);
+		$this->groupFunctionCallTokens($tokens);
 		$this->groupUnaryOperatorTokens($expression, $tokens);
 		$this->groupBinaryOperations($expression, $tokens);
+		$this->transformFunctionCallTokens($expression, $tokens);
 		$this->convertTokenTreeToPostfixTokenTree($tokens);
 		return new Expression($expression, array_map(function(Token $token) : ExpressionToken{
 			if($token instanceof BinaryOperatorToken){
@@ -234,6 +234,26 @@ final class Parser{
 	}
 
 	/**
+	 * @param Token[]|Token[][] $token_tree
+	 */
+	private function groupFunctionCallTokens(array &$token_tree) : void{
+		for($i = count($token_tree) - 1; $i >= 0; --$i){
+			$token = $token_tree[$i];
+			if(is_array($token)){
+				$this->groupFunctionCallTokens($token_tree[$i]);
+				continue;
+			}
+			if($token instanceof FunctionCallToken){
+				if(isset($token_tree[$i + 1]) && $token->getArgumentCount() > 0){
+					array_splice($token_tree, $i, 2, [[$token, is_array($token_tree[$i + 1]) ? $token_tree[$i + 1] : [$token_tree[$i + 1]]]]);
+				}else{
+					$token_tree[$i] = [$token];
+				}
+			}
+		}
+	}
+
+	/**
 	 * Transforms a given token tree in-place by grouping all function calls with their
 	 * parameters and resolving optional function parameters by their default values.
 	 *
@@ -260,9 +280,7 @@ final class Parser{
 			}
 
 			$args_c = $token->getArgumentCount();
-			$param_tokens = isset($token_tree[$i + 1]) && $args_c > 0 ? (
-				is_array($token_tree[$i + 1]) ? $token_tree[$i + 1] : [$token_tree[$i + 1]]
-			) : [];
+			$param_tokens = $token_tree[$i + 1] ?? [];
 
 			if(isset($param_tokens[0]) && $param_tokens[0] instanceof FunctionCallArgumentSeparatorToken){
 				array_unshift($param_tokens, null);
