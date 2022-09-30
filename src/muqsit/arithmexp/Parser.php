@@ -222,12 +222,7 @@ final class Parser{
 	private function groupBinaryOperations(string $expression, array &$tokens) : void{
 		foreach($tokens as $i => $value){
 			if(is_array($value)){
-				foreach($value as $token){
-					if($token instanceof BinaryOperatorToken){
-						$this->groupBinaryOperations($expression, $tokens[$i]);
-						break;
-					}
-				}
+				$this->groupBinaryOperations($expression, $tokens[$i]);
 			}
 		}
 		foreach($this->binary_operator_registry->getRegisteredByPrecedence() as $list){
