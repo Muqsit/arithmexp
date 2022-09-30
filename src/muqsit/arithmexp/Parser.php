@@ -21,7 +21,6 @@ use muqsit\arithmexp\token\LeftParenthesisToken;
 use muqsit\arithmexp\token\NumericLiteralToken;
 use muqsit\arithmexp\token\RightParenthesisToken;
 use muqsit\arithmexp\token\Token;
-use muqsit\arithmexp\token\TokenType;
 use muqsit\arithmexp\token\UnaryOperatorToken;
 use RuntimeException;
 use function array_key_last;
