@@ -28,6 +28,7 @@ use function array_map;
 use function array_shift;
 use function array_splice;
 use function array_unshift;
+use function assert;
 use function count;
 use function is_array;
 use function substr;
@@ -284,6 +285,7 @@ final class Parser{
 			for($j = 0, $max = count($param_tokens); $j < $max; ++$j){
 				$param_token = $param_tokens[$j];
 				if($j % 2 === 0 ? $param_token instanceof FunctionCallArgumentSeparatorToken : !($param_token instanceof FunctionCallArgumentSeparatorToken)){
+					assert($param_token !== null);
 					throw new ParseException("Unexpected {$param_token->getType()->getName()} token encountered at \"" . substr($expression, $param_token->getStartPos(), $param_token->getEndPos() - $param_token->getStartPos()) . "\" ({$param_token->getStartPos()}:{$param_token->getEndPos()}) in \"{$expression}\"");
 				}
 				if($j % 2 === 0){
