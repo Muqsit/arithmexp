@@ -32,6 +32,7 @@ use function assert;
 use function count;
 use function is_array;
 use function substr;
+use function var_dump;
 
 final class Parser{
 
@@ -293,7 +294,7 @@ final class Parser{
 				}
 			}
 
-			for($j = count($params), $max = count($function->fallback_param_values); $j < $max; ++$j){
+			for($j = count($params), $max = count($function->fallback_param_values) - ($function->variadic ? 1 : 0); $j < $max; ++$j){
 				$params[] = null;
 			}
 
