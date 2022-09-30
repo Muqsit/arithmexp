@@ -288,6 +288,7 @@ final class Parser{
 
 			$args_c = $token->getArgumentCount();
 			$param_tokens = $token_tree[$i + 1] ?? [];
+			assert(is_array($param_tokens));
 
 			if(isset($param_tokens[0]) && $param_tokens[0] instanceof FunctionCallArgumentSeparatorToken){
 				array_unshift($param_tokens, null);
