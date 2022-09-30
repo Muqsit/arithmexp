@@ -26,6 +26,18 @@ final class ParserTest extends TestCase{
 		$this->getParser()->parse("( )");
 	}
 
+	public function testSecludedNumericLiteral() : void{
+		$this->expectException(ParseException::class);
+		$this->expectExceptionMessage("Unexpected Numeric Literal token encountered at \"3\" (6:7) in \"x + 2 3 ** y\"");
+		$this->getParser()->parse("x + 2 3 ** y");
+	}
+
+	public function testSecludedFunctionCall() : void{
+		$this->expectException(ParseException::class);
+		$this->expectExceptionMessage("Unexpected Function Call token encountered at \"tan\" (16:19) in \"tan(x) + tan(y) tan(z) ** tan(w)\"");
+		$this->getParser()->parse("tan(x) + tan(y) tan(z) ** tan(w)");
+	}
+
 	public function testNoClosingParenthesis() : void{
 		$this->expectException(ParseException::class);
 		$this->expectExceptionMessage("No closing parenthesis specified for opening parenthesis at \"(\" (4:5) in \"x + (2 * y + (z / 2) + 5\"");
