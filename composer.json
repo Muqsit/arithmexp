@@ -2,6 +2,7 @@
     "name": "muqsit/arithmexp",
     "description": "Mathematical expression parser and evaluator for PHP",
     "type": "library",
+    "license": "GPL-3.0-only",
     "require": {
         "php": "^8.0"
     },
