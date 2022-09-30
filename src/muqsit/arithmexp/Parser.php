@@ -96,6 +96,15 @@ final class Parser{
 		$this->groupUnaryOperatorTokens($expression, $tokens);
 		$this->groupBinaryOperations($expression, $tokens);
 		$this->transformFunctionCallTokens($expression, $tokens);
+
+		if(count($tokens) > 1){
+			$token = $tokens[1];
+			while(is_array($token)){
+				$token = $token[0];
+			}
+			throw new ParseException("Unexpected {$token->getType()->getName()} token encountered at \"" . substr($expression, $token->getStartPos(), $token->getEndPos() - $token->getStartPos()) . "\" ({$token->getStartPos()}:{$token->getEndPos()}) in \"{$expression}\"");
+		}
+
 		$this->convertTokenTreeToPostfixTokenTree($tokens);
 		return new Expression($expression, array_map(function(Token $token) : ExpressionToken{
 			if($token instanceof BinaryOperatorToken){
