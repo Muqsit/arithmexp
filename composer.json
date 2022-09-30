@@ -15,5 +15,8 @@
             "name": "Muqsit",
             "email": "notmuqsit@gmail.com"
         }
-    ]
+    ],
+    "require-dev": {
+        "phpunit/phpunit": "^9"
+    }
 }
