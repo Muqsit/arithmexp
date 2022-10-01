@@ -5,22 +5,25 @@ declare(strict_types=1);
 namespace muqsit\arithmexp\token\builder;
 
 use Generator;
+use muqsit\arithmexp\operator\unary\UnaryOperatorRegistry;
 use muqsit\arithmexp\token\IdentifierToken;
 use muqsit\arithmexp\token\NumericLiteralToken;
 use muqsit\arithmexp\token\RightParenthesisToken;
 use muqsit\arithmexp\token\UnaryOperatorToken;
+use function array_keys;
+use function strlen;
+use function usort;
 
 final class UnaryOperatorTokenBuilder implements TokenBuilder{
 
-	public static function createDefault() : self{
-		return new self([
-			UnaryOperatorToken::OPERATOR_TYPE_NEGATIVE,
-			UnaryOperatorToken::OPERATOR_TYPE_POSITIVE
-		]);
+	public static function createDefault(UnaryOperatorRegistry $unary_operator_registry) : self{
+		$operators = array_keys($unary_operator_registry->getRegistered());
+		usort($operators, static fn(string $a, string $b) : int => strlen($b) <=> strlen($a));
+		return new self($operators);
 	}
 
 	/**
-	 * @param array<UnaryOperatorToken::OPERATOR_TYPE_*> $operators
+	 * @param string[] $operators
 	 */
 	public function __construct(
 		private array $operators

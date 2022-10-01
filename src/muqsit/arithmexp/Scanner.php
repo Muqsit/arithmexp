@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace muqsit\arithmexp;
 
 use muqsit\arithmexp\operator\binary\BinaryOperatorRegistry;
+use muqsit\arithmexp\operator\unary\UnaryOperatorRegistry;
 use muqsit\arithmexp\token\builder\BinaryOperatorTokenBuilder;
 use muqsit\arithmexp\token\builder\FunctionCallTokenBuilder;
 use muqsit\arithmexp\token\builder\IdentifierTokenBuilder;
@@ -18,13 +19,13 @@ use RuntimeException;
 
 final class Scanner{
 
-	public static function createDefault(BinaryOperatorRegistry $binary_operator_registry) : self{
+	public static function createDefault(BinaryOperatorRegistry $binary_operator_registry, UnaryOperatorRegistry $unary_operator_registry) : self{
 		return new self([
 			new ParenthesisTokenBuilder(),
 			new NumericLiteralTokenBuilder(),
 			new FunctionCallTokenBuilder(),
 			new IdentifierTokenBuilder(),
-			UnaryOperatorTokenBuilder::createDefault(),
+			UnaryOperatorTokenBuilder::createDefault($unary_operator_registry),
 			BinaryOperatorTokenBuilder::createDefault($binary_operator_registry)
 		]);
 	}

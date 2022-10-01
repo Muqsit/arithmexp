@@ -13,6 +13,7 @@ use muqsit\arithmexp\expression\token\NumericLiteralExpressionToken;
 use muqsit\arithmexp\expression\token\VariableExpressionToken;
 use muqsit\arithmexp\function\FunctionRegistry;
 use muqsit\arithmexp\operator\binary\BinaryOperatorRegistry;
+use muqsit\arithmexp\operator\unary\UnaryOperatorRegistry;
 use muqsit\arithmexp\token\BinaryOperatorToken;
 use muqsit\arithmexp\token\FunctionCallArgumentSeparatorToken;
 use muqsit\arithmexp\token\FunctionCallToken;
@@ -37,16 +38,19 @@ final class Parser{
 
 	public static function createDefault() : self{
 		$binary_operator_registry = BinaryOperatorRegistry::createDefault();
+		$unary_operator_registry = UnaryOperatorRegistry::createDefault();
 		return new self(
 			$binary_operator_registry,
+			$unary_operator_registry,
 			ConstantRegistry::createDefault(),
 			FunctionRegistry::createDefault(),
-			Scanner::createDefault($binary_operator_registry)
+			Scanner::createDefault($binary_operator_registry, $unary_operator_registry)
 		);
 	}
 
 	public function __construct(
 		private BinaryOperatorRegistry $binary_operator_registry,
+		private UnaryOperatorRegistry $unary_operator_registry,
 		private ConstantRegistry $constant_registry,
 		private FunctionRegistry $function_registry,
 		private Scanner $scanner
@@ -54,6 +58,10 @@ final class Parser{
 
 	public function getBinaryOperatorRegistry() : BinaryOperatorRegistry{
 		return $this->binary_operator_registry;
+	}
+
+	public function getUnaryOperatorRegistry() : UnaryOperatorRegistry{
+		return $this->unary_operator_registry;
 	}
 
 	public function getConstantRegistry() : ConstantRegistry{
@@ -125,10 +133,8 @@ final class Parser{
 				return new NumericLiteralExpressionToken($token->getValue());
 			}
 			if($token instanceof UnaryOperatorToken){
-				return new FunctionCallExpressionToken("UO<{$token->getOperator()}>", 1, match($token->getOperator()){
-					UnaryOperatorToken::OPERATOR_TYPE_NEGATIVE => static fn(int|float $x) : int|float => -$x,
-					UnaryOperatorToken::OPERATOR_TYPE_POSITIVE => static fn(int|float $x) : int|float => +$x
-				}, true);
+				$operator = $this->unary_operator_registry->get($token->getOperator());
+				return new FunctionCallExpressionToken("UO<{$operator->getSymbol()}>", 1, $operator->getOperator(), true);
 			}
 			throw new RuntimeException("Don't know how to convert {$token->getType()->getName()} token to " . ExpressionToken::class);
 		}, $tokens));
