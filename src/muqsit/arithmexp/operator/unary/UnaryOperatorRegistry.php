@@ -5,8 +5,10 @@ declare(strict_types=1);
 namespace muqsit\arithmexp\operator\unary;
 
 use InvalidArgumentException;
+use muqsit\arithmexp\operator\ChangeListenableTrait;
 
 final class UnaryOperatorRegistry{
+	use ChangeListenableTrait;
 
 	public static function createDefault() : self{
 		$registry = new self();
@@ -23,6 +25,7 @@ final class UnaryOperatorRegistry{
 
 	public function register(UnaryOperator $operator) : void{
 		$this->registered[$operator->getSymbol()] = $operator;
+		$this->notifyChangeListener();
 	}
 
 	public function get(string $symbol) : UnaryOperator{

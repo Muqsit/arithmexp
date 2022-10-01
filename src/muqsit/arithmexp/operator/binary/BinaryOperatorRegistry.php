@@ -4,16 +4,19 @@ declare(strict_types=1);
 
 namespace muqsit\arithmexp\operator\binary;
 
+use Closure;
 use InvalidArgumentException;
 use muqsit\arithmexp\operator\binary\assignment\BinaryOperatorAssignment;
 use muqsit\arithmexp\operator\binary\assignment\LeftBinaryOperatorAssignment;
 use muqsit\arithmexp\operator\binary\assignment\RightBinaryOperatorAssignment;
+use muqsit\arithmexp\operator\ChangeListenableTrait;
 use function array_key_first;
 use function array_map;
 use function count;
 use function ksort;
 
 final class BinaryOperatorRegistry{
+	use ChangeListenableTrait;
 
 	public static function createDefault() : self{
 		$registry = new self();
@@ -33,11 +36,12 @@ final class BinaryOperatorRegistry{
 	private array $registered_by_precedence = [];
 
 	public function __construct(){
+		$this->registerChangeListener(Closure::fromCallable([$this, "rebuildRegisteredByPrecedence"]));
 	}
 
 	public function register(BinaryOperator $operator) : void{
 		$this->registered[$operator->getSymbol()] = $operator;
-		$this->rebuildRegisteredByPrecedence();
+		$this->notifyChangeListener();
 	}
 
 	public function get(string $symbol) : BinaryOperator{
