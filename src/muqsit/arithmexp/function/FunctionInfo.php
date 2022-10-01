@@ -5,18 +5,28 @@ declare(strict_types=1);
 namespace muqsit\arithmexp\function;
 
 use Closure;
+use InvalidArgumentException;
 use ReflectionFunction;
 use ReflectionParameter;
 use function array_map;
+use function gettype;
+use function is_float;
+use function is_int;
 
 final class FunctionInfo{
 
 	public static function from(Closure $callback, bool $deterministic) : self{
 		$_function = new ReflectionFunction($callback);
-		return new self($callback, array_map(
-			static fn(ReflectionParameter $_parameter) : int|float|null => $_parameter->isDefaultValueAvailable() ? $_parameter->getDefaultValue() : null,
-			$_function->getParameters()
-		), $_function->isVariadic(), $deterministic);
+		return new self($callback, array_map(static function(ReflectionParameter $_parameter) : int|float|null{
+			if($_parameter->isDefaultValueAvailable()){
+				$value = $_parameter->getDefaultValue();
+				if(!is_int($value) && !is_float($value)){
+					throw new InvalidArgumentException("Expected default parameter value to be int|float, got " . gettype($value) . " for parameter \"{$_parameter->getName()}\"");
+				}
+				return $value;
+			}
+			return null;
+		}, $_function->getParameters()), $_function->isVariadic(), $deterministic);
 	}
 
 	/**
