@@ -1,19 +1,17 @@
-name: PHP Composer
+name: CI
 
 on:
   push:
-    branches: [ "master" ]
+    branches: ["master"]
   pull_request:
-    branches: [ "master" ]
+    branches: ["master"]
 
 permissions:
   contents: read
 
 jobs:
-  build:
-
+  phpunit:
     runs-on: ubuntu-latest
-
     steps:
     - uses: actions/checkout@v3
 
@@ -31,12 +29,6 @@ jobs:
 
     - name: Install dependencies
       run: composer install --prefer-dist --no-progress
-      
+
     - name: Run test suite
       run: ./vendor/bin/phpunit tests --testdox
-
-    # Add a test script to composer.json, for instance: "test": "vendor/bin/phpunit"
-    # Docs: https://getcomposer.org/doc/articles/scripts.md
-
-    # - name: Run test suite
-    #   run: composer run-script test
