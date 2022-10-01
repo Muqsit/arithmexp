@@ -17,9 +17,15 @@ use function usort;
 final class UnaryOperatorTokenBuilder implements TokenBuilder{
 
 	public static function createDefault(UnaryOperatorRegistry $unary_operator_registry) : self{
-		$operators = array_keys($unary_operator_registry->getRegistered());
-		usort($operators, static fn(string $a, string $b) : int => strlen($b) <=> strlen($a));
-		return new self($operators);
+		$instance = new self([]);
+		$change_listener = static function(UnaryOperatorRegistry $registry) use($instance) : void{
+			$operators = array_keys($registry->getRegistered());
+			usort($operators, static fn(string $a, string $b) : int => strlen($b) <=> strlen($a));
+			$instance->operators = $operators;
+		};
+		$change_listener($unary_operator_registry);
+		$unary_operator_registry->registerChangeListener($change_listener);
+		return $instance;
 	}
 
 	/**

@@ -11,14 +11,21 @@ use muqsit\arithmexp\token\IdentifierToken;
 use muqsit\arithmexp\token\NumericLiteralToken;
 use muqsit\arithmexp\token\RightParenthesisToken;
 use function array_keys;
+use function strlen;
 use function usort;
 
 final class BinaryOperatorTokenBuilder implements TokenBuilder{
 
 	public static function createDefault(BinaryOperatorRegistry $binary_operator_registry) : self{
-		$operators = array_keys($binary_operator_registry->getRegistered());
-		usort($operators, static fn(string $a, string $b) : int => strlen($b) <=> strlen($a));
-		return new self($operators);
+		$instance = new self([]);
+		$change_listener = static function(BinaryOperatorRegistry $registry) use($instance) : void{
+			$operators = array_keys($registry->getRegistered());
+			usort($operators, static fn(string $a, string $b) : int => strlen($b) <=> strlen($a));
+			$instance->operators = $operators;
+		};
+		$change_listener($binary_operator_registry);
+		$binary_operator_registry->registerChangeListener($change_listener);
+		return $instance;
 	}
 
 	/**
