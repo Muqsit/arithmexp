@@ -6,6 +6,9 @@ namespace muqsit\arithmexp\token\builder;
 
 use Generator;
 use muqsit\arithmexp\token\NumericLiteralToken;
+use function rtrim;
+use function str_contains;
+use function strlen;
 
 final class NumericLiteralTokenBuilder implements TokenBuilder{
 
@@ -20,7 +23,15 @@ final class NumericLiteralTokenBuilder implements TokenBuilder{
 		$expression = $state->expression;
 		while($offset < $length){
 			$char = $expression[$offset];
-			if(($char !== "." || ($offset > $start && $expression[$offset - 1] === ".")) && !ctype_digit($char)){
+
+			if($char === "."){
+				if(str_contains($value, ".")){
+					$trimmed = rtrim($value, ".");
+					$offset -= strlen($value) - strlen($trimmed);
+					$value = $trimmed;
+					break;
+				}
+			}elseif(!ctype_digit($char)){
 				break;
 			}
 
