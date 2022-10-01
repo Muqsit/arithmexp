@@ -29,7 +29,7 @@ final class UnaryOperatorRegistry{
 	}
 
 	public function get(string $symbol) : UnaryOperator{
-		return $this->registered[$symbol] ?? throw new InvalidArgumentException("Operator \"{$symbol}\" is not registered");
+		return $this->registered[$symbol] ?? throw new InvalidArgumentException("Unary operator \"{$symbol}\" is not registered");
 	}
 
 	/**

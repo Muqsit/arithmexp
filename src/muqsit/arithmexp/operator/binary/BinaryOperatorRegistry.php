@@ -65,7 +65,7 @@ final class BinaryOperatorRegistry{
 	}
 
 	public function get(string $symbol) : BinaryOperator{
-		return $this->registered[$symbol] ?? throw new InvalidArgumentException("Operator \"{$symbol}\" is not registered");
+		return $this->registered[$symbol] ?? throw new InvalidArgumentException("Binary operator \"{$symbol}\" is not registered");
 	}
 
 	/**
