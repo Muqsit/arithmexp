@@ -89,8 +89,8 @@ final class ExpressionTest extends TestCase{
 		$this->assertEquals($this->getParser()->parse("variadic_var_args_fn(" . implode(", ", $args) . ")")->evaluate(), $variadic_fn(...$args));
 	}
 
-	public function testNestedBinaryOperation() : void{
-		$expression = $this->getParser()->parse("min(7 ** 3, max(3 ** 2, 6 ** 3))");
-		$this->assertEquals($expression->evaluate(), min(7 ** 3, max(3 ** 2, 6 ** 3)));
+	public function testUnaryOperatorOnGroup() : void{
+		$expression = $this->getParser()->parse("2 / -(3 * -6 / 8) + 4");
+		$this->assertEquals($expression->evaluate(), 2 / -(3 * -6 / 8) + 4);
 	}
 }
