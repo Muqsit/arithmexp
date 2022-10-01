@@ -101,4 +101,10 @@ final class ParserTest extends TestCase{
 		$this->expectExceptionMessage("Too many parameters supplied to function call at \"argOverflowFnTest\" (4:21) in \"x + argOverflowFnTest(3, 2, 1) * y\": Expected 2 parameters, got 3 parameters");
 		$this->getParser()->parse("x + argOverflowFnTest(3, 2, 1) * y");
 	}
+
+	public function testArgumentSeparatorOutsideFunctionCall() : void{
+		$this->expectException(ParseException::class);
+		$this->expectExceptionMessage("Unexpected Function Call Argument Separator token encountered at \",\" (10:11) in \"2 + 3 * (4, 5) / 6\"");
+		$this->getParser()->parse("2 + 3 * (4, 5) / 6");
+	}
 }
