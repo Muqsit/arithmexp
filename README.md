@@ -1,5 +1,5 @@
 # arithmexp
-[![PHP Composer](https://github.com/Muqsit/arithmexp/actions/workflows/php.yml/badge.svg)](https://github.com/Muqsit/arithmexp/actions/workflows/php.yml)
+[![CI](https://github.com/Muqsit/arithmexp/actions/workflows/ci.yml/badge.svg)](https://github.com/Muqsit/arithmexp/actions/workflows/ci.yml)
 [![Latest Release](https://img.shields.io/github/v/release/Muqsit/arithmexp)](https://github.com/Muqsit/arithmexp/releases/latest)
 
 [`arithmexp`](https://github.com/Muqsit/arithmexp) is a powerful mathematical expression parser and evaluator library for PHP with support for [variable substitution (`x`, `v1`, etc.)](https://github.com/Muqsit/arithmexp#evaluating-a-mathematical-expression), [constant declaration](https://github.com/Muqsit/arithmexp/wiki), [deterministic and non-deterministic function registration](https://github.com/Muqsit/arithmexp/wiki), and more.
