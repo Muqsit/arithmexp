@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace muqsit\arithmexp\operator\binary;
 
-use Closure;
 use InvalidArgumentException;
 use muqsit\arithmexp\operator\binary\assignment\BinaryOperatorAssignment;
 use muqsit\arithmexp\operator\binary\assignment\LeftBinaryOperatorAssignment;
