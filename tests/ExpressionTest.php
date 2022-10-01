@@ -112,7 +112,7 @@ final class ExpressionTest extends TestCase{
 		$this->assertLessThanOrEqual(max($range), $result);
 	}
 
-	public function testNonstandardUinaryOperator() : void{
+	public function testNonstandardUnaryOperator() : void{
 		$this->getParser()->getUnaryOperatorRegistry()->register(new SimpleUnaryOperator(
 			"±",
 			"Modulus",
