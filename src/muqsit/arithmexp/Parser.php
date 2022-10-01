@@ -117,7 +117,7 @@ final class Parser{
 		return new Expression($expression, array_map(function(Token $token) use($expression) : ExpressionToken{
 			if($token instanceof BinaryOperatorToken){
 				$operator = $this->binary_operator_registry->get($token->getOperator());
-				return new FunctionCallExpressionToken("BO<{$operator->getSymbol()}>", 2, $operator->getOperator(), true);
+				return new FunctionCallExpressionToken($operator->getSymbol(), 2, $operator->getOperator(), true);
 			}
 			if($token instanceof FunctionCallToken){
 				$name = $token->getFunction();
@@ -134,7 +134,7 @@ final class Parser{
 			}
 			if($token instanceof UnaryOperatorToken){
 				$operator = $this->unary_operator_registry->get($token->getOperator());
-				return new FunctionCallExpressionToken("UO<{$operator->getSymbol()}>", 1, $operator->getOperator(), true);
+				return new FunctionCallExpressionToken("({$operator->getSymbol()})", 1, $operator->getOperator(), true);
 			}
 			throw new ParseException("Unexpected {$token->getType()->getName()} token encountered at \"" . substr($expression, $token->getStartPos(), $token->getEndPos() - $token->getStartPos()) . "\" ({$token->getStartPos()}:{$token->getEndPos()}) in \"{$expression}\"");
 		}, $tokens));
