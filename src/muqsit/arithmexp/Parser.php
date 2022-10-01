@@ -195,22 +195,17 @@ final class Parser{
 	 * @throws ParseException
 	 */
 	private function groupUnaryOperatorTokens(string $expression, array &$tokens) : void{
-		$stack = [&$tokens];
-		while(($index = array_key_last($stack)) !== null){
-			$entry = &$stack[$index];
-			unset($stack[$index]);
-			for($i = count($entry) - 1; $i >= 0; --$i){
-				$token = $entry[$i];
-				if(!($token instanceof UnaryOperatorToken)){
-					if(is_array($token)){
-						$stack[] = &$entry[$i];
-					}
-					continue;
-				}
-
-				array_splice($entry, $i, 2, [[
+		foreach($tokens as $i => $value){
+			if(is_array($value)){
+				$this->groupUnaryOperatorTokens($expression, $tokens[$i]);
+			}
+		}
+		for($i = count($tokens) - 1; $i >= 0; --$i){
+			$token = $tokens[$i];
+			if($token instanceof UnaryOperatorToken){
+				array_splice($tokens, $i, 2, [[
 					$token,
-					$entry[$i + 1] ?? throw new ParseException("No right operand specified for unary operator at \"" . substr($expression, $token->getStartPos(), $token->getEndPos() - $token->getStartPos()) . "\" ({$token->getStartPos()}:{$token->getEndPos()}) in \"{$expression}\"")
+					$tokens[$i + 1] ?? throw new ParseException("No right operand specified for unary operator at \"" . substr($expression, $token->getStartPos(), $token->getEndPos() - $token->getStartPos()) . "\" ({$token->getStartPos()}:{$token->getEndPos()}) in \"{$expression}\"")
 				]]);
 			}
 		}
