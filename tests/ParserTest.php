@@ -34,7 +34,7 @@ final class ParserTest extends TestCase{
 
 	public function testSecludedFunctionCall() : void{
 		$this->expectException(ParseException::class);
-		$this->expectExceptionMessage("Unexpected Function Call token encountered at \"tan\" (16:19) in \"tan(x) + tan(y) tan(z) ** tan(w)\"");
+		$this->expectExceptionMessage("Unexpected Function Call token encountered at \"tan(z)\" (16:22) in \"tan(x) + tan(y) tan(z) ** tan(w)\"");
 		$this->getParser()->parse("tan(x) + tan(y) tan(z) ** tan(w)");
 	}
 
@@ -70,7 +70,7 @@ final class ParserTest extends TestCase{
 
 	public function testBadFunctionCallToUndefinedFunction() : void{
 		$this->expectException(ParseException::class);
-		$this->expectExceptionMessage("Cannot resolve function call at \"noFunc\" (4:10) in \"x * noFunc() / 3\": Function \"noFunc\" is not registered");
+		$this->expectExceptionMessage("Cannot resolve function call at \"noFunc()\" (4:12) in \"x * noFunc() / 3\": Function \"noFunc\" is not registered");
 		$this->getParser()->parse("x * noFunc() / 3");
 	}
 
@@ -84,21 +84,21 @@ final class ParserTest extends TestCase{
 	public function testBadFunctionCallWithMissingRequiredTrailingArguments() : void{
 		$this->getParser()->getFunctionRegistry()->register("missingTrailingArgFnTest", static fn(int $x, int $y) : int => $x + $y);
 		$this->expectException(ParseException::class);
-		$this->expectExceptionMessage("Cannot resolve function call at \"missingTrailingArgFnTest\" (4:28) in \"x + missingTrailingArgFnTest(2, ) * y\": Function \"missingTrailingArgFnTest\" does not have a default value for parameter #2");
+		$this->expectExceptionMessage("Cannot resolve function call at \"missingTrailingArgFnTest(2, )\" (4:33) in \"x + missingTrailingArgFnTest(2, ) * y\": Function \"missingTrailingArgFnTest\" does not have a default value for parameter #2");
 		$this->getParser()->parse("x + missingTrailingArgFnTest(2, ) * y");
 	}
 
 	public function testBadFunctionCallWithMissingRequiredLeadingArguments() : void{
 		$this->getParser()->getFunctionRegistry()->register("missingLeadingArgFnTest", static fn(int $x, int $y) : int => $x + $y);
 		$this->expectException(ParseException::class);
-		$this->expectExceptionMessage("Cannot resolve function call at \"missingLeadingArgFnTest\" (4:27) in \"x + missingLeadingArgFnTest(, 2) * y\": Function \"missingLeadingArgFnTest\" does not have a default value for parameter #1");
+		$this->expectExceptionMessage("Cannot resolve function call at \"missingLeadingArgFnTest(, 2)\" (4:32) in \"x + missingLeadingArgFnTest(, 2) * y\": Function \"missingLeadingArgFnTest\" does not have a default value for parameter #1");
 		$this->getParser()->parse("x + missingLeadingArgFnTest(, 2) * y");
 	}
 
 	public function testBadFunctionCallWithArgumentOverflow() : void{
 		$this->getParser()->getFunctionRegistry()->register("argOverflowFnTest", static fn(int $x, int $y) : int => $x + $y);
 		$this->expectException(ParseException::class);
-		$this->expectExceptionMessage("Too many parameters supplied to function call at \"argOverflowFnTest\" (4:21) in \"x + argOverflowFnTest(3, 2, 1) * y\": Expected 2 parameters, got 3 parameters");
+		$this->expectExceptionMessage("Too many parameters supplied to function call at \"argOverflowFnTest(3, 2, 1)\" (4:30) in \"x + argOverflowFnTest(3, 2, 1) * y\": Expected 2 parameters, got 3 parameters");
 		$this->getParser()->parse("x + argOverflowFnTest(3, 2, 1) * y");
 	}
 
