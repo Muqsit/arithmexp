@@ -2,6 +2,9 @@
 
 declare(strict_types=1);
 
+use muqsit\arithmexp\operator\binary\assignment\RightBinaryOperatorAssignment;
+use muqsit\arithmexp\operator\binary\SimpleBinaryOperator;
+use muqsit\arithmexp\operator\unary\SimpleUnaryOperator;
 use muqsit\arithmexp\Parser;
 use PHPUnit\Framework\TestCase;
 
@@ -92,5 +95,31 @@ final class ExpressionTest extends TestCase{
 	public function testUnaryOperatorOnGroup() : void{
 		$expression = $this->getParser()->parse("2 / -(3 * -6 / 8) + 4");
 		$this->assertEquals($expression->evaluate(), 2 / -(3 * -6 / 8) + 4);
+	}
+
+	public function testNonstandardBinaryOperator() : void{
+		$this->getParser()->getBinaryOperatorRegistry()->register(new SimpleBinaryOperator(
+			"..",
+			"Random Range",
+			0,
+			RightBinaryOperatorAssignment::instance(),
+			Closure::fromCallable("mt_rand")
+		));
+
+		$result = $this->getParser()->parse("27 / -(36..89 / 4.7) + 57")->evaluate();
+		$range = [27 / -(36 / 4.7) + 57, 27 / -(89 / 4.7) + 57];
+		$this->assertGreaterThanOrEqual(min($range), $result);
+		$this->assertLessThanOrEqual(max($range), $result);
+	}
+
+	public function testNonstandardUinaryOperator() : void{
+		$this->getParser()->getUnaryOperatorRegistry()->register(new SimpleUnaryOperator(
+			"±",
+			"Modulus",
+			Closure::fromCallable("abs")
+		));
+
+		$expression = $this->getParser()->parse("3 * ±(4 - 7) / 3.7");
+		$this->assertEquals($expression->evaluate(), 3 * abs(4 - 7) / 3.7);
 	}
 }
