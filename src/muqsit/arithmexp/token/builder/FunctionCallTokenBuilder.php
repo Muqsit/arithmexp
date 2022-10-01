@@ -39,6 +39,7 @@ final class FunctionCallTokenBuilder implements TokenBuilder{
 
 			$open_parentheses = 0;
 			$argument_count = 0;
+			$end_pos = $token->getEndPos();
 			for($j = $i + 2; $j < $count; ++$j){
 				$inner_token = $state->captured_tokens[$j];
 				if($inner_token instanceof LeftParenthesisToken){
@@ -48,6 +49,7 @@ final class FunctionCallTokenBuilder implements TokenBuilder{
 
 				if($inner_token instanceof RightParenthesisToken){
 					if(--$open_parentheses < 0){
+						$end_pos = $inner_token->getEndPos();
 						break;
 					}
 					continue;
@@ -67,7 +69,7 @@ final class FunctionCallTokenBuilder implements TokenBuilder{
 				}
 			}
 
-			$state->captured_tokens[$i] = new FunctionCallToken($token->getStartPos(), $token->getEndPos(), $token->getLabel(), $argument_count);
+			$state->captured_tokens[$i] = new FunctionCallToken($token->getStartPos(), $end_pos, $token->getLabel(), $argument_count);
 		}
 	}
 }
