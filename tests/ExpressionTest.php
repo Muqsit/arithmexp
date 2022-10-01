@@ -122,4 +122,11 @@ final class ExpressionTest extends TestCase{
 		$expression = $this->getParser()->parse("3 * ±(4 - 7) / 3.7");
 		$this->assertEquals($expression->evaluate(), 3 * abs(4 - 7) / 3.7);
 	}
+
+	public function testNonstandardConstant() : void{
+		$c = 299_792_458;
+		$this->getParser()->getConstantRegistry()->register("c", $c);
+		$expression = $this->getParser()->parse("5.57 * c / -12.3 + 3 / c");
+		$this->assertEquals($expression->evaluate(), 5.57 * $c / -12.3 + 3 / $c);
+	}
 }
