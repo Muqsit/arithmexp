@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace muqsit\arithmexp\token\builder;
 
 use Generator;
-use muqsit\arithmexp\operator\BinaryOperatorRegistry;
+use muqsit\arithmexp\operator\binary\BinaryOperatorRegistry;
 use muqsit\arithmexp\token\BinaryOperatorToken;
 use muqsit\arithmexp\token\IdentifierToken;
 use muqsit\arithmexp\token\NumericLiteralToken;

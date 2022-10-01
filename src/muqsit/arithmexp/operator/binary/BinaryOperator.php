@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace muqsit\arithmexp\operator;
+namespace muqsit\arithmexp\operator\binary;
 
 use Closure;
-use muqsit\arithmexp\operator\assignment\BinaryOperatorAssignment;
+use muqsit\arithmexp\operator\binary\assignment\BinaryOperatorAssignment;
 
 interface BinaryOperator{
 

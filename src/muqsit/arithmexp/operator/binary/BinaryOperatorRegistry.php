@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace muqsit\arithmexp\operator;
+namespace muqsit\arithmexp\operator\binary;
 
 use InvalidArgumentException;
-use muqsit\arithmexp\operator\assignment\BinaryOperatorAssignment;
-use muqsit\arithmexp\operator\assignment\LeftBinaryOperatorAssignment;
-use muqsit\arithmexp\operator\assignment\RightBinaryOperatorAssignment;
+use muqsit\arithmexp\operator\binary\assignment\BinaryOperatorAssignment;
+use muqsit\arithmexp\operator\binary\assignment\LeftBinaryOperatorAssignment;
+use muqsit\arithmexp\operator\binary\assignment\RightBinaryOperatorAssignment;
 use function array_key_first;
 use function array_map;
 use function count;

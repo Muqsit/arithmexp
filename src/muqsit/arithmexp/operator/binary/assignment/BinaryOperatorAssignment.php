@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace muqsit\arithmexp\operator\assignment;
+namespace muqsit\arithmexp\operator\binary\assignment;
 
 use Generator;
-use muqsit\arithmexp\operator\BinaryOperator;
+use muqsit\arithmexp\operator\binary\BinaryOperator;
 use muqsit\arithmexp\token\BinaryOperatorToken;
 use muqsit\arithmexp\token\Token;
 

@@ -12,7 +12,7 @@ use muqsit\arithmexp\expression\token\FunctionCallExpressionToken;
 use muqsit\arithmexp\expression\token\NumericLiteralExpressionToken;
 use muqsit\arithmexp\expression\token\VariableExpressionToken;
 use muqsit\arithmexp\function\FunctionRegistry;
-use muqsit\arithmexp\operator\BinaryOperatorRegistry;
+use muqsit\arithmexp\operator\binary\BinaryOperatorRegistry;
 use muqsit\arithmexp\token\BinaryOperatorToken;
 use muqsit\arithmexp\token\FunctionCallArgumentSeparatorToken;
 use muqsit\arithmexp\token\FunctionCallToken;

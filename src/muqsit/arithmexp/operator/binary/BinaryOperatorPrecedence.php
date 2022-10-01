@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace muqsit\arithmexp\operator;
+namespace muqsit\arithmexp\operator\binary;
 
 interface BinaryOperatorPrecedence{
 

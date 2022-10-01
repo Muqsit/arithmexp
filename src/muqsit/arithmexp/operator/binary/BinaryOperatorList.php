@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace muqsit\arithmexp\operator;
+namespace muqsit\arithmexp\operator\binary;
 
-use muqsit\arithmexp\operator\assignment\BinaryOperatorAssignment;
+use muqsit\arithmexp\operator\binary\assignment\BinaryOperatorAssignment;
 
 final class BinaryOperatorList{
 

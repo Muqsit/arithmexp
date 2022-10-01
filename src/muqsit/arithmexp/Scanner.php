@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace muqsit\arithmexp;
 
-use muqsit\arithmexp\operator\BinaryOperatorRegistry;
+use muqsit\arithmexp\operator\binary\BinaryOperatorRegistry;
 use muqsit\arithmexp\token\builder\BinaryOperatorTokenBuilder;
 use muqsit\arithmexp\token\builder\FunctionCallTokenBuilder;
 use muqsit\arithmexp\token\builder\IdentifierTokenBuilder;
