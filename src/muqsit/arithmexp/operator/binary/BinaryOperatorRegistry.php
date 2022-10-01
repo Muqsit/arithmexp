@@ -12,6 +12,7 @@ use muqsit\arithmexp\operator\binary\assignment\RightBinaryOperatorAssignment;
 use muqsit\arithmexp\operator\ChangeListenableTrait;
 use function array_key_first;
 use function array_map;
+use function array_unique;
 use function count;
 use function ksort;
 
@@ -36,7 +37,27 @@ final class BinaryOperatorRegistry{
 	private array $registered_by_precedence = [];
 
 	public function __construct(){
-		$this->registerChangeListener(Closure::fromCallable([$this, "rebuildRegisteredByPrecedence"]));
+		$this->registerChangeListener(static function(BinaryOperatorRegistry $registry) : void{
+			$sorted_indexed = [];
+			foreach($registry->registered as $operator){
+				$sorted_indexed[$operator->getPrecedence()][$operator->getSymbol()] = $operator;
+			}
+			ksort($sorted_indexed);
+
+			$result = [];
+			foreach($sorted_indexed as $list){
+				$assignments = array_unique(array_map(static fn(BinaryOperator $operator) : int => $operator->getAssignment()->getType(), $list));
+				if(count($assignments) > 1){
+					throw new InvalidArgumentException("Cannot process binary operators of the same precedence but with different assignment types");
+				}
+				$result[] = new BinaryOperatorList(match($assignments[array_key_first($assignments)]){
+					BinaryOperatorAssignment::TYPE_LEFT => LeftBinaryOperatorAssignment::instance(),
+					BinaryOperatorAssignment::TYPE_RIGHT => RightBinaryOperatorAssignment::instance()
+				}, $list);
+			}
+
+			$registry->registered_by_precedence = $result;
+		});
 	}
 
 	public function register(BinaryOperator $operator) : void{
@@ -60,27 +81,5 @@ final class BinaryOperatorRegistry{
 	 */
 	public function getRegisteredByPrecedence() : array{
 		return $this->registered_by_precedence;
-	}
-
-	private function rebuildRegisteredByPrecedence() : void{
-		$sorted_indexed = [];
-		foreach($this->registered as $operator){
-			$sorted_indexed[$operator->getPrecedence()][$operator->getSymbol()] = $operator;
-		}
-		ksort($sorted_indexed);
-
-		$result = [];
-		foreach($sorted_indexed as $list){
-			$assignments = array_unique(array_map(static fn(BinaryOperator $operator) : int => $operator->getAssignment()->getType(), $list));
-			if(count($assignments) > 1){
-				throw new InvalidArgumentException("Cannot process binary operators of the same precedence but with different assignment types");
-			}
-			$result[] = new BinaryOperatorList(match($assignments[array_key_first($assignments)]){
-				BinaryOperatorAssignment::TYPE_LEFT => LeftBinaryOperatorAssignment::instance(),
-				BinaryOperatorAssignment::TYPE_RIGHT => RightBinaryOperatorAssignment::instance()
-			}, $list);
-		}
-
-		$this->registered_by_precedence = $result;
 	}
 }

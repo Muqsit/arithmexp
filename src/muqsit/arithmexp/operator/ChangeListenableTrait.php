@@ -9,18 +9,18 @@ use function spl_object_id;
 
 trait ChangeListenableTrait{
 
-	/** @var array<int, Closure() : void> */
+	/** @var array<int, Closure(self) : void> */
 	private array $change_listeners = [];
 
 	/**
-	 * @param Closure() : void $listener
+	 * @param Closure(self) : void $listener
 	 */
 	final public function registerChangeListener(Closure $listener) : void{
 		$this->change_listeners[spl_object_id($listener)] = $listener;
 	}
 
 	/**
-	 * @param Closure() : void $listener
+	 * @param Closure(self) : void $listener
 	 */
 	final public function unregisterChangeListener(Closure $listener) : void{
 		$this->change_listeners[spl_object_id($listener)] = $listener;
@@ -28,7 +28,7 @@ trait ChangeListenableTrait{
 
 	private function notifyChangeListener() : void{
 		foreach($this->change_listeners as $listener){
-			$listener();
+			$listener($this);
 		}
 	}
 }
