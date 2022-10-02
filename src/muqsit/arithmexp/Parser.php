@@ -212,7 +212,7 @@ final class Parser{
 			if($token instanceof UnaryOperatorToken){
 				array_splice($tokens, $i, 2, [[
 					$token,
-					$tokens[$i + 1] ?? throw ParseException::noOperandForUnaryOperation($expression, $token)
+					$tokens[$i + 1] ?? throw ParseException::noUnaryOperand($expression, $token)
 				]]);
 			}
 		}
@@ -237,9 +237,9 @@ final class Parser{
 			$operators = $list->getOperators();
 			foreach($list->getAssignment()->traverse($operators, $tokens) as $index => $value){
 				array_splice($tokens, $index - 1, 3, [[
-					$tokens[$index - 1] ?? throw ParseException::noOperandForBinaryOperation($expression, $value, "left"),
+					$tokens[$index - 1] ?? throw ParseException::noBinaryOperandLeft($expression, $value),
 					$value,
-					$tokens[$index + 1] ?? throw ParseException::noOperandForBinaryOperation($expression, $value, "right")
+					$tokens[$index + 1] ?? throw ParseException::noBinaryOperandRight($expression, $value)
 				]]);
 			}
 		}

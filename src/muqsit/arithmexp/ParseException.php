@@ -20,13 +20,34 @@ final class ParseException extends Exception{
 	public const ERR_EXPR_EMPTY = 100001;
 	public const ERR_NO_CLOSING_PAREN = 100002;
 	public const ERR_NO_OPENING_PAREN = 100003;
-	public const ERR_NO_OPERAND_BINARY = 100004;
-	public const ERR_NO_OPERAND_UNARY = 100005;
-	public const ERR_UNEXPECTED_TOKEN = 100006;
-	public const ERR_UNRESOLVABLE_FCALL = 100007;
+	public const ERR_NO_OPERAND_BINARY_LEFT = 100004;
+	public const ERR_NO_OPERAND_BINARY_RIGHT = 100005;
+	public const ERR_NO_OPERAND_UNARY = 100006;
+	public const ERR_UNEXPECTED_TOKEN = 100007;
+	public const ERR_UNRESOLVABLE_FCALL = 100008;
 
 	public static function emptyExpression(string $expression) : self{
 		return new self($expression, 0, strlen($expression), sprintf("Expression \"%s\" is empty", $expression), self::ERR_EXPR_EMPTY);
+	}
+
+	public static function noBinaryOperandLeft(string $expression, Token $token) : self{
+		return new self($expression, $token->getStartPos(), $token->getEndPos(), sprintf(
+			"No left operand specified for binary operator at \"%s\" (%d:%d) in \"%s\"",
+			substr($expression, $token->getStartPos(), $token->getEndPos() - $token->getStartPos()),
+			$token->getStartPos(),
+			$token->getEndPos(),
+			$expression
+		), self::ERR_NO_OPERAND_BINARY_LEFT);
+	}
+
+	public static function noBinaryOperandRight(string $expression, Token $token) : self{
+		return new self($expression, $token->getStartPos(), $token->getEndPos(), sprintf(
+			"No right operand specified for binary operator at \"%s\" (%d:%d) in \"%s\"",
+			substr($expression, $token->getStartPos(), $token->getEndPos() - $token->getStartPos()),
+			$token->getStartPos(),
+			$token->getEndPos(),
+			$expression
+		), self::ERR_NO_OPERAND_BINARY_RIGHT);
 	}
 
 	public static function noClosingParenthesis(string $expression, Token $token) : self{
@@ -49,26 +70,9 @@ final class ParseException extends Exception{
 		), self::ERR_NO_OPENING_PAREN);
 	}
 
-	/**
-	 * @param string $expression
-	 * @param Token $token
-	 * @param "left"|"right" $side
-	 * @return self
-	 */
-	public static function noOperandForBinaryOperation(string $expression, Token $token, string $side) : self{
+	public static function noUnaryOperand(string $expression, Token $token) : self{
 		return new self($expression, $token->getStartPos(), $token->getEndPos(), sprintf(
-			"No %s operand specified for binary operator at \"%s\" (%d:%d) in \"%s\"",
-			$side,
-			substr($expression, $token->getStartPos(), $token->getEndPos() - $token->getStartPos()),
-			$token->getStartPos(),
-			$token->getEndPos(),
-			$expression
-		), self::ERR_NO_OPERAND_BINARY);
-	}
-
-	public static function noOperandForUnaryOperation(string $expression, Token $token) : self{
-		return new self($expression, $token->getStartPos(), $token->getEndPos(), sprintf(
-			"No right operand specified for unary operator at \"%s\" (%d:%d) in \"%s\"",
+			"No operand specified for unary operator at \"%s\" (%d:%d) in \"%s\"",
 			substr($expression, $token->getStartPos(), $token->getEndPos() - $token->getStartPos()),
 			$token->getStartPos(),
 			$token->getEndPos(),
