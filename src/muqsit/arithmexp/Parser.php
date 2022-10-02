@@ -202,18 +202,15 @@ final class Parser{
 	 * @throws ParseException
 	 */
 	private function groupUnaryOperatorTokens(string $expression, array &$tokens) : void{
-		foreach($tokens as $i => $value){
-			if(is_array($value)){
-				$this->groupUnaryOperatorTokens($expression, $tokens[$i]);
-			}
-		}
-		for($i = count($tokens) - 1; $i >= 0; --$i){
-			$token = $tokens[$i];
-			if($token instanceof UnaryOperatorToken){
-				array_splice($tokens, $i, 2, [[
-					$token,
-					$tokens[$i + 1] ?? throw ParseException::noUnaryOperand($expression, $token)
-				]]);
+		foreach(Util::traverseNestedArray($tokens) as &$entry){
+			for($i = count($entry) - 1; $i >= 0; --$i){
+				$token = $entry[$i];
+				if($token instanceof UnaryOperatorToken){
+					array_splice($entry, $i, 2, [[
+						$token,
+						$entry[$i + 1] ?? throw ParseException::noUnaryOperand($expression, $token)
+					]]);
+				}
 			}
 		}
 	}
@@ -228,19 +225,16 @@ final class Parser{
 	 * @throws ParseException
 	 */
 	private function groupBinaryOperations(string $expression, array &$tokens) : void{
-		foreach($tokens as $i => $value){
-			if(is_array($value)){
-				$this->groupBinaryOperations($expression, $tokens[$i]);
-			}
-		}
-		foreach($this->binary_operator_registry->getRegisteredByPrecedence() as $list){
-			$operators = $list->getOperators();
-			foreach($list->getAssignment()->traverse($operators, $tokens) as $index => $value){
-				array_splice($tokens, $index - 1, 3, [[
-					$tokens[$index - 1] ?? throw ParseException::noBinaryOperandLeft($expression, $value),
-					$value,
-					$tokens[$index + 1] ?? throw ParseException::noBinaryOperandRight($expression, $value)
-				]]);
+		foreach(Util::traverseNestedArray($tokens) as &$entry){
+			foreach($this->binary_operator_registry->getRegisteredByPrecedence() as $list){
+				$operators = $list->getOperators();
+				foreach($list->getAssignment()->traverse($operators, $entry) as $index => $value){
+					array_splice($entry, $index - 1, 3, [[
+						$entry[$index - 1] ?? throw ParseException::noBinaryOperandLeft($expression, $value),
+						$value,
+						$entry[$index + 1] ?? throw ParseException::noBinaryOperandRight($expression, $value)
+					]]);
+				}
 			}
 		}
 	}
@@ -252,17 +246,15 @@ final class Parser{
 	 * @param Token[]|Token[][] $token_tree
 	 */
 	private function groupFunctionCallTokens(array &$token_tree) : void{
-		for($i = count($token_tree) - 1; $i >= 0; --$i){
-			$token = $token_tree[$i];
-			if(is_array($token)){
-				$this->groupFunctionCallTokens($token_tree[$i]);
-				continue;
-			}
-			if($token instanceof FunctionCallToken){
-				if(isset($token_tree[$i + 1]) && $token->getArgumentCount() > 0){
-					array_splice($token_tree, $i, 2, [[$token, is_array($token_tree[$i + 1]) ? $token_tree[$i + 1] : [$token_tree[$i + 1]]]]);
-				}else{
-					$token_tree[$i] = [$token];
+		foreach(Util::traverseNestedArray($token_tree) as &$entry){
+			for($i = count($entry) - 1; $i >= 0; --$i){
+				$token = $entry[$i];
+				if($token instanceof FunctionCallToken){
+					if(isset($entry[$i + 1]) && $token->getArgumentCount() > 0){
+						array_splice($entry, $i, 2, [[$token, is_array($entry[$i + 1]) ? $entry[$i + 1] : [$entry[$i + 1]]]]);
+					}else{
+						$entry[$i] = [$token];
+					}
 				}
 			}
 		}
@@ -277,82 +269,76 @@ final class Parser{
 	 * @throws ParseException
 	 */
 	private function transformFunctionCallTokens(string $expression, array &$token_tree) : void{
-		for($i = count($token_tree) - 1; $i >= 0; --$i){
-			$token = $token_tree[$i];
-			if(is_array($token)){
-				$this->transformFunctionCallTokens($expression, $token_tree[$i]);
-				continue;
-			}
-
-			if(!($token instanceof FunctionCallToken)){
-				continue;
-			}
-
-			try{
-				$function = $this->function_registry->get($token->getFunction());
-			}catch(InvalidArgumentException $e){
-				throw ParseException::unresolvableFcallGeneric($expression, $token, $e->getMessage(), $e);
-			}
-
-			$args_c = $token->getArgumentCount();
-			$param_tokens = $token_tree[$i + 1] ?? [];
-			assert(is_array($param_tokens));
-
-			if(isset($param_tokens[0]) && $param_tokens[0] instanceof FunctionCallArgumentSeparatorToken){
-				array_unshift($param_tokens, null);
-			}
-
-			$last = array_key_last($param_tokens);
-			if($last !== null && $param_tokens[$last] instanceof FunctionCallArgumentSeparatorToken){
-				$param_tokens[] = null;
-			}
-
-			for($j = count($param_tokens) - 1; $j >= 1; --$j){
-				if(
-					$param_tokens[$j] instanceof FunctionCallArgumentSeparatorToken &&
-					$param_tokens[$j - 1] instanceof FunctionCallArgumentSeparatorToken
-				){
-					array_splice($param_tokens, $j - 1, 2, [$param_tokens[$j - 1], null, $param_tokens[$j]]);
+		foreach(Util::traverseNestedArray($token_tree) as &$entry){
+			for($i = count($entry) - 1; $i >= 0; --$i){
+				$token = $entry[$i];
+				if(!($token instanceof FunctionCallToken)){
+					continue;
 				}
-			}
 
-			$params = [];
-			for($j = 0, $max = count($param_tokens); $j < $max; ++$j){
-				$param_token = $param_tokens[$j];
-				if($j % 2 === 0 ? $param_token instanceof FunctionCallArgumentSeparatorToken : !($param_token instanceof FunctionCallArgumentSeparatorToken)){
-					assert($param_token !== null);
-					throw ParseException::unexpectedToken($expression, $param_token);
+				try{
+					$function = $this->function_registry->get($token->getFunction());
+				}catch(InvalidArgumentException $e){
+					throw ParseException::unresolvableFcallGeneric($expression, $token, $e->getMessage(), $e);
 				}
-				if($j % 2 === 0){
-					$params[] = $param_token;
+
+				$args_c = $token->getArgumentCount();
+				$param_tokens = $entry[$i + 1] ?? [];
+				assert(is_array($param_tokens));
+
+				if(isset($param_tokens[0]) && $param_tokens[0] instanceof FunctionCallArgumentSeparatorToken){
+					array_unshift($param_tokens, null);
 				}
-			}
 
-			for($j = count($params), $max = count($function->fallback_param_values) - ($function->variadic ? 1 : 0); $j < $max; ++$j){
-				$params[] = null;
-			}
+				$last = array_key_last($param_tokens);
+				if($last !== null && $param_tokens[$last] instanceof FunctionCallArgumentSeparatorToken){
+					$param_tokens[] = null;
+				}
 
-			$l = 0;
-			for($j = 0, $max = count($params); $j < $max; ++$j){
-				if($params[$j] === null){
-					if(isset($function->fallback_param_values[$j])){
-						$params[$j] = new NumericLiteralToken($token->getStartPos() + $l, $token->getEndPos() + $l, $function->fallback_param_values[$j]);
-						++$l;
-					}else{
-						throw ParseException::unresolvableFcallNoDefaultParamValue($expression, $token, $j + 1);
+				for($j = count($param_tokens) - 1; $j >= 1; --$j){
+					if($param_tokens[$j] instanceof FunctionCallArgumentSeparatorToken && $param_tokens[$j - 1] instanceof FunctionCallArgumentSeparatorToken){
+						array_splice($param_tokens, $j - 1, 2, [$param_tokens[$j - 1], null, $param_tokens[$j]]);
 					}
 				}
-			}
 
-			if(count($params) !== $args_c){
-				throw new RuntimeException("Failed to parse complete list of arguments (" . count($params) . " !== {$args_c}) in function call at \"" . substr($expression, $token->getStartPos(), $token->getEndPos() - $token->getStartPos()) . "\" ({$token->getStartPos()}:{$token->getEndPos()}) in \"{$expression}\"");
-			}
+				$params = [];
+				for($j = 0, $max = count($param_tokens); $j < $max; ++$j){
+					$param_token = $param_tokens[$j];
+					if($j % 2 === 0 ? $param_token instanceof FunctionCallArgumentSeparatorToken : !($param_token instanceof FunctionCallArgumentSeparatorToken)){
+						assert($param_token !== null);
+						throw ParseException::unexpectedToken($expression, $param_token);
+					}
+					if($j % 2 === 0){
+						$params[] = $param_token;
+					}
+				}
 
-			if(!$function->variadic && count($params) > count($function->fallback_param_values)){
-				throw ParseException::unresolvableFcallTooManyParams($expression, $token, $function, count($params));
-			}
+				for($j = count($params), $max = count($function->fallback_param_values) - ($function->variadic ? 1 : 0); $j < $max; ++$j){
+					$params[] = null;
+				}
 
-			array_splice($token_tree, $i, $args_c > 0 ? 2 : 1, [[$token, ...$params]]);
+				$l = 0;
+				for($j = 0, $max = count($params); $j < $max; ++$j){
+					if($params[$j] === null){
+						if(isset($function->fallback_param_values[$j])){
+							$params[$j] = new NumericLiteralToken($token->getStartPos() + $l, $token->getEndPos() + $l, $function->fallback_param_values[$j]);
+							++$l;
+						}else{
+							throw ParseException::unresolvableFcallNoDefaultParamValue($expression, $token, $j + 1);
+						}
+					}
+				}
+
+				if(count($params) !== $args_c){
+					throw new RuntimeException("Failed to parse complete list of arguments (" . count($params) . " !== {$args_c}) in function call at \"" . substr($expression, $token->getStartPos(), $token->getEndPos() - $token->getStartPos()) . "\" ({$token->getStartPos()}:{$token->getEndPos()}) in \"{$expression}\"");
+				}
+
+				if(!$function->variadic && count($params) > count($function->fallback_param_values)){
+					throw ParseException::unresolvableFcallTooManyParams($expression, $token, $function, count($params));
+				}
+
+				array_splice($entry, $i, $args_c > 0 ? 2 : 1, [[$token, ...$params]]);
+			}
 		}
 	}
 
