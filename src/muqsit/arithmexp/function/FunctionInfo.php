@@ -32,6 +32,7 @@ final class FunctionInfo{
 	/**
 	 * @param Closure $closure
 	 * @param array<int|float|null> $fallback_param_values
+	 * @param bool $variadic
 	 * @param bool $deterministic
 	 */
 	public function __construct(
