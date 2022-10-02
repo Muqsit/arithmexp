@@ -16,4 +16,6 @@ interface UnaryOperator{
 	 * @return Closure(int|float) : (int|float)
 	 */
 	public function getOperator() : Closure;
+
+	public function isDeterministic() : bool;
 }

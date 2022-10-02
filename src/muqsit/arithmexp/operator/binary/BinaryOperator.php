@@ -21,4 +21,6 @@ interface BinaryOperator{
 	 * @return Closure(int|float, int|float) : (int|float)
 	 */
 	public function getOperator() : Closure;
+
+	public function isDeterministic() : bool;
 }

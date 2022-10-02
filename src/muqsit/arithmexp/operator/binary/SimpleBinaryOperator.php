@@ -15,13 +15,15 @@ final class SimpleBinaryOperator implements BinaryOperator{
 	 * @param int $precedence
 	 * @param BinaryOperatorAssignment $assignment_type
 	 * @param Closure(int|float, int|float) : (int|float) $operator
+	 * @param bool $deterministic
 	 */
 	public function __construct(
 		private string $symbol,
 		private string $name,
 		private int $precedence,
 		private BinaryOperatorAssignment $assignment_type,
-		private Closure $operator
+		private Closure $operator,
+		private bool $deterministic = false
 	){}
 
 	public function getSymbol() : string{
@@ -42,5 +44,9 @@ final class SimpleBinaryOperator implements BinaryOperator{
 
 	public function getOperator() : Closure{
 		return $this->operator;
+	}
+
+	public function isDeterministic() : bool{
+		return $this->deterministic;
 	}
 }
