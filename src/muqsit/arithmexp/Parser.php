@@ -7,6 +7,7 @@ namespace muqsit\arithmexp;
 use InvalidArgumentException;
 use muqsit\arithmexp\expression\ConstantRegistry;
 use muqsit\arithmexp\expression\Expression;
+use muqsit\arithmexp\expression\optimizer\ExpressionOptimizerRegistry;
 use muqsit\arithmexp\expression\RawExpression;
 use muqsit\arithmexp\expression\token\ExpressionToken;
 use muqsit\arithmexp\expression\token\FunctionCallExpressionToken;
@@ -45,6 +46,7 @@ final class Parser{
 			$unary_operator_registry,
 			ConstantRegistry::createDefault(),
 			FunctionRegistry::createDefault(),
+			ExpressionOptimizerRegistry::createDefault(),
 			Scanner::createDefault($binary_operator_registry, $unary_operator_registry)
 		);
 	}
@@ -54,6 +56,7 @@ final class Parser{
 		private UnaryOperatorRegistry $unary_operator_registry,
 		private ConstantRegistry $constant_registry,
 		private FunctionRegistry $function_registry,
+		private ExpressionOptimizerRegistry $expression_optimizer_registry,
 		private Scanner $scanner
 	){}
 
@@ -73,17 +76,25 @@ final class Parser{
 		return $this->function_registry;
 	}
 
+	public function getExpressionOptimizerRegistry() : ExpressionOptimizerRegistry{
+		return $this->expression_optimizer_registry;
+	}
+
 	/**
 	 * Parses a given mathematical expression for runtime evaluation.
-	 * This method precomputes the expression, deferring runtime evaluation of
-	 * segments of the mathematical expression to the parser.
+	 * This method optimizes the resulting expression by passing it through a series
+	 * of optimizers {@see Parser::getExpressionOptimizerRegistry()}.
 	 *
 	 * @param string $expression
 	 * @return Expression
 	 * @throws ParseException
 	 */
 	public function parse(string $expression) : Expression{
-		return $this->parseRawExpression($expression)->precomputed();
+		$result = $this->parseRawExpression($expression);
+		foreach($this->expression_optimizer_registry->getRegistered() as $optimizer){
+			$result = $optimizer->run($result);
+		}
+		return $result;
 	}
 
 	/**
