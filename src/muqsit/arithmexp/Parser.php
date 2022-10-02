@@ -94,25 +94,7 @@ final class Parser{
 	 */
 	public function parseExpression(string $expression) : Expression{
 		$tokens = $this->scanner->scan($expression);
-		$this->deparenthesizeTokens($expression, $tokens);
-
-		if(count($tokens) === 0){
-			throw new ParseException("Cannot parse empty expression \"{$expression}\"");
-		}
-
-		$this->groupFunctionCallTokens($tokens);
-		$this->groupUnaryOperatorTokens($expression, $tokens);
-		$this->groupBinaryOperations($expression, $tokens);
-		$this->transformFunctionCallTokens($expression, $tokens);
-
-		if(count($tokens) > 1){
-			$token = $tokens[1];
-			while(is_array($token)){
-				$token = $token[0];
-			}
-			throw new ParseException("Unexpected {$token->getType()->getName()} token encountered at \"" . substr($expression, $token->getStartPos(), $token->getEndPos() - $token->getStartPos()) . "\" ({$token->getStartPos()}:{$token->getEndPos()}) in \"{$expression}\"");
-		}
-
+		$this->processTokens($expression, $tokens);
 		$this->convertTokenTreeToPostfixTokenTree($tokens);
 		return new Expression($expression, array_map(function(Token $token) use($expression) : ExpressionToken{
 			if($token instanceof BinaryOperatorToken){
@@ -138,6 +120,35 @@ final class Parser{
 			}
 			throw new ParseException("Unexpected {$token->getType()->getName()} token encountered at \"" . substr($expression, $token->getStartPos(), $token->getEndPos() - $token->getStartPos()) . "\" ({$token->getStartPos()}:{$token->getEndPos()}) in \"{$expression}\"");
 		}, $tokens));
+	}
+
+	/**
+	 * Transforms a given token array in-place by reshaping it into a processed
+	 * token tree.
+	 *
+	 * @param string $expression
+	 * @param Token[] $tokens
+	 * @throws ParseException
+	 */
+	public function processTokens(string $expression, array &$tokens) : void{
+		$this->deparenthesizeTokens($expression, $tokens);
+
+		if(count($tokens) === 0){
+			throw new ParseException("Cannot parse empty expression \"{$expression}\"");
+		}
+
+		$this->groupFunctionCallTokens($tokens);
+		$this->groupUnaryOperatorTokens($expression, $tokens);
+		$this->groupBinaryOperations($expression, $tokens);
+		$this->transformFunctionCallTokens($expression, $tokens);
+
+		if(count($tokens) > 1){
+			$token = $tokens[1];
+			while(is_array($token)){
+				$token = $token[0];
+			}
+			throw new ParseException("Unexpected {$token->getType()->getName()} token encountered at \"" . substr($expression, $token->getStartPos(), $token->getEndPos() - $token->getStartPos()) . "\" ({$token->getStartPos()}:{$token->getEndPos()}) in \"{$expression}\"");
+		}
 	}
 
 	/**
