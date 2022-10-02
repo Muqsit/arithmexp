@@ -313,7 +313,7 @@ final class Parser{
 					}
 				}
 
-				for($j = count($params), $max = count($function->fallback_param_values) - ($function->variadic ? 1 : 0); $j < $max; ++$j){
+				for($j = count($params), $max = min(count($function->fallback_param_values) - ($function->variadic ? 1 : 0), $args_c); $j < $max; ++$j){
 					$params[] = null;
 				}
 
