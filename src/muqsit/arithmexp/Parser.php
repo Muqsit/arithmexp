@@ -118,7 +118,7 @@ final class Parser{
 				$operator = $this->unary_operator_registry->get($token->getOperator());
 				return new FunctionCallExpressionToken("({$operator->getSymbol()})", 1, $operator->getOperator(), true);
 			}
-			throw new ParseException("Unexpected {$token->getType()->getName()} token encountered at \"" . substr($expression, $token->getStartPos(), $token->getEndPos() - $token->getStartPos()) . "\" ({$token->getStartPos()}:{$token->getEndPos()}) in \"{$expression}\"");
+			throw ParseException::unexpectedToken($expression, $token);
 		}, $tokens));
 	}
 
@@ -134,7 +134,7 @@ final class Parser{
 		$this->deparenthesizeTokens($expression, $tokens);
 
 		if(count($tokens) === 0){
-			throw new ParseException("Cannot parse empty expression \"{$expression}\"");
+			throw ParseException::emptyExpression($expression);
 		}
 
 		$this->groupFunctionCallTokens($tokens);
@@ -147,7 +147,7 @@ final class Parser{
 			while(is_array($token)){
 				$token = $token[0];
 			}
-			throw new ParseException("Unexpected {$token->getType()->getName()} token encountered at \"" . substr($expression, $token->getStartPos(), $token->getEndPos() - $token->getStartPos()) . "\" ({$token->getStartPos()}:{$token->getEndPos()}) in \"{$expression}\"");
+			throw ParseException::unexpectedToken($expression, $token);
 		}
 	}
 
@@ -176,10 +176,7 @@ final class Parser{
 			/** @var Token[] $group */
 			$group = [];
 			$j = $i + 1;
-			while(!(
-				($tokens[$j] ?? throw new ParseException("No closing parenthesis specified for opening parenthesis at \"" . substr($expression, $token->getStartPos(), $token->getEndPos() - $token->getStartPos()) . "\" ({$token->getStartPos()}:{$token->getEndPos()}) in \"{$expression}\""))
-				instanceof RightParenthesisToken
-			)){
+			while(!(($tokens[$j] ?? throw ParseException::noClosingParenthesis($expression, $token)) instanceof RightParenthesisToken)){
 				$group[] = $tokens[$j++];
 			}
 
@@ -192,8 +189,7 @@ final class Parser{
 		}
 
 		if(isset($right_parens[$right_parens_found])){
-			$token = $right_parens[$right_parens_found];
-			throw new ParseException("No opening parenthesis specified for closing parenthesis at \"" . substr($expression, $token->getStartPos(), $token->getEndPos() - $token->getStartPos()) . "\" ({$token->getStartPos()}:{$token->getEndPos()}) in \"{$expression}\"");
+			throw ParseException::noOpeningParenthesis($expression, $right_parens[$right_parens_found]);
 		}
 	}
 
@@ -216,7 +212,7 @@ final class Parser{
 			if($token instanceof UnaryOperatorToken){
 				array_splice($tokens, $i, 2, [[
 					$token,
-					$tokens[$i + 1] ?? throw new ParseException("No right operand specified for unary operator at \"" . substr($expression, $token->getStartPos(), $token->getEndPos() - $token->getStartPos()) . "\" ({$token->getStartPos()}:{$token->getEndPos()}) in \"{$expression}\"")
+					$tokens[$i + 1] ?? throw ParseException::noOperandForUnaryOperation($expression, $token)
 				]]);
 			}
 		}
@@ -241,9 +237,9 @@ final class Parser{
 			$operators = $list->getOperators();
 			foreach($list->getAssignment()->traverse($operators, $tokens) as $index => $value){
 				array_splice($tokens, $index - 1, 3, [[
-					$tokens[$index - 1] ?? throw new ParseException("No left operand specified for binary operator at \"" . substr($expression, $value->getStartPos(), $value->getEndPos() - $value->getStartPos()) . "\" ({$value->getStartPos()}:{$value->getEndPos()}) in \"{$expression}\""),
+					$tokens[$index - 1] ?? throw ParseException::noOperandForBinaryOperation($expression, $value, "left"),
 					$value,
-					$tokens[$index + 1] ?? throw new ParseException("No right operand specified for binary operator at \"" . substr($expression, $value->getStartPos(), $value->getEndPos() - $value->getStartPos()) . "\" ({$value->getStartPos()}:{$value->getEndPos()}) in \"{$expression}\"")
+					$tokens[$index + 1] ?? throw ParseException::noOperandForBinaryOperation($expression, $value, "right")
 				]]);
 			}
 		}
@@ -295,7 +291,7 @@ final class Parser{
 			try{
 				$function = $this->function_registry->get($token->getFunction());
 			}catch(InvalidArgumentException $e){
-				throw new ParseException("Cannot resolve function call at \"" . substr($expression, $token->getStartPos(), $token->getEndPos() - $token->getStartPos()) . "\" ({$token->getStartPos()}:{$token->getEndPos()}) in \"{$expression}\": {$e->getMessage()}");
+				throw ParseException::unresolvableFcallGeneric($expression, $token, $e->getMessage(), $e);
 			}
 
 			$args_c = $token->getArgumentCount();
@@ -325,7 +321,7 @@ final class Parser{
 				$param_token = $param_tokens[$j];
 				if($j % 2 === 0 ? $param_token instanceof FunctionCallArgumentSeparatorToken : !($param_token instanceof FunctionCallArgumentSeparatorToken)){
 					assert($param_token !== null);
-					throw new ParseException("Unexpected {$param_token->getType()->getName()} token encountered at \"" . substr($expression, $param_token->getStartPos(), $param_token->getEndPos() - $param_token->getStartPos()) . "\" ({$param_token->getStartPos()}:{$param_token->getEndPos()}) in \"{$expression}\"");
+					throw ParseException::unexpectedToken($expression, $param_token);
 				}
 				if($j % 2 === 0){
 					$params[] = $param_token;
@@ -343,10 +339,7 @@ final class Parser{
 						$params[$j] = new NumericLiteralToken($token->getStartPos() + $l, $token->getEndPos() + $l, $function->fallback_param_values[$j]);
 						++$l;
 					}else{
-						throw new ParseException(
-							"Cannot resolve function call at \"" . substr($expression, $token->getStartPos(), $token->getEndPos() - $token->getStartPos()) . "\" ({$token->getStartPos()}:{$token->getEndPos()}) in \"{$expression}\": " .
-							"Function \"{$token->getFunction()}\" does not have a default value for parameter #" . ($j + 1)
-						);
+						throw ParseException::unresolvableFcallNoDefaultParamValue($expression, $token, $j + 1);
 					}
 				}
 			}
@@ -356,10 +349,7 @@ final class Parser{
 			}
 
 			if(!$function->variadic && count($params) > count($function->fallback_param_values)){
-				throw new ParseException(
-					"Too many parameters supplied to function call at \"" . substr($expression, $token->getStartPos(), $token->getEndPos() - $token->getStartPos()) . "\" ({$token->getStartPos()}:{$token->getEndPos()}) in \"{$expression}\": " .
-					"Expected " . count($function->fallback_param_values) . " parameter" . (count($function->fallback_param_values) === 1 ? "" : "s") . ", got " . count($params) . " parameter" . (count($params) === 1 ? "" : "s")
-				);
+				throw ParseException::unresolvableFcallTooManyParams($expression, $token, $function, count($params));
 			}
 
 			array_splice($token_tree, $i, $args_c > 0 ? 2 : 1, [[$token, ...$params]]);

@@ -70,7 +70,7 @@ final class Scanner{
 			next($this->token_scanners);
 			if($last_token_end === null){
 				if(++$state->unknown_token_seq === count($this->token_scanners)){
-					throw new ParseException("Unexpected token encountered at ({$state->offset}:{$state->length}) \"" . substr($state->expression, $state->offset) . "\" when parsing \"{$state->expression}\"");
+					throw ParseException::unexpectedTokenWhenParsing($state);
 				}
 				continue;
 			}

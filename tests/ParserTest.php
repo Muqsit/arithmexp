@@ -16,13 +16,13 @@ final class ParserTest extends TestCase{
 
 	public function testEmptyString() : void{
 		$this->expectException(ParseException::class);
-		$this->expectExceptionMessage("Cannot parse empty expression \"\"");
+		$this->expectExceptionMessage("Expression \"\" is empty");
 		$this->getParser()->parse("");
 	}
 
 	public function testEmptyStringWithParentheses() : void{
 		$this->expectException(ParseException::class);
-		$this->expectExceptionMessage("Cannot parse empty expression \"( )\"");
+		$this->expectExceptionMessage("Expression \"( )\" is empty");
 		$this->getParser()->parse("( )");
 	}
 
@@ -98,7 +98,7 @@ final class ParserTest extends TestCase{
 	public function testBadFunctionCallWithArgumentOverflow() : void{
 		$this->getParser()->getFunctionRegistry()->register("argOverflowFnTest", static fn(int $x, int $y) : int => $x + $y);
 		$this->expectException(ParseException::class);
-		$this->expectExceptionMessage("Too many parameters supplied to function call at \"argOverflowFnTest(3, 2, 1)\" (4:30) in \"x + argOverflowFnTest(3, 2, 1) * y\": Expected 2 parameters, got 3 parameters");
+		$this->expectExceptionMessage("Cannot resolve function call at \"argOverflowFnTest(3, 2, 1)\" (4:30) in \"x + argOverflowFnTest(3, 2, 1) * y\": Too many parameters supplied to function call: Expected 2 parameters, got 3 parameters");
 		$this->getParser()->parse("x + argOverflowFnTest(3, 2, 1) * y");
 	}
 
