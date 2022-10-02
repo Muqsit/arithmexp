@@ -94,6 +94,13 @@ final class ExpressionTest extends TestCase{
 		self::assertEquals($this->getParser()->parse("variadic_var_args_fn(" . implode(", ", $args) . ")")->evaluate(), $variadic_fn(...$args));
 	}
 
+	public function testFunctionCallWithUndefinedOptionalArgs() : void{
+		$default_args_fn = static fn(float $value, int $precision = 0) : float => round($value, $precision);
+		$this->getParser()->getFunctionRegistry()->register("default_args_fn", $default_args_fn);
+		$expression = $this->getParser()->parse("39 * default_args_fn(40 * pi) / 47");
+		self::assertEquals($expression->evaluate(), 39 * $default_args_fn(40 * M_PI) / 47);
+	}
+
 	public function testUnaryOperatorOnGroup() : void{
 		$expression = $this->getParser()->parse("2 / -(3 * -6 / 8) + 4");
 		self::assertEquals($expression->evaluate(), 2 / -(3 * -6 / 8) + 4);
