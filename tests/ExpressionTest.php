@@ -2,7 +2,9 @@
 
 declare(strict_types=1);
 
+use muqsit\arithmexp\operator\binary\assignment\LeftBinaryOperatorAssignment;
 use muqsit\arithmexp\operator\binary\assignment\RightBinaryOperatorAssignment;
+use muqsit\arithmexp\operator\binary\BinaryOperatorPrecedence;
 use muqsit\arithmexp\operator\binary\SimpleBinaryOperator;
 use muqsit\arithmexp\operator\unary\SimpleUnaryOperator;
 use muqsit\arithmexp\Parser;
@@ -112,6 +114,19 @@ final class ExpressionTest extends TestCase{
 		$this->assertLessThanOrEqual(max($range), $result);
 	}
 
+	public function testNonstandardBinaryOperatorWithExistingSymbol() : void{
+		$this->getParser()->getBinaryOperatorRegistry()->register(new SimpleBinaryOperator(
+			"//",
+			"Integer Division",
+			BinaryOperatorPrecedence::MULTIPLICATION_DIVISION_MODULO,
+			LeftBinaryOperatorAssignment::instance(),
+			Closure::fromCallable("intdiv")
+		));
+
+		$expression = $this->getParser()->parse("7 // 3");
+		$this->assertEquals($expression->evaluate(), intdiv(7, 3));
+	}
+
 	public function testNonstandardUnaryOperator() : void{
 		$this->getParser()->getUnaryOperatorRegistry()->register(new SimpleUnaryOperator(
 			"±",
@@ -121,6 +136,17 @@ final class ExpressionTest extends TestCase{
 
 		$expression = $this->getParser()->parse("3 * ±(4 - 7) / 3.7");
 		$this->assertEquals($expression->evaluate(), 3 * abs(4 - 7) / 3.7);
+	}
+
+	public function testNonstandardUnaryOperatorWithExistingSymbol() : void{
+		$this->getParser()->getUnaryOperatorRegistry()->register(new SimpleUnaryOperator(
+			"--",
+			"Decrement",
+			static fn(int|float $x) : int|float => $x - 1
+		));
+
+		$expression = $this->getParser()->parse("7 * --3");
+		$this->assertEquals($expression->evaluate(), 7 * (3 - 1));
 	}
 
 	public function testNonstandardConstant() : void{
