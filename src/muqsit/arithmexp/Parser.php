@@ -7,6 +7,7 @@ namespace muqsit\arithmexp;
 use InvalidArgumentException;
 use muqsit\arithmexp\expression\ConstantRegistry;
 use muqsit\arithmexp\expression\Expression;
+use muqsit\arithmexp\expression\RawExpression;
 use muqsit\arithmexp\expression\token\ExpressionToken;
 use muqsit\arithmexp\expression\token\FunctionCallExpressionToken;
 use muqsit\arithmexp\expression\token\NumericLiteralExpressionToken;
@@ -82,21 +83,21 @@ final class Parser{
 	 * @throws ParseException
 	 */
 	public function parse(string $expression) : Expression{
-		return $this->parseExpression($expression)->precomputed();
+		return $this->parseRawExpression($expression)->precomputed();
 	}
 
 	/**
 	 * Parses a given mathematical expression for runtime evaluation.
 	 *
 	 * @param string $expression
-	 * @return Expression
+	 * @return RawExpression
 	 * @throws ParseException
 	 */
-	public function parseExpression(string $expression) : Expression{
+	public function parseRawExpression(string $expression) : RawExpression{
 		$tokens = $this->scanner->scan($expression);
 		$this->processTokens($expression, $tokens);
 		$this->convertTokenTreeToPostfixTokenTree($tokens);
-		return new Expression($expression, array_map(function(Token $token) use($expression) : ExpressionToken{
+		return new RawExpression($expression, array_map(function(Token $token) use($expression) : ExpressionToken{
 			if($token instanceof BinaryOperatorToken){
 				$operator = $this->binary_operator_registry->get($token->getOperator());
 				return new FunctionCallExpressionToken($operator->getSymbol(), 2, $operator->getOperator(), $operator->isDeterministic());
