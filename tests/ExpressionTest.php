@@ -31,16 +31,16 @@ final class ExpressionTest extends TestCase{
 	public function testOperatorPrecedence() : void{
 		$parser = $this->getParser();
 
-		self::assertEquals($parser->parse("7 - 3 - 2")->evaluate(), 7 - 3 - 2);
-		self::assertEquals($parser->parse("7 - 3 + 2")->evaluate(), 7 - 3 + 2);
-		self::assertEquals($parser->parse("7 + 3 - 2")->evaluate(), 7 + 3 - 2);
-		self::assertEquals($parser->parse("7 - 3 * 2")->evaluate(), 7 - 3 * 2);
-		self::assertEquals($parser->parse("7 * 3 - 2")->evaluate(), 7 * 3 - 2);
+		self::assertEquals(7 - 3 - 2, $parser->parse("7 - 3 - 2")->evaluate());
+		self::assertEquals(7 - 3 + 2, $parser->parse("7 - 3 + 2")->evaluate());
+		self::assertEquals(7 + 3 - 2, $parser->parse("7 + 3 - 2")->evaluate());
+		self::assertEquals(7 - 3 * 2, $parser->parse("7 - 3 * 2")->evaluate());
+		self::assertEquals(7 * 3 - 2, $parser->parse("7 * 3 - 2")->evaluate());
 
-		self::assertEquals($parser->parse("2 / -1 * 3 ** -3 / 4 * 5")->evaluate(), 2 / -1 * 3 ** -3 / 4 * 5);
-		self::assertEquals($parser->parse("2 / 3 + 4 * 5")->evaluate(), 2 / 3 + 4 * 5);
-		self::assertEquals($parser->parse("2 ** 3 ** 4")->evaluate(), 2 ** 3 ** 4);
-		self::assertEquals($parser->parse("2 ** 3 - 4 ** 5")->evaluate(), 2 ** 3 - 4 ** 5);
+		self::assertEquals(2 / -1 * 3 ** -3 / 4 * 5, $parser->parse("2 / -1 * 3 ** -3 / 4 * 5")->evaluate());
+		self::assertEquals(2 / 3 + 4 * 5, $parser->parse("2 / 3 + 4 * 5")->evaluate());
+		self::assertEquals(2 ** 3 ** 4, $parser->parse("2 ** 3 ** 4")->evaluate());
+		self::assertEquals(2 ** 3 - 4 ** 5, $parser->parse("2 ** 3 - 4 ** 5")->evaluate());
 	}
 
 	public function testFunctionCallOrder() : void{
@@ -60,8 +60,8 @@ final class ExpressionTest extends TestCase{
 		$parser = $this->getParser();
 		$parser->getFunctionRegistry()->register("fcall_order_test_fn", $fcall_order_test_fn);
 		self::assertEquals(
-			$do_capture(static fn() => $parser->parse("fcall_order_test_fn(1) + fcall_order_test_fn(2, fcall_order_test_fn(3), fcall_order_test_fn(4)) ** fcall_order_test_fn(5, fcall_order_test_fn(6))")->evaluate()),
-			$do_capture(static fn() => $fcall_order_test_fn(1) + $fcall_order_test_fn(2, $fcall_order_test_fn(3), $fcall_order_test_fn(4)) ** $fcall_order_test_fn(5, $fcall_order_test_fn(6)))
+			$do_capture(static fn() => $fcall_order_test_fn(1) + $fcall_order_test_fn(2, $fcall_order_test_fn(3), $fcall_order_test_fn(4)) ** $fcall_order_test_fn(5, $fcall_order_test_fn(6))),
+			$do_capture(static fn() => $parser->parse("fcall_order_test_fn(1) + fcall_order_test_fn(2, fcall_order_test_fn(3), fcall_order_test_fn(4)) ** fcall_order_test_fn(5, fcall_order_test_fn(6))")->evaluate())
 		);
 	}
 
@@ -77,33 +77,33 @@ final class ExpressionTest extends TestCase{
 		$this->getParser()->getFunctionRegistry()->register("deterministic_fn", $deterministic_fn, true);
 		$expression = $this->getParser()->parse("2 ** deterministic_fn(2) + deterministic_fn(deterministic_fn(4))");
 		$disable_fcall = true;
-		self::assertEquals($expression->evaluate(), 2 ** 2 + 4);
+		self::assertEquals(2 ** 2 + 4, $expression->evaluate());
 	}
 
 	public function testVariadicFunctionCallWithNoArgs() : void{
 		$expect = -1809580488;
 		$variadic_fn = static fn(int ...$_) : int => $expect;
 		$this->getParser()->getFunctionRegistry()->register("variadic_no_args_fn", $variadic_fn);
-		self::assertEquals($this->getParser()->parse("variadic_no_args_fn()")->evaluate(), $expect);
+		self::assertEquals($expect, $this->getParser()->parse("variadic_no_args_fn()")->evaluate());
 	}
 
 	public function testVariadicFunctionCallWithVariableArgs() : void{
 		$args = [-1272994651, -1912325829, 1481428815, 1337167590, -1613511579];
 		$variadic_fn = static fn(int ...$numbers) : int => array_sum($numbers);
 		$this->getParser()->getFunctionRegistry()->register("variadic_var_args_fn", $variadic_fn);
-		self::assertEquals($this->getParser()->parse("variadic_var_args_fn(" . implode(", ", $args) . ")")->evaluate(), $variadic_fn(...$args));
+		self::assertEquals($variadic_fn(...$args), $this->getParser()->parse("variadic_var_args_fn(" . implode(", ", $args) . ")")->evaluate());
 	}
 
 	public function testFunctionCallWithUndefinedOptionalArgs() : void{
 		$default_args_fn = static fn(float $value, int $precision = 0) : float => round($value, $precision);
 		$this->getParser()->getFunctionRegistry()->register("default_args_fn", $default_args_fn);
 		$expression = $this->getParser()->parse("39 * default_args_fn(40 * pi) / 47");
-		self::assertEquals($expression->evaluate(), 39 * $default_args_fn(40 * M_PI) / 47);
+		self::assertEquals(39 * $default_args_fn(40 * M_PI) / 47, $expression->evaluate());
 	}
 
 	public function testUnaryOperatorOnGroup() : void{
 		$expression = $this->getParser()->parse("2 / -(3 * -6 / 8) + 4");
-		self::assertEquals($expression->evaluate(), 2 / -(3 * -6 / 8) + 4);
+		self::assertEquals(2 / -(3 * -6 / 8) + 4, $expression->evaluate());
 	}
 
 	public function testNonstandardBinaryOperator() : void{
@@ -131,7 +131,7 @@ final class ExpressionTest extends TestCase{
 		));
 
 		$expression = $this->getParser()->parse("7 // 3");
-		self::assertEquals($expression->evaluate(), intdiv(7, 3));
+		self::assertEquals(intdiv(7, 3), $expression->evaluate());
 	}
 
 	public function testNonstandardUnaryOperator() : void{
@@ -142,7 +142,7 @@ final class ExpressionTest extends TestCase{
 		));
 
 		$expression = $this->getParser()->parse("3 * ±(4 - 7) / 3.7");
-		self::assertEquals($expression->evaluate(), 3 * abs(4 - 7) / 3.7);
+		self::assertEquals(3 * abs(4 - 7) / 3.7, $expression->evaluate());
 	}
 
 	public function testNonstandardUnaryOperatorWithExistingSymbol() : void{
@@ -153,13 +153,13 @@ final class ExpressionTest extends TestCase{
 		));
 
 		$expression = $this->getParser()->parse("7 * --3");
-		self::assertEquals($expression->evaluate(), 7 * (3 - 1));
+		self::assertEquals(7 * (3 - 1), $expression->evaluate());
 	}
 
 	public function testNonstandardConstant() : void{
 		$c = 299_792_458;
 		$this->getParser()->getConstantRegistry()->register("c", $c);
 		$expression = $this->getParser()->parse("5.57 * c / -12.3 + 3 / c");
-		self::assertEquals($expression->evaluate(), 5.57 * $c / -12.3 + 3 / $c);
+		self::assertEquals(5.57 * $c / -12.3 + 3 / $c, $expression->evaluate());
 	}
 }
