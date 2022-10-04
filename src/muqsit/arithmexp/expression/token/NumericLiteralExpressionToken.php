@@ -20,6 +20,10 @@ final class NumericLiteralExpressionToken implements ExpressionToken{
 		return $this->value;
 	}
 
+	public function equals(ExpressionToken $other) : bool{
+		return $other instanceof self && $other->value === $this->value;
+	}
+
 	public function __toString() : string{
 		return (string) $this->value;
 	}

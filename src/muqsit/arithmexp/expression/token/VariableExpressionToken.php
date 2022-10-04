@@ -21,6 +21,10 @@ final class VariableExpressionToken implements ExpressionToken{
 		return $variables[$this->label] ?? throw new InvalidArgumentException("No value supplied for variable \"{$this->label}\" in \"{$expression->getExpression()}\"");
 	}
 
+	public function equals(ExpressionToken $other) : bool{
+		return $other instanceof self && $other->label === $this->label;
+	}
+
 	public function __toString() : string{
 		return $this->label;
 	}

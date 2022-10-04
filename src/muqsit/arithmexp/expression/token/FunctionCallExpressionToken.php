@@ -27,6 +27,14 @@ final class FunctionCallExpressionToken implements ExpressionToken{
 		throw new RuntimeException("Don't know how to get value of " . self::class);
 	}
 
+	public function equals(ExpressionToken $other) : bool{
+		return $other instanceof self &&
+			$other->name === $this->name &&
+			$other->argument_count === $this->argument_count &&
+			$other->function === $this->function &&
+			$other->deterministic === $this->deterministic;
+	}
+
 	public function __toString() : string{
 		return $this->name;
 	}
