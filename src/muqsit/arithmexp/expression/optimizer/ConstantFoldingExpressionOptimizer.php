@@ -10,6 +10,7 @@ use muqsit\arithmexp\expression\RawExpression;
 use muqsit\arithmexp\expression\token\ExpressionToken;
 use muqsit\arithmexp\expression\token\FunctionCallExpressionToken;
 use muqsit\arithmexp\expression\token\NumericLiteralExpressionToken;
+use muqsit\arithmexp\Parser;
 use function array_filter;
 use function array_map;
 use function array_slice;
@@ -21,7 +22,7 @@ final class ConstantFoldingExpressionOptimizer implements ExpressionOptimizer{
 	public function __construct(){
 	}
 
-	public function run(Expression $expression) : Expression{
+	public function run(Parser $parser, Expression $expression) : Expression{
 		$postfix_expression_tokens = $expression->getPostfixExpressionTokens();
 		do{
 			$found = false;
