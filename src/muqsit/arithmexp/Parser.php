@@ -92,7 +92,7 @@ final class Parser{
 	public function parse(string $expression) : Expression{
 		$result = $this->parseRawExpression($expression);
 		foreach($this->expression_optimizer_registry->getRegistered() as $optimizer){
-			$result = $optimizer->run($result);
+			$result = $optimizer->run($this, $result);
 		}
 		return $result;
 	}
@@ -111,12 +111,12 @@ final class Parser{
 		return new RawExpression($expression, array_map(function(Token $token) use($expression) : ExpressionToken{
 			if($token instanceof BinaryOperatorToken){
 				$operator = $this->binary_operator_registry->get($token->getOperator());
-				return new FunctionCallExpressionToken($operator->getSymbol(), 2, $operator->getOperator(), $operator->isDeterministic());
+				return new FunctionCallExpressionToken($operator->getSymbol(), 2, $operator->getOperator(), $operator->isDeterministic(), $token);
 			}
 			if($token instanceof FunctionCallToken){
 				$name = $token->getFunction();
 				$function = $this->function_registry->get($name);
-				return new FunctionCallExpressionToken($name, $token->getArgumentCount(), $function->closure, $function->deterministic);
+				return new FunctionCallExpressionToken($name, $token->getArgumentCount(), $function->closure, $function->deterministic, $token);
 			}
 			if($token instanceof IdentifierToken){
 				$label = $token->getLabel();
@@ -128,7 +128,7 @@ final class Parser{
 			}
 			if($token instanceof UnaryOperatorToken){
 				$operator = $this->unary_operator_registry->get($token->getOperator());
-				return new FunctionCallExpressionToken("({$operator->getSymbol()})", 1, $operator->getOperator(), $operator->isDeterministic());
+				return new FunctionCallExpressionToken("({$operator->getSymbol()})", 1, $operator->getOperator(), $operator->isDeterministic(), $token);
 			}
 			throw ParseException::unexpectedToken($expression, $token);
 		}, $tokens));

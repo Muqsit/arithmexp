@@ -6,6 +6,7 @@ namespace muqsit\arithmexp\expression\token;
 
 use Closure;
 use muqsit\arithmexp\expression\Expression;
+use muqsit\arithmexp\token\Token;
 use RuntimeException;
 
 final class FunctionCallExpressionToken implements ExpressionToken{
@@ -14,7 +15,8 @@ final class FunctionCallExpressionToken implements ExpressionToken{
 		public string $name,
 		public int $argument_count,
 		public Closure $function,
-		public bool $deterministic
+		public bool $deterministic,
+		public ?Token $parent = null
 	){}
 
 	public function isDeterministic() : bool{
