@@ -91,9 +91,12 @@ final class Parser{
 	 */
 	public function parse(string $expression) : Expression{
 		$result = $this->parseRawExpression($expression);
-		foreach($this->expression_optimizer_registry->getRegistered() as $optimizer){
-			$result = $optimizer->run($this, $result);
-		}
+		do{
+			$tokens_before = $result->getPostfixExpressionTokens();
+			foreach($this->expression_optimizer_registry->getRegistered() as $optimizer){
+				$result = $optimizer->run($this, $result);
+			}
+		}while($tokens_before !== $result->getPostfixExpressionTokens());
 		return $result;
 	}
 
