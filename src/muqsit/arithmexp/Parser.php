@@ -384,20 +384,6 @@ final class Parser{
 			}
 		}
 
-		// flatten tree
-		$stack = [&$postfix_token_tree];
-		while(($index = array_key_last($stack)) !== null){
-			$entry = &$stack[$index];
-			unset($stack[$index]);
-
-			$count = count($entry);
-			for($i = 0; $i < $count; ++$i){
-				if(is_array($entry[$i])){
-					array_splice($entry, $i, 1, $entry[$i]);
-					$stack[] = &$entry;
-					break;
-				}
-			}
-		}
+		Util::flattenArray($postfix_token_tree);
 	}
 }
