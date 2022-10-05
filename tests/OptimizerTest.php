@@ -68,6 +68,12 @@ final class OptimizerTest extends TestCase{
 		self::assertExpressionsEqual($expected, $actual);
 	}
 
+	public function testExponentOperatorStrengthReductionForLeftOperandOne() : void{
+		$actual = $this->getParser()->parse("1 ** x + 3 ** x + (4 - 3) ** x");
+		$expected = $this->getUnoptimizedParser()->parse("1 + (3 ** x) + 1");
+		self::assertExpressionsEqual($expected, $actual);
+	}
+
 	public function testMultiplicationOperatorStrengthReductionForLeftOperandOne() : void{
 		$actual = $this->getParser()->parse("x * 1 + x * (7 / 7)");
 		$expected = $this->getUnoptimizedParser()->parse("x + x");

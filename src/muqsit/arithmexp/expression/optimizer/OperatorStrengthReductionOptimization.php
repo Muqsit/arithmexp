@@ -134,6 +134,7 @@ final class OperatorStrengthReductionOptimization implements ExpressionOptimizer
 		return match($token->getOperator()){
 			"**" => match(true){
 				$this->valueEquals($left, 0) => [new NumericLiteralExpressionToken(0)],
+				$this->valueEquals($left, 1) => [new NumericLiteralExpressionToken(1)],
 				$this->valueEquals($right, 2) => [
 					...$left,
 					...$left,
