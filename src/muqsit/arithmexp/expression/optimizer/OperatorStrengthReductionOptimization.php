@@ -155,7 +155,13 @@ final class OperatorStrengthReductionOptimization implements ExpressionOptimizer
 				$this->valueEquals($right, 1) => $left,
 				default => null
 			},
-			"+", "-" => match(true){
+			"+", => match(true){
+				$this->valueEquals($left, 0) => $right,
+				$this->valueEquals($right, 0) => $left,
+				default => null
+			},
+			"-" => match(true){
+				$this->tokensEqual($left, $right) => [new NumericLiteralExpressionToken(0)],
 				$this->valueEquals($left, 0) => $right,
 				$this->valueEquals($right, 0) => $left,
 				default => null

@@ -110,4 +110,10 @@ final class OptimizerTest extends TestCase{
 		$expected = $this->getParser()->parseRawExpression("x - y");
 		self::assertExpressionsEqual($expected, $actual);
 	}
+
+	public function testSubtractionOperatorStrengthReductionForEqualOperands() : void{
+		$actual = $this->getParser()->parse("x ** (x - x) - 1");
+		$expected = $this->getParser()->parseRawExpression("0");
+		self::assertExpressionsEqual($expected, $actual);
+	}
 }
