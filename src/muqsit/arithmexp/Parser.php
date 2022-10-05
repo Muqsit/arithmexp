@@ -51,6 +51,18 @@ final class Parser{
 		);
 	}
 
+	public static function createUnoptimized() : self{
+		$default = self::createDefault();
+		return new self(
+			$default->binary_operator_registry,
+			$default->unary_operator_registry,
+			$default->constant_registry,
+			$default->function_registry,
+			new ExpressionOptimizerRegistry(),
+			$default->scanner
+		);
+	}
+
 	public function __construct(
 		private BinaryOperatorRegistry $binary_operator_registry,
 		private UnaryOperatorRegistry $unary_operator_registry,
@@ -82,36 +94,17 @@ final class Parser{
 
 	/**
 	 * Parses a given mathematical expression for runtime evaluation.
-	 * This method optimizes the resulting expression by passing it through a series
-	 * of optimizers {@see Parser::getExpressionOptimizerRegistry()}.
 	 *
 	 * @param string $expression
 	 * @return Expression
 	 * @throws ParseException
 	 */
 	public function parse(string $expression) : Expression{
-		$result = $this->parseRawExpression($expression);
-		do{
-			$tokens_before = $result->getPostfixExpressionTokens();
-			foreach($this->expression_optimizer_registry->getRegistered() as $optimizer){
-				$result = $optimizer->run($this, $result);
-			}
-		}while($tokens_before !== $result->getPostfixExpressionTokens());
-		return $result;
-	}
-
-	/**
-	 * Parses a given mathematical expression for runtime evaluation.
-	 *
-	 * @param string $expression
-	 * @return RawExpression
-	 * @throws ParseException
-	 */
-	public function parseRawExpression(string $expression) : RawExpression{
 		$tokens = $this->scanner->scan($expression);
 		$this->processTokens($expression, $tokens);
 		$this->convertTokenTreeToPostfixTokenTree($tokens);
-		return new RawExpression($expression, array_map(function(Token $token) use($expression) : ExpressionToken{
+
+		$result = new RawExpression($expression, array_map(function(Token $token) use($expression) : ExpressionToken{
 			if($token instanceof BinaryOperatorToken){
 				$operator = $this->binary_operator_registry->get($token->getOperator());
 				return new FunctionCallExpressionToken($operator->getSymbol(), 2, $operator->getOperator(), $operator->isDeterministic(), $token);
@@ -135,6 +128,13 @@ final class Parser{
 			}
 			throw ParseException::unexpectedToken($expression, $token);
 		}, $tokens));
+		do{
+			$tokens_before = $result->getPostfixExpressionTokens();
+			foreach($this->expression_optimizer_registry->getRegistered() as $optimizer){
+				$result = $optimizer->run($this, $result);
+			}
+		}while($tokens_before !== $result->getPostfixExpressionTokens());
+		return $result;
 	}
 
 	/**
