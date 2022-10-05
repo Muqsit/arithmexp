@@ -24,6 +24,7 @@ final class ConstantFoldingExpressionOptimizer implements ExpressionOptimizer{
 
 	public function run(Parser $parser, Expression $expression) : Expression{
 		$postfix_expression_tokens = $expression->getPostfixExpressionTokens();
+		$changes = 0;
 		do{
 			$found = false;
 			foreach($postfix_expression_tokens as $i => $token){
@@ -38,9 +39,14 @@ final class ConstantFoldingExpressionOptimizer implements ExpressionOptimizer{
 
 				array_splice($postfix_expression_tokens, $i - $token->argument_count, $token->argument_count + 1, [new NumericLiteralExpressionToken(($token->function)(...array_map(fn(ExpressionToken $token) : int|float => $token->getValue($expression, []), $params)))]);
 				$found = true;
+				++$changes;
 				break;
 			}
 		}while($found);
+
+		if($changes === 0){
+			return $expression;
+		}
 
 		return count($postfix_expression_tokens) === 1 && $postfix_expression_tokens[0]->isDeterministic() ?
 			new ConstantExpression($expression->getExpression(), $postfix_expression_tokens, $postfix_expression_tokens[0]->getValue($expression, [])) :
