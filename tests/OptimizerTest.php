@@ -50,9 +50,21 @@ final class OptimizerTest extends TestCase{
 		self::assertEquals(2 ** 0 + 3 * mt_rand() ** (0 ** 7) + 6, $expression->evaluate());
 	}
 
+	public function testExponentOperatorStrengthReductionForLeftOperandZeroWithGrouping() : void{
+		$expression = $this->getParser()->parse("0 ** (x + y + z)");
+		self::assertInstanceOf(ConstantExpression::class, $expression);
+		self::assertEquals(0, $expression->evaluate());
+	}
+
 	public function testExponentOperatorStrengthReductionForRightOperandTwo() : void{
 		$actual = $this->getParser()->parse("x ** 2 + x ** 3 + y ** (5 - 3)");
 		$expected = $this->getUnoptimizedParser()->parse("(x * x) + (x ** 3) + (y * y)");
+		self::assertExpressionsEqual($expected, $actual);
+	}
+
+	public function testExponentOperatorStrengthReductionForRightOperandTwoWithGrouping() : void{
+		$actual = $this->getParser()->parse("(x + y + z) ** 2");
+		$expected = $this->getUnoptimizedParser()->parse("(x + y + z) * (x + y + z)");
 		self::assertExpressionsEqual($expected, $actual);
 	}
 
@@ -62,10 +74,22 @@ final class OptimizerTest extends TestCase{
 		self::assertExpressionsEqual($expected, $actual);
 	}
 
+	public function testExponentOperatorStrengthReductionForRightOperandOneWithGrouping() : void{
+		$actual = $this->getParser()->parse("(x + y + z) ** 1");
+		$expected = $this->getUnoptimizedParser()->parse("x + y + z");
+		self::assertExpressionsEqual($expected, $actual);
+	}
+
 	public function testExponentOperatorStrengthReductionForRightOperandZero() : void{
 		$actual = $this->getParser()->parse("x ** 0 + x ** 3 + x ** (4 - 4)");
 		$expected = $this->getUnoptimizedParser()->parse("1 + (x ** 3) + 1");
 		self::assertExpressionsEqual($expected, $actual);
+	}
+
+	public function testExponentOperatorStrengthReductionForRightOperandZeroWithGrouping() : void{
+		$expression = $this->getParser()->parse("(x + y + z) ** 0");
+		self::assertInstanceOf(ConstantExpression::class, $expression);
+		self::assertEquals(1, $expression->evaluate());
 	}
 
 	public function testExponentOperatorStrengthReductionForLeftOperandOne() : void{
@@ -74,9 +98,21 @@ final class OptimizerTest extends TestCase{
 		self::assertExpressionsEqual($expected, $actual);
 	}
 
+	public function testExponentOperatorStrengthReductionForLeftOperandOneWithGrouping() : void{
+		$expression = $this->getParser()->parse("1 ** (x + y + z)");
+		self::assertInstanceOf(ConstantExpression::class, $expression);
+		self::assertEquals(1, $expression->evaluate());
+	}
+
 	public function testMultiplicationOperatorStrengthReductionForLeftOperandOne() : void{
 		$actual = $this->getParser()->parse("x * 1 + x * (7 / 7)");
 		$expected = $this->getUnoptimizedParser()->parse("x + x");
+		self::assertExpressionsEqual($expected, $actual);
+	}
+
+	public function testMultiplicationOperatorStrengthReductionForLeftOperandOneWithGrouping() : void{
+		$actual = $this->getParser()->parse("1 * (x + y + z)");
+		$expected = $this->getUnoptimizedParser()->parse("x + y + z");
 		self::assertExpressionsEqual($expected, $actual);
 	}
 
@@ -86,10 +122,22 @@ final class OptimizerTest extends TestCase{
 		self::assertExpressionsEqual($expected, $actual);
 	}
 
+	public function testMultiplicationOperatorStrengthReductionForRightOperandOneWithGrouping() : void{
+		$actual = $this->getParser()->parse("1 * (x + y + z)");
+		$expected = $this->getUnoptimizedParser()->parse("x + y + z");
+		self::assertExpressionsEqual($expected, $actual);
+	}
+
 	public function testMultiplicationOperatorStrengthReductionForOperandZero() : void{
 		$actual = $this->getParser()->parse("x + y * 0 + z * (0 / 2)");
 		$expected = $this->getUnoptimizedParser()->parse("x");
 		self::assertExpressionsEqual($expected, $actual);
+	}
+
+	public function testMultiplicationOperatorStrengthReductionForOperandZeroWithGrouping() : void{
+		$expression = $this->getParser()->parse("(x + y + z) * 0 + 0 * (x + y + z)");
+		self::assertInstanceOf(ConstantExpression::class, $expression);
+		self::assertEquals(0, $expression->evaluate());
 	}
 
 	public function testDivisionOperatorStrengthReductionForEqualOperands() : void{
@@ -98,15 +146,33 @@ final class OptimizerTest extends TestCase{
 		self::assertExpressionsEqual($expected, $actual);
 	}
 
+	public function testDivisionOperatorStrengthReductionForEqualOperandsWithGrouping() : void{
+		$expression = $this->getParser()->parse("(x + y + z) / (x + y + z)");
+		self::assertInstanceOf(ConstantExpression::class, $expression);
+		self::assertEquals(1, $expression->evaluate());
+	}
+
 	public function testDivisionOperatorStrengthReductionForLeftOperandZero() : void{
 		$actual = $this->getParser()->parse("x + 0 / x + ((3 - 3) / y)");
 		$expected = $this->getUnoptimizedParser()->parse("x");
 		self::assertExpressionsEqual($expected, $actual);
 	}
 
+	public function testDivisionOperatorStrengthReductionForLeftOperandZeroWithGrouping() : void{
+		$expression  = $this->getParser()->parse("0 / (x + y + z)");
+		self::assertInstanceOf(ConstantExpression::class, $expression);
+		self::assertEquals(0, $expression->evaluate());
+	}
+
 	public function testDivisionOperatorStrengthReductionForRightOperandOne() : void{
 		$actual = $this->getParser()->parse("x / 1 + y / 1");
 		$expected = $this->getUnoptimizedParser()->parse("x + y");
+		self::assertExpressionsEqual($expected, $actual);
+	}
+
+	public function testDivisionOperatorStrengthReductionForRightOperandOneWithGrouping() : void{
+		$actual = $this->getParser()->parse("(x + y + z) / 1");
+		$expected = $this->getUnoptimizedParser()->parse("x + y + z");
 		self::assertExpressionsEqual($expected, $actual);
 	}
 
@@ -116,9 +182,21 @@ final class OptimizerTest extends TestCase{
 		self::assertExpressionsEqual($expected, $actual);
 	}
 
+	public function testAdditionOperatorStrengthReductionForOperandZeroWithGrouping() : void{
+		$actual = $this->getParser()->parse("(x * y * z) + 0");
+		$expected = $this->getUnoptimizedParser()->parse("x * y * z");
+		self::assertExpressionsEqual($expected, $actual);
+	}
+
 	public function testSubtractionOperatorStrengthReductionForOperandZero() : void{
 		$actual = $this->getParser()->parse("(x - 0) - (0 - y)");
 		$expected = $this->getUnoptimizedParser()->parse("x - y");
+		self::assertExpressionsEqual($expected, $actual);
+	}
+
+	public function testSubtractionOperatorStrengthReductionForOperandZeroWithGrouping() : void{
+		$actual = $this->getParser()->parse("(x * y * z) - 0");
+		$expected = $this->getUnoptimizedParser()->parse("x * y * z");
 		self::assertExpressionsEqual($expected, $actual);
 	}
 
@@ -126,5 +204,11 @@ final class OptimizerTest extends TestCase{
 		$actual = $this->getParser()->parse("x ** (x - x) - 1");
 		$expected = $this->getUnoptimizedParser()->parse("0");
 		self::assertExpressionsEqual($expected, $actual);
+	}
+
+	public function testSubtractionOperatorStrengthReductionForEqualOperandsWithGrouping() : void{
+		$expression = $this->getParser()->parse("(x * y * z) - (x * y * z)");
+		self::assertInstanceOf(ConstantExpression::class, $expression);
+		self::assertEquals(0, $expression->evaluate());
 	}
 }
