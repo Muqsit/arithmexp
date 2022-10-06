@@ -44,22 +44,25 @@ final class OperatorStrengthReductionOptimization implements ExpressionOptimizer
 				$operand = $postfix_expression_tokens[$j];
 				$tree[] = $operand;
 				if($operand instanceof FunctionCallExpressionToken){
-					array_splice($tree, -$operand->argument_count - 1, $operand->argument_count + 1, [
-						array_slice($postfix_expression_tokens, $j - ($operand->argument_count), $operand->argument_count + 1)
-					]);
+					$replace = $operand->argument_count + 1;
+					$args = array_slice($tree, -$replace, $replace);
+					array_splice($tree, -$replace, $replace, count($args) === 1 ? $args : [$args]);
 				}
 			}
 
 			$tree_c = count($tree);
+			if($tree_c < $token->argument_count){
+				continue;
+			}
 
-			$left = $tree[$tree_c - 2];
+			$left = $tree[$tree_c - $token->argument_count];
 			if(is_array($left)){
 				Util::flattenArray($left);
 			}else{
 				$left = [$left];
 			}
 
-			$right = $tree[$tree_c - 1];
+			$right = $tree[($tree_c - $token->argument_count) + 1];
 			if(is_array($right)){
 				Util::flattenArray($right);
 			}else{
