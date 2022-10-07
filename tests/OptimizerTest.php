@@ -5,6 +5,10 @@ declare(strict_types=1);
 use muqsit\arithmexp\expression\ConstantExpression;
 use muqsit\arithmexp\expression\Expression;
 use muqsit\arithmexp\expression\token\ExpressionToken;
+use muqsit\arithmexp\operator\binary\assignment\LeftBinaryOperatorAssignment;
+use muqsit\arithmexp\operator\binary\assignment\RightBinaryOperatorAssignment;
+use muqsit\arithmexp\operator\binary\BinaryOperatorPrecedence;
+use muqsit\arithmexp\operator\binary\SimpleBinaryOperator;
 use muqsit\arithmexp\Parser;
 use PHPUnit\Framework\TestCase;
 
@@ -41,6 +45,23 @@ final class OptimizerTest extends TestCase{
 	public function testNoOptimization() : void{
 		$actual = $this->getParser()->parse("37.28 * cos(mt_rand(x, y) / 23.84) ** 3");
 		$expected = $this->getUnoptimizedParser()->parse("37.28 * cos(mt_rand(x, y) / 23.84) ** 3");
+		self::assertExpressionsEqual($expected, $actual);
+	}
+
+	public function testNonDeterminsticFunctionCallExclusionFromOptimization() : void{
+		$actual = $this->getParser()->parse("mt_rand(1, 2) - mt_rand(1, 2)");
+		$expected = $this->getUnoptimizedParser()->parse("mt_rand(1, 2) - mt_rand(1, 2)");
+		self::assertExpressionsEqual($expected, $actual);
+	}
+
+	public function testNonDeterminsticOperatorExclusionFromOptimization() : void{
+		$operator = new SimpleBinaryOperator(":", "Random", BinaryOperatorPrecedence::EXPONENTIAL, RightBinaryOperatorAssignment::instance(), Closure::fromCallable("mt_rand"), false, false);
+
+		$this->getParser()->getBinaryOperatorRegistry()->register($operator);
+		$actual = $this->getParser()->parse("1:4 / 1:4");
+
+		$this->getUnoptimizedParser()->getBinaryOperatorRegistry()->register($operator);
+		$expected = $this->getUnoptimizedParser()->parse("1:4 / 1:4");
 		self::assertExpressionsEqual($expected, $actual);
 	}
 
