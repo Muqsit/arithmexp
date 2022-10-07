@@ -14,7 +14,7 @@ final class ExpressionOptimizerRegistry{
 		$registry = new self();
 		$registry->register("operator_reorder", new OperatorReorderExpressionOptimizer());
 		$registry->register("constant_folding", new ConstantFoldingExpressionOptimizer());
-		$registry->register("operator_strength_reduction", new OperatorStrengthReductionOptimization());
+		$registry->register("operator_strength_reduction", new OperatorStrengthReductionExpressionOptimizer());
 		return $registry;
 	}
 

@@ -20,7 +20,7 @@ use function count;
 use function gettype;
 use function is_array;
 
-final class OperatorStrengthReductionOptimization implements ExpressionOptimizer{
+final class OperatorStrengthReductionExpressionOptimizer implements ExpressionOptimizer{
 
 	public function __construct(){
 	}
