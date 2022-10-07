@@ -15,6 +15,7 @@ final class SimpleBinaryOperator implements BinaryOperator{
 	 * @param int $precedence
 	 * @param BinaryOperatorAssignment $assignment_type
 	 * @param Closure(int|float, int|float) : (int|float) $operator
+	 * @param bool $commutative
 	 * @param bool $deterministic
 	 */
 	public function __construct(
@@ -23,6 +24,7 @@ final class SimpleBinaryOperator implements BinaryOperator{
 		private int $precedence,
 		private BinaryOperatorAssignment $assignment_type,
 		private Closure $operator,
+		private bool $commutative,
 		private bool $deterministic = false
 	){}
 
@@ -44,6 +46,10 @@ final class SimpleBinaryOperator implements BinaryOperator{
 
 	public function getOperator() : Closure{
 		return $this->operator;
+	}
+
+	public function isCommutative() : bool{
+		return $this->commutative;
 	}
 
 	public function isDeterministic() : bool{

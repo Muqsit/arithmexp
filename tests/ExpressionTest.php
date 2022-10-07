@@ -112,7 +112,8 @@ final class ExpressionTest extends TestCase{
 			"Random Range",
 			0,
 			RightBinaryOperatorAssignment::instance(),
-			Closure::fromCallable("mt_rand")
+			Closure::fromCallable("mt_rand"),
+			false
 		));
 
 		$result = $this->getParser()->parse("27 / -(36..89 / 4.7) + 57")->evaluate();
@@ -127,7 +128,8 @@ final class ExpressionTest extends TestCase{
 			"Integer Division",
 			BinaryOperatorPrecedence::MULTIPLICATION_DIVISION_MODULO,
 			LeftBinaryOperatorAssignment::instance(),
-			Closure::fromCallable("intdiv")
+			Closure::fromCallable("intdiv"),
+			false
 		));
 
 		$expression = $this->getParser()->parse("7 // 3");

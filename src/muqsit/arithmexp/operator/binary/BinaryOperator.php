@@ -22,5 +22,7 @@ interface BinaryOperator{
 	 */
 	public function getOperator() : Closure;
 
+	public function isCommutative() : bool;
+
 	public function isDeterministic() : bool;
 }
