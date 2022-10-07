@@ -24,18 +24,6 @@ final class OperatorReorderExpressionOptimizer implements ExpressionOptimizer{
 	}
 
 	public function run(Parser $parser, Expression $expression) : Expression{
-		$_fn = static function(array $e) use(&$_fn) : array{
-			$x = [];
-			foreach($e as $i => $v){
-				if(is_array($v)){
-					$x[$i] = $_fn($v);
-				}else{
-					$x[$i] = (string) $v;
-				}
-			}
-			return $x;
-		};
-
 		$binary_operator_registry = $parser->getBinaryOperatorRegistry();
 		$postfix_expression_tokens = $expression->getPostfixExpressionTokens();
 		$tree = Util::expressionTokenArrayToTree($postfix_expression_tokens);
