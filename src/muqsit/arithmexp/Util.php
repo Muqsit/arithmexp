@@ -6,6 +6,9 @@ namespace muqsit\arithmexp;
 
 use Closure;
 use Generator;
+use muqsit\arithmexp\expression\token\ExpressionToken;
+use muqsit\arithmexp\expression\token\FunctionCallExpressionToken;
+use function array_slice;
 use function array_splice;
 use function count;
 use function is_array;
@@ -58,5 +61,26 @@ final class Util{
 				}
 			}
 		}
+	}
+
+	/**
+	 * @param ExpressionToken[] $postfix_expression_tokens
+	 * @param int $offset
+	 * @param int|null $length
+	 * @return ExpressionToken[]|ExpressionToken[][]|ExpressionToken[][][]|ExpressionToken[][][][]
+	 */
+	public static function expressionTokenArrayToTree(array $postfix_expression_tokens, int $offset = 0, ?int $length = null) : array{
+		$length ??= count($postfix_expression_tokens);
+		$tree = [];
+		for($i = $offset; $i < $length; ++$i){
+			$operand = $postfix_expression_tokens[$i];
+			$tree[] = $operand;
+			if($operand instanceof FunctionCallExpressionToken){
+				$replace = $operand->argument_count + 1;
+				$args = array_slice($tree, -$replace, $replace);
+				array_splice($tree, -$replace, $replace, count($args) === 1 ? $args : [$args]);
+			}
+		}
+		return $tree;
 	}
 }

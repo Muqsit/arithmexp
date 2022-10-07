@@ -14,7 +14,6 @@ use muqsit\arithmexp\Parser;
 use muqsit\arithmexp\token\BinaryOperatorToken;
 use muqsit\arithmexp\Util;
 use RuntimeException;
-use function array_slice;
 use function array_splice;
 use function assert;
 use function count;
@@ -39,17 +38,7 @@ final class OperatorStrengthReductionOptimization implements ExpressionOptimizer
 				continue;
 			}
 
-			$tree = [];
-			for($j = 0; $j < $i; ++$j){
-				$operand = $postfix_expression_tokens[$j];
-				$tree[] = $operand;
-				if($operand instanceof FunctionCallExpressionToken){
-					$replace = $operand->argument_count + 1;
-					$args = array_slice($tree, -$replace, $replace);
-					array_splice($tree, -$replace, $replace, count($args) === 1 ? $args : [$args]);
-				}
-			}
-
+			$tree = Util::expressionTokenArrayToTree($postfix_expression_tokens, 0, $i);
 			$tree_c = count($tree);
 			if($tree_c < $token->argument_count){
 				continue;
