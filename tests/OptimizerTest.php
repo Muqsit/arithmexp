@@ -219,8 +219,8 @@ final class OptimizerTest extends TestCase{
 	}
 
 	public function testSubtractionOperatorStrengthReductionForCommutativelyEqualOperands() : void{
-		$actual = $this->getParser()->parse("(x * y) - (y * x)");
-		$expected = $this->getUnoptimizedParser()->parse("0");
-		self::assertExpressionsEqual($expected, $actual);
+		$expression = $this->getParser()->parse("(x * y) - (y * x)");
+		self::assertInstanceOf(ConstantExpression::class, $expression);
+		self::assertEquals(0, $expression->evaluate());
 	}
 }
