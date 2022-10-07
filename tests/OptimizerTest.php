@@ -152,6 +152,12 @@ final class OptimizerTest extends TestCase{
 		self::assertEquals(1, $expression->evaluate());
 	}
 
+	public function testDivisionOperatorStrengthReductionForCommutativelyEqualOperands() : void{
+		$expression = $this->getParser()->parse("(x + y + z) / (y + x + z)");
+		self::assertInstanceOf(ConstantExpression::class, $expression);
+		self::assertEquals(1, $expression->evaluate());
+	}
+
 	public function testDivisionOperatorStrengthReductionForLeftOperandZero() : void{
 		$actual = $this->getParser()->parse("x + 0 / x + ((3 - 3) / y)");
 		$expected = $this->getUnoptimizedParser()->parse("x");
@@ -210,5 +216,11 @@ final class OptimizerTest extends TestCase{
 		$expression = $this->getParser()->parse("(x * y * z) - (x * y * z)");
 		self::assertInstanceOf(ConstantExpression::class, $expression);
 		self::assertEquals(0, $expression->evaluate());
+	}
+
+	public function testSubtractionOperatorStrengthReductionForCommutativelyEqualOperands() : void{
+		$actual = $this->getParser()->parse("(x * y) - (y * x)");
+		$expected = $this->getUnoptimizedParser()->parse("0");
+		self::assertExpressionsEqual($expected, $actual);
 	}
 }
