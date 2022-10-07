@@ -10,6 +10,7 @@ use muqsit\arithmexp\expression\RawExpression;
 use muqsit\arithmexp\expression\token\ExpressionToken;
 use muqsit\arithmexp\expression\token\FunctionCallExpressionToken;
 use muqsit\arithmexp\expression\token\NumericLiteralExpressionToken;
+use muqsit\arithmexp\expression\token\VariableExpressionToken;
 use muqsit\arithmexp\Parser;
 use muqsit\arithmexp\token\BinaryOperatorToken;
 use muqsit\arithmexp\Util;
@@ -96,13 +97,16 @@ final class OperatorStrengthReductionExpressionOptimizer implements ExpressionOp
 	 * @param ExpressionToken[] $y
 	 * @return bool
 	 */
-	private function tokensEqual(array $x, array $y) : bool{
+	private function tokensEqualByReturnValue(array $x, array $y) : bool{
 		if(count($x) !== count($y)){
 			return false;
 		}
 
 		for($i = 0, $max = count($x); $i < $max; ++$i){
-			if(!$x[$i]->equals($y[$i])){
+			if((
+				!($x[$i] instanceof VariableExpressionToken /* variables are deterministic during evaluation */) &&
+				!$x[$i]->isDeterministic()
+			) || !$x[$i]->equals($y[$i])){
 				return false;
 			}
 		}
@@ -143,7 +147,7 @@ final class OperatorStrengthReductionExpressionOptimizer implements ExpressionOp
 				default => null
 			},
 			"/" => match(true){
-				$this->tokensEqual($left, $right) => [new NumericLiteralExpressionToken(1)],
+				$this->tokensEqualByReturnValue($left, $right) => [new NumericLiteralExpressionToken(1)],
 				$this->valueEquals($left, 0) => [new NumericLiteralExpressionToken(0)],
 				$this->valueEquals($right, 1) => $left,
 				default => null
@@ -154,7 +158,7 @@ final class OperatorStrengthReductionExpressionOptimizer implements ExpressionOp
 				default => null
 			},
 			"-" => match(true){
-				$this->tokensEqual($left, $right) => [new NumericLiteralExpressionToken(0)],
+				$this->tokensEqualByReturnValue($left, $right) => [new NumericLiteralExpressionToken(0)],
 				$this->valueEquals($left, 0) => $right,
 				$this->valueEquals($right, 0) => $left,
 				default => null
