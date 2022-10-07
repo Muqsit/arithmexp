@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace muqsit\arithmexp;
 
+use Closure;
 use Generator;
 use function array_splice;
 use function count;
@@ -40,8 +41,9 @@ final class Util{
 
 	/**
 	 * @param mixed[] $array
+	 * @param (Closure(mixed[]) : bool)|null $filter
 	 */
-	public static function flattenArray(array &$array) : void{
+	public static function flattenArray(array &$array, ?Closure $filter = null) : void{
 		$stack = [&$array];
 		while(($index = array_key_last($stack)) !== null){
 			$entry = &$stack[$index];
@@ -49,7 +51,7 @@ final class Util{
 
 			$count = count($entry);
 			for($i = 0; $i < $count; ++$i){
-				if(is_array($entry[$i])){
+				if(is_array($entry[$i]) && ($filter === null || $filter($entry[$i]))){
 					array_splice($entry, $i, 1, $entry[$i]);
 					$stack[] = &$entry;
 					break;
