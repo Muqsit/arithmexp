@@ -34,7 +34,7 @@ final class OptimizerTest extends TestCase{
 
 	public function testConstantPropagationOptimization() : void{
 		$actual = $this->getParser()->parse("37.28 * cos(x) + sin(85) * 22 / cos(73) + sin(91) + 84.47 * cos(z) + sin(32)");
-		$expected = $this->getUnoptimizedParser()->parse("37.28 * cos(x) + 5.2617521784192 + 0.10598751175116 + 84.47 * cos(z) + 0.55142668124169");
+		$expected = $this->getUnoptimizedParser()->parse("5.919166371412 + 37.28 * cos(x) + 84.47 * cos(z)");
 		self::assertExpressionsEqual($expected, $actual);
 	}
 
@@ -58,7 +58,7 @@ final class OptimizerTest extends TestCase{
 
 	public function testExponentOperatorStrengthReductionForRightOperandTwo() : void{
 		$actual = $this->getParser()->parse("x ** 2 + x ** 3 + y ** (5 - 3)");
-		$expected = $this->getUnoptimizedParser()->parse("(x * x) + (x ** 3) + (y * y)");
+		$expected = $this->getUnoptimizedParser()->parse("((x * x) + (x ** 3)) + (y * y)");
 		self::assertExpressionsEqual($expected, $actual);
 	}
 
@@ -70,7 +70,7 @@ final class OptimizerTest extends TestCase{
 
 	public function testExponentOperatorStrengthReductionForRightOperandOne() : void{
 		$actual = $this->getParser()->parse("x ** 1 + x ** 3 + x ** (4 - 3)");
-		$expected = $this->getUnoptimizedParser()->parse("x + (x ** 3) + x");
+		$expected = $this->getUnoptimizedParser()->parse("x + x + x ** 3");
 		self::assertExpressionsEqual($expected, $actual);
 	}
 
@@ -82,7 +82,7 @@ final class OptimizerTest extends TestCase{
 
 	public function testExponentOperatorStrengthReductionForRightOperandZero() : void{
 		$actual = $this->getParser()->parse("x ** 0 + x ** 3 + x ** (4 - 4)");
-		$expected = $this->getUnoptimizedParser()->parse("1 + (x ** 3) + 1");
+		$expected = $this->getUnoptimizedParser()->parse("2 + x ** 3");
 		self::assertExpressionsEqual($expected, $actual);
 	}
 
@@ -94,7 +94,7 @@ final class OptimizerTest extends TestCase{
 
 	public function testExponentOperatorStrengthReductionForLeftOperandOne() : void{
 		$actual = $this->getParser()->parse("1 ** x + 3 ** x + (4 - 3) ** x");
-		$expected = $this->getUnoptimizedParser()->parse("1 + (3 ** x) + 1");
+		$expected = $this->getUnoptimizedParser()->parse("2 + 3 ** x");
 		self::assertExpressionsEqual($expected, $actual);
 	}
 
