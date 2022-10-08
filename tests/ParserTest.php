@@ -82,6 +82,11 @@ final class ParserTest extends TestCase{
 		$this->assertParserThrows("x + missingLeadingArgFnTest(, 2) * y", ParseException::ERR_UNRESOLVABLE_FCALL, 4, 32);
 	}
 
+	public function testBadFunctionCallWithArgumentUnderflow() : void{
+		$this->getParser()->getFunctionRegistry()->register("fdiv", static fn(int $x, int $y) : int => $x + $y);
+		$this->assertParserThrows("x + fdiv(1) * y", ParseException::ERR_UNRESOLVABLE_FCALL, 4, 11);
+	}
+
 	public function testBadFunctionCallWithArgumentOverflow() : void{
 		$this->getParser()->getFunctionRegistry()->register("argOverflowFnTest", static fn(int $x, int $y) : int => $x + $y);
 		$this->assertParserThrows("x + argOverflowFnTest(3, 2, 1) * y", ParseException::ERR_UNRESOLVABLE_FCALL, 4, 30);
