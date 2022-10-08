@@ -13,8 +13,8 @@ final class ExpressionOptimizerRegistry{
 	public static function createDefault() : self{
 		$registry = new self();
 		$registry->register("operator_reorder", new OperatorReorderExpressionOptimizer());
-		$registry->register("constant_folding", new ConstantFoldingExpressionOptimizer());
 		$registry->register("operator_strength_reduction", new OperatorStrengthReductionExpressionOptimizer());
+		$registry->register("constant_folding", new ConstantFoldingExpressionOptimizer());
 		return $registry;
 	}
 

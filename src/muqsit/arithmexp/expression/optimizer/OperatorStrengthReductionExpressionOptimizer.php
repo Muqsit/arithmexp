@@ -11,6 +11,7 @@ use muqsit\arithmexp\expression\token\ExpressionToken;
 use muqsit\arithmexp\expression\token\FunctionCallExpressionToken;
 use muqsit\arithmexp\expression\token\NumericLiteralExpressionToken;
 use muqsit\arithmexp\expression\token\VariableExpressionToken;
+use muqsit\arithmexp\ParseException;
 use muqsit\arithmexp\Parser;
 use muqsit\arithmexp\token\BinaryOperatorToken;
 use muqsit\arithmexp\Util;
@@ -59,7 +60,7 @@ final class OperatorStrengthReductionExpressionOptimizer implements ExpressionOp
 				$right = [$right];
 			}
 
-			$replacement = $this->process($parser, $token, $left, $right);
+			$replacement = $this->process($parser, $expression, $token, $left, $right);
 			if($replacement === null){
 				continue;
 			}
@@ -116,12 +117,14 @@ final class OperatorStrengthReductionExpressionOptimizer implements ExpressionOp
 
 	/**
 	 * @param Parser $parser
+	 * @param Expression $expression
 	 * @param FunctionCallExpressionToken $operator_token
 	 * @param ExpressionToken[] $left
 	 * @param ExpressionToken[] $right
 	 * @return ExpressionToken[]|null
+	 * @throws ParseException
 	 */
-	private function process(Parser $parser, FunctionCallExpressionToken $operator_token, array $left, array $right) : ?array{
+	private function process(Parser $parser, Expression $expression, FunctionCallExpressionToken $operator_token, array $left, array $right) : ?array{
 		$token = $operator_token->parent;
 		assert($token instanceof BinaryOperatorToken);
 
@@ -150,6 +153,7 @@ final class OperatorStrengthReductionExpressionOptimizer implements ExpressionOp
 			"/" => match(true){
 				$this->tokensEqualByReturnValue($left, $right) => [new NumericLiteralExpressionToken(Util::positionContainingExpressionTokens([...$left, ...$right]), 1)],
 				$this->valueEquals($left, 0) => [new NumericLiteralExpressionToken(Util::positionContainingExpressionTokens($left), 0)],
+				$this->valueEquals($right, 0) => throw ParseException::unresolvableExpressionDivisionByZero($expression->getExpression(), Util::positionContainingExpressionTokens($right)),
 				$this->valueEquals($right, 1) => $left,
 				default => null
 			},

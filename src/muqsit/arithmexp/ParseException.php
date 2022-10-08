@@ -26,7 +26,8 @@ final class ParseException extends Exception{
 	public const ERR_NO_OPERAND_BINARY_RIGHT = 100005;
 	public const ERR_NO_OPERAND_UNARY = 100006;
 	public const ERR_UNEXPECTED_TOKEN = 100007;
-	public const ERR_UNRESOLVABLE_FCALL = 100008;
+	public const ERR_UNRESOLVABLE_EXPRESSION = 100008;
+	public const ERR_UNRESOLVABLE_FCALL = 100009;
 
 	public static function generateWithHighlightedSubstring(self $exception) : self{
 		return new self(
@@ -152,6 +153,21 @@ final class ParseException extends Exception{
 			$params_c,
 			$params_c === 1 ? "" : "s"
 		)));
+	}
+
+	private static function unresolvableExpression(string $expression, Position $position, string $reason, ?Throwable $previous = null) : self{
+		return new self($expression, $position, sprintf(
+			"Cannot resolve expression at \"%s\" (%d:%d) in \"%s\": %s",
+			substr($expression, $position->getStart(), $position->length()),
+			$position->getStart(),
+			$position->getEnd(),
+			$expression,
+			$reason
+		), self::ERR_UNRESOLVABLE_EXPRESSION, $previous);
+	}
+
+	public static function unresolvableExpressionDivisionByZero(string $expression, Position $position) : self{
+		return self::generateWithHighlightedSubstring(self::unresolvableExpression($expression, $position, "Division by zero"));
 	}
 
 	public function __construct(
