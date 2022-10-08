@@ -21,7 +21,10 @@ final class ParserTest extends TestCase{
 			self::assertEquals($code, $e->getCode());
 			self::assertEquals($start_pos, $e->getStartPos());
 			self::assertEquals($end_pos, $e->getEndPos());
+			return;
 		}
+
+		throw new RuntimeException("Expression \"{$expression}\" did not throw any exception (expected " . ParseException::class . "(code: {$code}, start_pos: {$start_pos}, end_pos: {$end_pos}))");
 	}
 
 	public function testEmptyString() : void{
