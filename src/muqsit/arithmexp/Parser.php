@@ -9,7 +9,6 @@ use muqsit\arithmexp\expression\ConstantRegistry;
 use muqsit\arithmexp\expression\Expression;
 use muqsit\arithmexp\expression\optimizer\ExpressionOptimizerRegistry;
 use muqsit\arithmexp\expression\RawExpression;
-use muqsit\arithmexp\expression\token\ExpressionToken;
 use muqsit\arithmexp\expression\token\FunctionCallExpressionToken;
 use muqsit\arithmexp\expression\token\NumericLiteralExpressionToken;
 use muqsit\arithmexp\expression\token\VariableExpressionToken;
@@ -28,8 +27,8 @@ use muqsit\arithmexp\token\UnaryOperatorToken;
 use RuntimeException;
 use function array_filter;
 use function array_key_last;
-use function array_map;
 use function array_shift;
+use function array_slice;
 use function array_splice;
 use function array_unshift;
 use function assert;
@@ -106,30 +105,39 @@ final class Parser{
 		$this->processTokens($expression, $tokens);
 		$this->convertTokenTreeToPostfixTokenTree($tokens);
 
-		$result = new RawExpression($expression, array_map(function(Token $token) use($expression) : ExpressionToken{
+		$postfix_expression_tokens = [];
+		foreach($tokens as $token){
 			if($token instanceof BinaryOperatorToken){
 				$operator = $this->binary_operator_registry->get($token->getOperator());
-				return new FunctionCallExpressionToken($token->getPos(), $operator->getSymbol(), 2, $operator->getOperator(), $operator->isDeterministic(), $token);
-			}
-			if($token instanceof FunctionCallToken){
+				$replacement = new FunctionCallExpressionToken($token->getPos(), $operator->getSymbol(), 2, $operator->getOperator(), $operator->isDeterministic(), $token);
+			}elseif($token instanceof FunctionCallToken){
 				$name = $token->getFunction();
 				$function = $this->function_registry->get($name);
-				return new FunctionCallExpressionToken($token->getPos(), $name, $token->getArgumentCount(), $function->closure, $function->deterministic, $token);
-			}
-			if($token instanceof IdentifierToken){
+				$replacement = new FunctionCallExpressionToken($token->getPos(), $name, $token->getArgumentCount(), $function->closure, $function->deterministic, $token);
+			}elseif($token instanceof IdentifierToken){
 				$label = $token->getLabel();
 				$constant_value = $this->constant_registry->registered[$label] ?? null;
-				return $constant_value !== null ? new NumericLiteralExpressionToken($token->getPos(), $constant_value) : new VariableExpressionToken($token->getPos(), $label);
-			}
-			if($token instanceof NumericLiteralToken){
-				return new NumericLiteralExpressionToken($token->getPos(), $token->getValue());
-			}
-			if($token instanceof UnaryOperatorToken){
+				$replacement = $constant_value !== null ? new NumericLiteralExpressionToken($token->getPos(), $constant_value) : new VariableExpressionToken($token->getPos(), $label);
+			}elseif($token instanceof NumericLiteralToken){
+				$replacement = new NumericLiteralExpressionToken($token->getPos(), $token->getValue());
+			}elseif($token instanceof UnaryOperatorToken){
 				$operator = $this->unary_operator_registry->get($token->getOperator());
-				return new FunctionCallExpressionToken($token->getPos(), "({$operator->getSymbol()})", 1, $operator->getOperator(), $operator->isDeterministic(), $token);
+				$replacement = new FunctionCallExpressionToken($token->getPos(), "({$operator->getSymbol()})", 1, $operator->getOperator(), $operator->isDeterministic(), $token);
+			}else{
+				throw ParseException::unexpectedToken($expression, $token);
 			}
-			throw ParseException::unexpectedToken($expression, $token);
-		}, $tokens));
+
+			if($replacement instanceof FunctionCallExpressionToken){
+				$parameters = array_slice(Util::expressionTokenArrayToTree($postfix_expression_tokens, 0, count($postfix_expression_tokens)), -$replacement->argument_count);
+				Util::flattenArray($parameters);
+				$pos = Position::containing([Util::positionContainingExpressionTokens($parameters), $token->getPos()]);
+				$replacement = new FunctionCallExpressionToken($pos, $replacement->name, $replacement->argument_count, $replacement->function, $replacement->deterministic, $replacement->parent);
+			}
+
+			$postfix_expression_tokens[] = $replacement;
+		}
+
+		$result = new RawExpression($expression, $postfix_expression_tokens);
 		do{
 			$tokens_before = $result->getPostfixExpressionTokens();
 			foreach($this->expression_optimizer_registry->getRegistered() as $optimizer){
