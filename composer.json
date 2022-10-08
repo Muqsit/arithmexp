@@ -11,6 +11,11 @@
             "muqsit\\arithmexp\\": "src/muqsit/arithmexp"
         }
     },
+    "autoload-dev": {
+        "psr-0": {
+            "muqsit\\arithmexp\\": "tests/"
+        }
+    },
     "authors": [
         {
             "name": "Muqsit",
