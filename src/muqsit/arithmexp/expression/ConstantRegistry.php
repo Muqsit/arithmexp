@@ -37,10 +37,10 @@ final class ConstantRegistry{
 		$registry->register("ln10", M_LN10);
 		$registry->register("pi2", M_PI_2);
 		$registry->register("pi4", M_PI_4);
-		$registry->register("1pi", M_1_PI);
-		$registry->register("2pi", M_2_PI);
+		$registry->register("m_1pi", M_1_PI);
+		$registry->register("m_2pi", M_2_PI);
 		$registry->register("sqrtpi", M_SQRTPI);
-		$registry->register("2sqrtpi", M_2_SQRTPI);
+		$registry->register("m_2sqrtpi", M_2_SQRTPI);
 		$registry->register("sqrt2",  M_SQRT2);
 		$registry->register("sqrt3",  M_SQRT3);
 		$registry->register("sqrt12",  M_SQRT1_2);
