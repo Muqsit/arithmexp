@@ -41,9 +41,9 @@ final class ConstantRegistry{
 		$registry->register("m_2pi", M_2_PI);
 		$registry->register("sqrtpi", M_SQRTPI);
 		$registry->register("m_2sqrtpi", M_2_SQRTPI);
-		$registry->register("sqrt2",  M_SQRT2);
-		$registry->register("sqrt3",  M_SQRT3);
-		$registry->register("sqrt12",  M_SQRT1_2);
+		$registry->register("sqrt2", M_SQRT2);
+		$registry->register("sqrt3", M_SQRT3);
+		$registry->register("sqrt12", M_SQRT1_2);
 		$registry->register("lnpi", M_LNPI);
 		$registry->register("euler", M_EULER);
 		$registry->register("nan", NAN);
