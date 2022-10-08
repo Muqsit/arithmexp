@@ -83,7 +83,6 @@ final class ParserTest extends TestCase{
 	}
 
 	public function testBadFunctionCallWithArgumentUnderflow() : void{
-		$this->getParser()->getFunctionRegistry()->register("fdiv", static fn(int $x, int $y) : int => $x + $y);
 		$this->assertParserThrows("x + fdiv(1) * y", ParseException::ERR_UNRESOLVABLE_FCALL, 4, 11);
 	}
 
