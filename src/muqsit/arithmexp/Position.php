@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace muqsit\arithmexp;
 
+use function substr;
 use const PHP_INT_MAX;
 use const PHP_INT_MIN;
 
@@ -46,6 +47,10 @@ final class Position{
 
 	public function offset(int $start, int $end) : self{
 		return new self($this->start + $start, $this->end + $end);
+	}
+
+	public function in(string $string) : string{
+		return substr($string, $this->start, $this->length());
 	}
 
 	/**

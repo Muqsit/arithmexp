@@ -48,7 +48,7 @@ final class ParseException extends Exception{
 	public static function noBinaryOperandLeft(string $expression, Position $position) : self{
 		return self::generateWithHighlightedSubstring(new self($expression, $position, sprintf(
 			"No left operand specified for binary operator at \"%s\" (%d:%d) in \"%s\"",
-			substr($expression, $position->getStart(), $position->length()),
+			$position->in($expression),
 			$position->getStart(),
 			$position->getEnd(),
 			$expression
@@ -58,7 +58,7 @@ final class ParseException extends Exception{
 	public static function noBinaryOperandRight(string $expression, Position $position) : self{
 		return self::generateWithHighlightedSubstring(new self($expression, $position, sprintf(
 			"No right operand specified for binary operator at \"%s\" (%d:%d) in \"%s\"",
-			substr($expression, $position->getStart(), $position->length()),
+			$position->in($expression),
 			$position->getStart(),
 			$position->getEnd(),
 			$expression
@@ -68,7 +68,7 @@ final class ParseException extends Exception{
 	public static function noClosingParenthesis(string $expression, Position $position) : self{
 		return self::generateWithHighlightedSubstring(new self($expression, $position, sprintf(
 			"No closing parenthesis specified for opening parenthesis at \"%s\" (%d:%d) in \"%s\"",
-			substr($expression, $position->getStart(), $position->length()),
+			$position->in($expression),
 			$position->getStart(),
 			$position->getEnd(),
 			$expression
@@ -78,7 +78,7 @@ final class ParseException extends Exception{
 	public static function noOpeningParenthesis(string $expression, Position $position) : self{
 		return self::generateWithHighlightedSubstring(new self($expression, $position, sprintf(
 			"No opening parenthesis specified for closing parenthesis at \"%s\" (%d:%d) in \"%s\"",
-			substr($expression, $position->getStart(), $position->length()),
+			$position->in($expression),
 			$position->getStart(),
 			$position->getEnd(),
 			$expression
@@ -88,7 +88,7 @@ final class ParseException extends Exception{
 	public static function noUnaryOperand(string $expression, Position $position) : self{
 		return self::generateWithHighlightedSubstring(new self($expression, $position, sprintf(
 			"No operand specified for unary operator at \"%s\" (%d:%d) in \"%s\"",
-			substr($expression, $position->getStart(), $position->length()),
+			$position->in($expression),
 			$position->getStart(),
 			$position->getEnd(),
 			$expression
@@ -99,7 +99,7 @@ final class ParseException extends Exception{
 		return self::generateWithHighlightedSubstring(new self($expression, $token->getPos(), sprintf(
 			"Unexpected %s token encountered at \"%s\" (%d:%d) in \"%s\"",
 			$token->getType()->getName(),
-			substr($expression, $token->getPos()->getStart(), $token->getPos()->length()),
+			$token->getPos()->in($expression),
 			$token->getPos()->getStart(),
 			$token->getPos()->getEnd(),
 			$expression
@@ -119,7 +119,7 @@ final class ParseException extends Exception{
 	private static function unresolvableFcall(string $expression, Position $position, string $reason, ?Throwable $previous = null) : self{
 		return new self($expression, $position, sprintf(
 			"Cannot resolve function call at \"%s\" (%d:%d) in \"%s\": %s",
-			substr($expression, $position->getStart(), $position->length()),
+			$position->in($expression),
 			$position->getStart(),
 			$position->getEnd(),
 			$expression,
@@ -158,7 +158,7 @@ final class ParseException extends Exception{
 	private static function unresolvableExpression(string $expression, Position $position, string $reason, ?Throwable $previous = null) : self{
 		return new self($expression, $position, sprintf(
 			"Cannot resolve expression at \"%s\" (%d:%d) in \"%s\": %s",
-			substr($expression, $position->getStart(), $position->length()),
+			$position->in($expression),
 			$position->getStart(),
 			$position->getEnd(),
 			$expression,
@@ -186,9 +186,5 @@ final class ParseException extends Exception{
 
 	public function getPos() : Position{
 		return $this->position;
-	}
-
-	public function getExpressionSubstring() : string{
-		return substr($this->expression, $this->position->getStart(), $this->position->length());
 	}
 }

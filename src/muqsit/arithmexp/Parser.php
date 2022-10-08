@@ -361,7 +361,7 @@ final class Parser{
 				}
 
 				if($params_c !== $args_c){
-					throw new RuntimeException("Failed to parse complete list of arguments (" . $params_c . " !== {$args_c}) in function call at \"" . substr($expression, $token->getPos()->getStart(), $token->getPos()->length()) . "\" ({$token->getPos()->getStart()}:{$token->getPos()->getEnd()}) in \"{$expression}\"");
+					throw new RuntimeException("Failed to parse complete list of arguments ({$params_c} !== {$args_c}) in function call at \"{$token->getPos()->in($expression)}\" ({$token->getPos()->getStart()}:{$token->getPos()->getEnd()}) in \"{$expression}\"");
 				}
 
 				if(!$function->variadic){
