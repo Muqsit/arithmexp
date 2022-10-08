@@ -6,18 +6,24 @@ namespace muqsit\arithmexp\expression\token;
 
 use Closure;
 use muqsit\arithmexp\expression\Expression;
+use muqsit\arithmexp\Position;
 use muqsit\arithmexp\token\Token;
 use RuntimeException;
 
 final class FunctionCallExpressionToken implements ExpressionToken{
 
 	public function __construct(
+		public Position $position,
 		public string $name,
 		public int $argument_count,
 		public Closure $function,
 		public bool $deterministic,
 		public ?Token $parent = null
 	){}
+
+	public function getPos() : Position{
+		return $this->position;
+	}
 
 	public function isDeterministic() : bool{
 		return $this->deterministic;

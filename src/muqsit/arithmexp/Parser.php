@@ -109,24 +109,24 @@ final class Parser{
 		$result = new RawExpression($expression, array_map(function(Token $token) use($expression) : ExpressionToken{
 			if($token instanceof BinaryOperatorToken){
 				$operator = $this->binary_operator_registry->get($token->getOperator());
-				return new FunctionCallExpressionToken($operator->getSymbol(), 2, $operator->getOperator(), $operator->isDeterministic(), $token);
+				return new FunctionCallExpressionToken($token->getPos(), $operator->getSymbol(), 2, $operator->getOperator(), $operator->isDeterministic(), $token);
 			}
 			if($token instanceof FunctionCallToken){
 				$name = $token->getFunction();
 				$function = $this->function_registry->get($name);
-				return new FunctionCallExpressionToken($name, $token->getArgumentCount(), $function->closure, $function->deterministic, $token);
+				return new FunctionCallExpressionToken($token->getPos(), $name, $token->getArgumentCount(), $function->closure, $function->deterministic, $token);
 			}
 			if($token instanceof IdentifierToken){
 				$label = $token->getLabel();
 				$constant_value = $this->constant_registry->registered[$label] ?? null;
-				return $constant_value !== null ? new NumericLiteralExpressionToken($constant_value) : new VariableExpressionToken($label);
+				return $constant_value !== null ? new NumericLiteralExpressionToken($token->getPos(), $constant_value) : new VariableExpressionToken($token->getPos(), $label);
 			}
 			if($token instanceof NumericLiteralToken){
-				return new NumericLiteralExpressionToken($token->getValue());
+				return new NumericLiteralExpressionToken($token->getPos(), $token->getValue());
 			}
 			if($token instanceof UnaryOperatorToken){
 				$operator = $this->unary_operator_registry->get($token->getOperator());
-				return new FunctionCallExpressionToken("({$operator->getSymbol()})", 1, $operator->getOperator(), $operator->isDeterministic(), $token);
+				return new FunctionCallExpressionToken($token->getPos(), "({$operator->getSymbol()})", 1, $operator->getOperator(), $operator->isDeterministic(), $token);
 			}
 			throw ParseException::unexpectedToken($expression, $token);
 		}, $tokens));

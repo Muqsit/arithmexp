@@ -6,12 +6,18 @@ namespace muqsit\arithmexp\expression\token;
 
 use InvalidArgumentException;
 use muqsit\arithmexp\expression\Expression;
+use muqsit\arithmexp\Position;
 
 final class VariableExpressionToken implements ExpressionToken{
 
 	public function __construct(
+		public Position $position,
 		public string $label
 	){}
+
+	public function getPos() : Position{
+		return $this->position;
+	}
 
 	public function isDeterministic() : bool{
 		return false;

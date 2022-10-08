@@ -11,6 +11,8 @@ use muqsit\arithmexp\expression\token\ExpressionToken;
 use muqsit\arithmexp\expression\token\FunctionCallExpressionToken;
 use muqsit\arithmexp\expression\token\NumericLiteralExpressionToken;
 use muqsit\arithmexp\Parser;
+use muqsit\arithmexp\Position;
+use muqsit\arithmexp\Util;
 use function array_filter;
 use function array_map;
 use function array_slice;
@@ -37,7 +39,12 @@ final class ConstantFoldingExpressionOptimizer implements ExpressionOptimizer{
 					continue;
 				}
 
-				array_splice($postfix_expression_tokens, $i - $token->argument_count, $token->argument_count + 1, [new NumericLiteralExpressionToken(($token->function)(...array_map(fn(ExpressionToken $token) : int|float => $token->getValue($expression, []), $params)))]);
+				array_splice($postfix_expression_tokens, $i - $token->argument_count, $token->argument_count + 1, [
+					new NumericLiteralExpressionToken(
+						Util::positionContainingExpressionTokens($params),
+						($token->function)(...array_map(static fn(ExpressionToken $token) : int|float => $token->getValue($expression, []), $params))
+					)
+				]);
 				$found = true;
 				++$changes;
 				break;

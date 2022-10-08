@@ -12,9 +12,11 @@ use muqsit\arithmexp\expression\token\FunctionCallExpressionToken;
 use muqsit\arithmexp\expression\token\NumericLiteralExpressionToken;
 use muqsit\arithmexp\expression\token\VariableExpressionToken;
 use muqsit\arithmexp\Parser;
+use muqsit\arithmexp\Position;
 use muqsit\arithmexp\token\BinaryOperatorToken;
 use muqsit\arithmexp\Util;
 use RuntimeException;
+use function array_map;
 use function array_splice;
 use function assert;
 use function count;
@@ -129,26 +131,27 @@ final class OperatorStrengthReductionExpressionOptimizer implements ExpressionOp
 
 		return match($token->getOperator()){
 			"**" => match(true){
-				$this->valueEquals($left, 0) => [new NumericLiteralExpressionToken(0)],
-				$this->valueEquals($left, 1) => [new NumericLiteralExpressionToken(1)],
+				$this->valueEquals($left, 0) => [new NumericLiteralExpressionToken(Util::positionContainingExpressionTokens($left), 0)],
+				$this->valueEquals($left, 1) => [new NumericLiteralExpressionToken(Util::positionContainingExpressionTokens($left), 1)],
 				$this->valueEquals($right, 2) => [
 					...$left,
 					...$left,
-					new FunctionCallExpressionToken($m_op->getSymbol(), 2, $m_op->getOperator(), $m_op->isDeterministic(), $token)
+					new FunctionCallExpressionToken(Util::positionContainingExpressionTokens($right), $m_op->getSymbol(), 2, $m_op->getOperator(), $m_op->isDeterministic(), $token)
 				],
 				$this->valueEquals($right, 1) => $left,
-				$this->valueEquals($right, 0) => [new NumericLiteralExpressionToken(1)],
+				$this->valueEquals($right, 0) => [new NumericLiteralExpressionToken(Util::positionContainingExpressionTokens($right), 1)],
 				default => null
 			},
 			"*" => match(true){
 				$this->valueEquals($left, 1) => $right,
 				$this->valueEquals($right, 1) => $left,
-				$this->valueEquals($left, 0) || $this->valueEquals($right, 0) => [new NumericLiteralExpressionToken(0)],
+				$this->valueEquals($left, 0) => [new NumericLiteralExpressionToken(Util::positionContainingExpressionTokens($left), 0)],
+				$this->valueEquals($right, 0) => [new NumericLiteralExpressionToken(Util::positionContainingExpressionTokens($right), 0)],
 				default => null
 			},
 			"/" => match(true){
-				$this->tokensEqualByReturnValue($left, $right) => [new NumericLiteralExpressionToken(1)],
-				$this->valueEquals($left, 0) => [new NumericLiteralExpressionToken(0)],
+				$this->tokensEqualByReturnValue($left, $right) => [new NumericLiteralExpressionToken(Util::positionContainingExpressionTokens([...$left, ...$right]), 1)],
+				$this->valueEquals($left, 0) => [new NumericLiteralExpressionToken(Util::positionContainingExpressionTokens($left), 0)],
 				$this->valueEquals($right, 1) => $left,
 				default => null
 			},
@@ -158,7 +161,7 @@ final class OperatorStrengthReductionExpressionOptimizer implements ExpressionOp
 				default => null
 			},
 			"-" => match(true){
-				$this->tokensEqualByReturnValue($left, $right) => [new NumericLiteralExpressionToken(0)],
+				$this->tokensEqualByReturnValue($left, $right) => [new NumericLiteralExpressionToken(Util::positionContainingExpressionTokens([...$left, ...$right]), 0)],
 				$this->valueEquals($left, 0) => $right,
 				$this->valueEquals($right, 0) => $left,
 				default => null

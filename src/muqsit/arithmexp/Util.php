@@ -8,6 +8,8 @@ use Closure;
 use Generator;
 use muqsit\arithmexp\expression\token\ExpressionToken;
 use muqsit\arithmexp\expression\token\FunctionCallExpressionToken;
+use muqsit\arithmexp\token\Token;
+use function array_map;
 use function array_slice;
 use function array_splice;
 use function count;
@@ -82,5 +84,21 @@ final class Util{
 			}
 		}
 		return $tree;
+	}
+
+	/**
+	 * @param Token[] $tokens
+	 * @return Position
+	 */
+	public static function positionContainingTokens(array $tokens) : Position{
+		return Position::containing(array_map(static fn(Token $token) : Position => $token->getPos(), $tokens));
+	}
+
+	/**
+	 * @param ExpressionToken[] $tokens
+	 * @return Position
+	 */
+	public static function positionContainingExpressionTokens(array $tokens) : Position{
+		return Position::containing(array_map(static fn(ExpressionToken $token) : Position => $token->getPos(), $tokens));
 	}
 }
