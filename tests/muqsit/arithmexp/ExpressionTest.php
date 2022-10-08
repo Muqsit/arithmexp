@@ -46,7 +46,7 @@ final class ExpressionTest extends TestCase{
 
 	public function testFunctionCallOrder() : void{
 		$capture = [];
-		$fcall_order_test_fn = static function(int $id, int ...$_) use(&$capture) : int{
+		$fn = static function(int $id, int ...$_) use(&$capture) : int{
 			$capture[] = $id;
 			return 0;
 		};
@@ -58,47 +58,47 @@ final class ExpressionTest extends TestCase{
 			return $result;
 		};
 
-		$this->parser->getFunctionRegistry()->register("fcall_order_test_fn", $fcall_order_test_fn);
+		$this->parser->getFunctionRegistry()->register("fn", $fn);
 		self::assertEquals(
-			$do_capture(static fn() => $fcall_order_test_fn(1) + $fcall_order_test_fn(2, $fcall_order_test_fn(3), $fcall_order_test_fn(4)) ** $fcall_order_test_fn(5, $fcall_order_test_fn(6))),
-			$do_capture(fn() => $this->parser->parse("fcall_order_test_fn(1) + fcall_order_test_fn(2, fcall_order_test_fn(3), fcall_order_test_fn(4)) ** fcall_order_test_fn(5, fcall_order_test_fn(6))")->evaluate())
+			$do_capture(static fn() => $fn(1) + $fn(2, $fn(3), $fn(4)) ** $fn(5, $fn(6))),
+			$do_capture(fn() => $this->parser->parse("fn(1) + fn(2, fn(3), fn(4)) ** fn(5, fn(6))")->evaluate())
 		);
 	}
 
 	public function testDeterministicFunctionCall() : void{
 		$disable_fcall = false;
-		$deterministic_fn = static function(int $value) use(&$disable_fcall) : int{
+		$fn = static function(int $value) use(&$disable_fcall) : int{
 			if($disable_fcall){
 				throw new RuntimeException("Attempted to call disabled function");
 			}
 			return $value;
 		};
 
-		$this->parser->getFunctionRegistry()->register("deterministic_fn", $deterministic_fn, true);
-		$expression = $this->parser->parse("2 ** deterministic_fn(2) + deterministic_fn(deterministic_fn(4))");
+		$this->parser->getFunctionRegistry()->register("fn", $fn, true);
+		$expression = $this->parser->parse("2 ** fn(2) + fn(fn(4))");
 		$disable_fcall = true;
 		self::assertEquals(2 ** 2 + 4, $expression->evaluate());
 	}
 
 	public function testVariadicFunctionCallWithNoArgs() : void{
 		$expect = -1809580488;
-		$variadic_fn = static fn(int ...$_) : int => $expect;
-		$this->parser->getFunctionRegistry()->register("variadic_no_args_fn", $variadic_fn);
-		self::assertEquals($expect, $this->parser->parse("variadic_no_args_fn()")->evaluate());
+		$fn = static fn(int ...$_) : int => $expect;
+		$this->parser->getFunctionRegistry()->register("fn", $fn);
+		self::assertEquals($expect, $this->parser->parse("fn()")->evaluate());
 	}
 
 	public function testVariadicFunctionCallWithVariableArgs() : void{
 		$args = [-1272994651, -1912325829, 1481428815, 1337167590, -1613511579];
-		$variadic_fn = static fn(int ...$numbers) : int => array_sum($numbers);
-		$this->parser->getFunctionRegistry()->register("variadic_var_args_fn", $variadic_fn);
-		self::assertEquals($variadic_fn(...$args), $this->parser->parse("variadic_var_args_fn(" . implode(", ", $args) . ")")->evaluate());
+		$fn = static fn(int ...$numbers) : int => array_sum($numbers);
+		$this->parser->getFunctionRegistry()->register("fn", $fn);
+		self::assertEquals($fn(...$args), $this->parser->parse("fn(" . implode(", ", $args) . ")")->evaluate());
 	}
 
 	public function testFunctionCallWithUndefinedOptionalArgs() : void{
-		$default_args_fn = static fn(float $value, int $precision = 0) : float => round($value, $precision);
-		$this->parser->getFunctionRegistry()->register("default_args_fn", $default_args_fn);
-		$expression = $this->parser->parse("39 * default_args_fn(40 * pi) / 47");
-		self::assertEquals(39 * $default_args_fn(40 * M_PI) / 47, $expression->evaluate());
+		$fn = static fn(float $value, int $precision = 0) : float => round($value, $precision);
+		$this->parser->getFunctionRegistry()->register("fn", $fn);
+		$expression = $this->parser->parse("39 * fn(40 * pi) / 47");
+		self::assertEquals(39 * $fn(40 * M_PI) / 47, $expression->evaluate());
 	}
 
 	public function testUnaryOperatorOnGroup() : void{
