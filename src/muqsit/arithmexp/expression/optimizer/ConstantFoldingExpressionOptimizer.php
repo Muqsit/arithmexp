@@ -11,7 +11,6 @@ use muqsit\arithmexp\expression\token\ExpressionToken;
 use muqsit\arithmexp\expression\token\FunctionCallExpressionToken;
 use muqsit\arithmexp\expression\token\NumericLiteralExpressionToken;
 use muqsit\arithmexp\Parser;
-use muqsit\arithmexp\Position;
 use muqsit\arithmexp\Util;
 use function array_filter;
 use function array_map;

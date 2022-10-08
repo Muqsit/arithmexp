@@ -5,25 +5,25 @@ declare(strict_types=1);
 namespace muqsit\arithmexp\expression;
 
 use Closure;
-use const M_PI;
-use const M_E;
-use const M_LOG2E;
-use const M_LOG10E;
-use const M_LN2;
-use const M_LN10;
-use const M_PI_2;
-use const M_PI_4;
+use const INF;
 use const M_1_PI;
 use const M_2_PI;
-use const M_SQRTPI;
 use const M_2_SQRTPI;
+use const M_E;
+use const M_EULER;
+use const M_LN10;
+use const M_LN2;
+use const M_LNPI;
+use const M_LOG10E;
+use const M_LOG2E;
+use const M_PI;
+use const M_PI_2;
+use const M_PI_4;
+use const M_SQRT1_2;
 use const M_SQRT2;
 use const M_SQRT3;
-use const M_SQRT1_2;
-use const M_LNPI;
-use const M_EULER;
+use const M_SQRTPI;
 use const NAN;
-use const INF;
 
 final class ConstantRegistry{
 
