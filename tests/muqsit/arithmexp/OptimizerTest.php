@@ -2,13 +2,15 @@
 
 declare(strict_types=1);
 
+namespace muqsit\arithmexp;
+
+use Closure;
 use muqsit\arithmexp\expression\ConstantExpression;
 use muqsit\arithmexp\expression\Expression;
 use muqsit\arithmexp\expression\token\ExpressionToken;
 use muqsit\arithmexp\operator\binary\assignment\RightBinaryOperatorAssignment;
 use muqsit\arithmexp\operator\binary\BinaryOperatorPrecedence;
 use muqsit\arithmexp\operator\binary\SimpleBinaryOperator;
-use muqsit\arithmexp\Parser;
 use PHPUnit\Framework\TestCase;
 
 final class OptimizerTest extends TestCase{
@@ -20,7 +22,7 @@ final class OptimizerTest extends TestCase{
 
 	private Parser $parser;
 	private Parser $unoptimized_parser;
-	
+
 	protected function setUp() : void{
 		$this->parser = Parser::createDefault();
 		$this->unoptimized_parser = Parser::createUnoptimized();
@@ -182,7 +184,7 @@ final class OptimizerTest extends TestCase{
 	}
 
 	public function testDivisionOperatorStrengthReductionForLeftOperandZeroWithGrouping() : void{
-		$expression  = $this->parser->parse("0 / (x + y + z)");
+		$expression = $this->parser->parse("0 / (x + y + z)");
 		self::assertInstanceOf(ConstantExpression::class, $expression);
 		self::assertEquals(0, $expression->evaluate());
 	}

@@ -2,13 +2,16 @@
 
 declare(strict_types=1);
 
+namespace muqsit\arithmexp;
+
+use Closure;
 use muqsit\arithmexp\operator\binary\assignment\LeftBinaryOperatorAssignment;
 use muqsit\arithmexp\operator\binary\assignment\RightBinaryOperatorAssignment;
 use muqsit\arithmexp\operator\binary\BinaryOperatorPrecedence;
 use muqsit\arithmexp\operator\binary\SimpleBinaryOperator;
 use muqsit\arithmexp\operator\unary\SimpleUnaryOperator;
-use muqsit\arithmexp\Parser;
 use PHPUnit\Framework\TestCase;
+use RuntimeException;
 
 final class ExpressionTest extends TestCase{
 

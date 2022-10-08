@@ -2,14 +2,15 @@
 
 declare(strict_types=1);
 
-use muqsit\arithmexp\ParseException;
-use muqsit\arithmexp\Parser;
+namespace muqsit\arithmexp;
+
 use PHPUnit\Framework\TestCase;
+use RuntimeException;
 
 final class ParserTest extends TestCase{
 
 	private Parser $parser;
-	
+
 	protected function setUp() : void{
 		$this->parser = Parser::createDefault();
 	}
