@@ -9,14 +9,14 @@ use PHPUnit\Framework\TestCase;
 final class ParserTest extends TestCase{
 
 	private Parser $parser;
-
-	private function getParser() : Parser{
-		return $this->parser ??= Parser::createDefault();
+	
+	protected function setUp() : void{
+		$this->parser = Parser::createDefault();
 	}
 
 	private function assertParserThrows(string $expression, int $code, int $start_pos, int $end_pos) : void{
 		try{
-			$this->getParser()->parse($expression);
+			$this->parser->parse($expression);
 		}catch(ParseException $e){
 			self::assertEquals($code, $e->getCode());
 			self::assertEquals($start_pos, $e->getStartPos());
@@ -68,17 +68,17 @@ final class ParserTest extends TestCase{
 	}
 
 	public function testBadFunctionCallWithMalformedArgumentList() : void{
-		$this->getParser()->getFunctionRegistry()->register("malformedArgFnTest", static fn(int $x, int $y) : int => $x + $y);
+		$this->parser->getFunctionRegistry()->register("malformedArgFnTest", static fn(int $x, int $y) : int => $x + $y);
 		$this->assertParserThrows("x + malformedArgFnTest(2 3) * y", ParseException::ERR_UNEXPECTED_TOKEN, 25, 26);
 	}
 
 	public function testBadFunctionCallWithMissingRequiredTrailingArguments() : void{
-		$this->getParser()->getFunctionRegistry()->register("missingTrailingArgFnTest", static fn(int $x, int $y) : int => $x + $y);
+		$this->parser->getFunctionRegistry()->register("missingTrailingArgFnTest", static fn(int $x, int $y) : int => $x + $y);
 		$this->assertParserThrows("x + missingTrailingArgFnTest(2, ) * y", ParseException::ERR_UNRESOLVABLE_FCALL, 4, 33);
 	}
 
 	public function testBadFunctionCallWithMissingRequiredLeadingArguments() : void{
-		$this->getParser()->getFunctionRegistry()->register("missingLeadingArgFnTest", static fn(int $x, int $y) : int => $x + $y);
+		$this->parser->getFunctionRegistry()->register("missingLeadingArgFnTest", static fn(int $x, int $y) : int => $x + $y);
 		$this->assertParserThrows("x + missingLeadingArgFnTest(, 2) * y", ParseException::ERR_UNRESOLVABLE_FCALL, 4, 32);
 	}
 
@@ -87,7 +87,7 @@ final class ParserTest extends TestCase{
 	}
 
 	public function testBadFunctionCallWithArgumentOverflow() : void{
-		$this->getParser()->getFunctionRegistry()->register("argOverflowFnTest", static fn(int $x, int $y) : int => $x + $y);
+		$this->parser->getFunctionRegistry()->register("argOverflowFnTest", static fn(int $x, int $y) : int => $x + $y);
 		$this->assertParserThrows("x + argOverflowFnTest(3, 2, 1) * y", ParseException::ERR_UNRESOLVABLE_FCALL, 4, 30);
 	}
 
