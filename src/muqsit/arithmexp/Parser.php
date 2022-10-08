@@ -193,7 +193,7 @@ final class Parser{
 			/** @var Token[] $group */
 			$group = [];
 			$j = $i + 1;
-			while(!(($tokens[$j] ?? throw ParseException::noClosingParenthesis($expression, $token)) instanceof RightParenthesisToken)){
+			while(!(($tokens[$j] ?? throw ParseException::noClosingParenthesis($expression, $token->getPos())) instanceof RightParenthesisToken)){
 				$group[] = $tokens[$j++];
 			}
 
@@ -206,7 +206,7 @@ final class Parser{
 		}
 
 		if(isset($right_parens[$right_parens_found])){
-			throw ParseException::noOpeningParenthesis($expression, $right_parens[$right_parens_found]);
+			throw ParseException::noOpeningParenthesis($expression, $right_parens[$right_parens_found]->getPos());
 		}
 	}
 
@@ -225,7 +225,7 @@ final class Parser{
 				if($token instanceof UnaryOperatorToken){
 					array_splice($entry, $i, 2, [[
 						$token,
-						$entry[$i + 1] ?? throw ParseException::noUnaryOperand($expression, $token)
+						$entry[$i + 1] ?? throw ParseException::noUnaryOperand($expression, $token->getPos())
 					]]);
 				}
 			}
@@ -247,9 +247,9 @@ final class Parser{
 				$operators = $list->getOperators();
 				foreach($list->getAssignment()->traverse($operators, $entry) as $index => $value){
 					array_splice($entry, $index - 1, 3, [[
-						$entry[$index - 1] ?? throw ParseException::noBinaryOperandLeft($expression, $value),
+						$entry[$index - 1] ?? throw ParseException::noBinaryOperandLeft($expression, $value->getPos()),
 						$value,
-						$entry[$index + 1] ?? throw ParseException::noBinaryOperandRight($expression, $value)
+						$entry[$index + 1] ?? throw ParseException::noBinaryOperandRight($expression, $value->getPos())
 					]]);
 				}
 			}
@@ -296,7 +296,7 @@ final class Parser{
 				try{
 					$function = $this->function_registry->get($token->getFunction());
 				}catch(InvalidArgumentException $e){
-					throw ParseException::unresolvableFcallGeneric($expression, $token, $e->getMessage(), $e);
+					throw ParseException::unresolvableFcallGeneric($expression, $token->getPos(), $e->getMessage(), $e);
 				}
 
 				$args_c = $token->getArgumentCount();
@@ -340,7 +340,7 @@ final class Parser{
 				for($j = 0; $j < $params_c; ++$j){
 					if($params[$j] === null){
 						if(isset($function->fallback_param_values[$j])){
-							$params[$j] = new NumericLiteralToken($token->getStartPos() + $l, $token->getEndPos() + $l, $function->fallback_param_values[$j]);
+							$params[$j] = new NumericLiteralToken($token->getPos()->offset($l, $l), $function->fallback_param_values[$j]);
 							++$l;
 						}else{
 							throw ParseException::unresolvableFcallNoDefaultParamValue($expression, $token, $j + 1);
@@ -349,16 +349,16 @@ final class Parser{
 				}
 
 				if($params_c !== $args_c){
-					throw new RuntimeException("Failed to parse complete list of arguments (" . $params_c . " !== {$args_c}) in function call at \"" . substr($expression, $token->getStartPos(), $token->getEndPos() - $token->getStartPos()) . "\" ({$token->getStartPos()}:{$token->getEndPos()}) in \"{$expression}\"");
+					throw new RuntimeException("Failed to parse complete list of arguments (" . $params_c . " !== {$args_c}) in function call at \"" . substr($expression, $token->getPos()->getStart(), $token->getPos()->length()) . "\" ({$token->getPos()->getStart()}:{$token->getPos()->getEnd()}) in \"{$expression}\"");
 				}
 
 				if(!$function->variadic){
 					$expected_c = count(array_filter($function->fallback_param_values, static fn(mixed $value) : bool => $value === null));
 					if($params_c < $expected_c){
-						throw ParseException::unresolvableFcallTooLessParams($expression, $token, $expected_c, $params_c);
+						throw ParseException::unresolvableFcallTooLessParams($expression, $token->getPos(), $expected_c, $params_c);
 					}
 					if($params_c > count($function->fallback_param_values)){
-						throw ParseException::unresolvableFcallTooManyParams($expression, $token, $function, $params_c);
+						throw ParseException::unresolvableFcallTooManyParams($expression, $token->getPos(), $function, $params_c);
 					}
 				}
 

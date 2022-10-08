@@ -4,10 +4,12 @@ declare(strict_types=1);
 
 namespace muqsit\arithmexp\token;
 
+use muqsit\arithmexp\Position;
+
 final class RightParenthesisToken extends SimpleToken{
 
-	public function __construct(int $start_pos, int $end_pos){
-		parent::__construct(TokenType::PARENTHESIS_RIGHT(), $start_pos, $end_pos);
+	public function __construct(Position $position){
+		parent::__construct(TokenType::PARENTHESIS_RIGHT(), $position);
 	}
 
 	public function jsonSerialize() : string{

@@ -63,7 +63,7 @@ final class Scanner{
 
 			$last_token_end = null;
 			foreach($scanner->build($state) as $token){
-				$last_token_end = $token->getEndPos();
+				$last_token_end = $token->getPos()->getEnd();
 				$state->captured_tokens[] = $token;
 			}
 

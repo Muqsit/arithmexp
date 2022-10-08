@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace muqsit\arithmexp\token\builder;
 
 use Generator;
+use muqsit\arithmexp\Position;
 use muqsit\arithmexp\token\IdentifierToken;
 
 final class IdentifierTokenBuilder implements TokenBuilder{
@@ -30,7 +31,7 @@ final class IdentifierTokenBuilder implements TokenBuilder{
 		}
 
 		if($name !== ""){
-			yield new IdentifierToken($start, $offset, $name);
+			yield new IdentifierToken(new Position($start, $offset), $name);
 		}
 	}
 

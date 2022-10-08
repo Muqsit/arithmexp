@@ -6,6 +6,7 @@ namespace muqsit\arithmexp\token\builder;
 
 use Generator;
 use muqsit\arithmexp\operator\unary\UnaryOperatorRegistry;
+use muqsit\arithmexp\Position;
 use muqsit\arithmexp\token\IdentifierToken;
 use muqsit\arithmexp\token\NumericLiteralToken;
 use muqsit\arithmexp\token\RightParenthesisToken;
@@ -49,7 +50,7 @@ final class UnaryOperatorTokenBuilder implements TokenBuilder{
 					(!($token instanceof UnaryOperatorToken) || $token->getOperator() !== $operator) &&
 					substr($expression, $offset, strlen($operator)) === $operator
 				){
-					yield new UnaryOperatorToken($offset, $offset + strlen($operator), $operator);
+					yield new UnaryOperatorToken(new Position($offset, $offset + strlen($operator)), $operator);
 					break;
 				}
 			}

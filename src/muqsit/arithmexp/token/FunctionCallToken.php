@@ -4,15 +4,16 @@ declare(strict_types=1);
 
 namespace muqsit\arithmexp\token;
 
+use muqsit\arithmexp\Position;
+
 final class FunctionCallToken extends SimpleToken{
 
 	public function __construct(
-		int $start_pos,
-		int $end_pos,
+		Position $position,
 		private string $function,
 		private int $argument_count
 	){
-		parent::__construct(TokenType::FUNCTION_CALL(), $start_pos, $end_pos);
+		parent::__construct(TokenType::FUNCTION_CALL(), $position);
 	}
 
 	public function getFunction() : string{

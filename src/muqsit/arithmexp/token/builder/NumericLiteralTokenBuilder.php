@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace muqsit\arithmexp\token\builder;
 
 use Generator;
+use muqsit\arithmexp\Position;
 use muqsit\arithmexp\token\NumericLiteralToken;
 use function rtrim;
 use function str_contains;
@@ -41,7 +42,7 @@ final class NumericLiteralTokenBuilder implements TokenBuilder{
 
 		if($value !== ""){
 			$numeric_value = str_contains($value, ".") ? (float) $value : (int) $value;
-			yield new NumericLiteralToken($start, $offset, $numeric_value);
+			yield new NumericLiteralToken(new Position($start, $offset), $numeric_value);
 		}
 	}
 

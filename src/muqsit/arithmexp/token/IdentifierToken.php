@@ -4,14 +4,15 @@ declare(strict_types=1);
 
 namespace muqsit\arithmexp\token;
 
+use muqsit\arithmexp\Position;
+
 final class IdentifierToken extends SimpleToken{
 
 	public function __construct(
-		int $start_pos,
-		int $end_pos,
+		Position $position,
 		private string $label
 	){
-		parent::__construct(TokenType::IDENTIFIER(), $start_pos, $end_pos);
+		parent::__construct(TokenType::IDENTIFIER(), $position);
 	}
 
 	public function getLabel() : string{

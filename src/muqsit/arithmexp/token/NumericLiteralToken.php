@@ -4,14 +4,15 @@ declare(strict_types=1);
 
 namespace muqsit\arithmexp\token;
 
+use muqsit\arithmexp\Position;
+
 final class NumericLiteralToken extends SimpleToken{
 
 	public function __construct(
-		int $start_pos,
-		int $end_pos,
+		Position $position,
 		private int|float $value
 	){
-		parent::__construct(TokenType::NUMERIC_LITERAL(), $start_pos, $end_pos);
+		parent::__construct(TokenType::NUMERIC_LITERAL(), $position);
 	}
 
 	public function getValue() : int|float{

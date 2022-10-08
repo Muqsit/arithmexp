@@ -31,83 +31,82 @@ final class ParseException extends Exception{
 	public static function generateWithHighlightedSubstring(self $exception) : self{
 		return new self(
 			$exception->expression,
-			$exception->start_pos,
-			$exception->end_pos,
+			$exception->position,
 			$exception->getMessage() . PHP_EOL .
 			" | " . $exception->expression . PHP_EOL .
-			" | " . str_repeat(" ", $exception->start_pos) . str_repeat("^", $exception->end_pos - $exception->start_pos),
+			" | " . str_repeat(" ", $exception->position->getStart()) . str_repeat("^", $exception->position->length()),
 			$exception->code,
 			$exception->getPrevious()
 		);
 	}
 
 	public static function emptyExpression(string $expression) : self{
-		return self::generateWithHighlightedSubstring(new self($expression, 0, strlen($expression), sprintf("Expression \"%s\" is empty", $expression), self::ERR_EXPR_EMPTY));
+		return self::generateWithHighlightedSubstring(new self($expression, new Position(0, strlen($expression)), sprintf("Expression \"%s\" is empty", $expression), self::ERR_EXPR_EMPTY));
 	}
 
-	public static function noBinaryOperandLeft(string $expression, Token $token) : self{
-		return self::generateWithHighlightedSubstring(new self($expression, $token->getStartPos(), $token->getEndPos(), sprintf(
+	public static function noBinaryOperandLeft(string $expression, Position $position) : self{
+		return self::generateWithHighlightedSubstring(new self($expression, $position, sprintf(
 			"No left operand specified for binary operator at \"%s\" (%d:%d) in \"%s\"",
-			substr($expression, $token->getStartPos(), $token->getEndPos() - $token->getStartPos()),
-			$token->getStartPos(),
-			$token->getEndPos(),
+			substr($expression, $position->getStart(), $position->length()),
+			$position->getStart(),
+			$position->getEnd(),
 			$expression
 		), self::ERR_NO_OPERAND_BINARY_LEFT));
 	}
 
-	public static function noBinaryOperandRight(string $expression, Token $token) : self{
-		return self::generateWithHighlightedSubstring(new self($expression, $token->getStartPos(), $token->getEndPos(), sprintf(
+	public static function noBinaryOperandRight(string $expression, Position $position) : self{
+		return self::generateWithHighlightedSubstring(new self($expression, $position, sprintf(
 			"No right operand specified for binary operator at \"%s\" (%d:%d) in \"%s\"",
-			substr($expression, $token->getStartPos(), $token->getEndPos() - $token->getStartPos()),
-			$token->getStartPos(),
-			$token->getEndPos(),
+			substr($expression, $position->getStart(), $position->length()),
+			$position->getStart(),
+			$position->getEnd(),
 			$expression
 		), self::ERR_NO_OPERAND_BINARY_RIGHT));
 	}
 
-	public static function noClosingParenthesis(string $expression, Token $token) : self{
-		return self::generateWithHighlightedSubstring(new self($expression, $token->getStartPos(), $token->getEndPos(), sprintf(
+	public static function noClosingParenthesis(string $expression, Position $position) : self{
+		return self::generateWithHighlightedSubstring(new self($expression, $position, sprintf(
 			"No closing parenthesis specified for opening parenthesis at \"%s\" (%d:%d) in \"%s\"",
-			substr($expression, $token->getStartPos(), $token->getEndPos() - $token->getStartPos()),
-			$token->getStartPos(),
-			$token->getEndPos(),
+			substr($expression, $position->getStart(), $position->length()),
+			$position->getStart(),
+			$position->getEnd(),
 			$expression
 		), self::ERR_NO_CLOSING_PAREN));
 	}
 
-	public static function noOpeningParenthesis(string $expression, Token $token) : self{
-		return self::generateWithHighlightedSubstring(new self($expression, $token->getStartPos(), $token->getEndPos(), sprintf(
+	public static function noOpeningParenthesis(string $expression, Position $position) : self{
+		return self::generateWithHighlightedSubstring(new self($expression, $position, sprintf(
 			"No opening parenthesis specified for closing parenthesis at \"%s\" (%d:%d) in \"%s\"",
-			substr($expression, $token->getStartPos(), $token->getEndPos() - $token->getStartPos()),
-			$token->getStartPos(),
-			$token->getEndPos(),
+			substr($expression, $position->getStart(), $position->length()),
+			$position->getStart(),
+			$position->getEnd(),
 			$expression
 		), self::ERR_NO_OPENING_PAREN));
 	}
 
-	public static function noUnaryOperand(string $expression, Token $token) : self{
-		return self::generateWithHighlightedSubstring(new self($expression, $token->getStartPos(), $token->getEndPos(), sprintf(
+	public static function noUnaryOperand(string $expression, Position $position) : self{
+		return self::generateWithHighlightedSubstring(new self($expression, $position, sprintf(
 			"No operand specified for unary operator at \"%s\" (%d:%d) in \"%s\"",
-			substr($expression, $token->getStartPos(), $token->getEndPos() - $token->getStartPos()),
-			$token->getStartPos(),
-			$token->getEndPos(),
+			substr($expression, $position->getStart(), $position->length()),
+			$position->getStart(),
+			$position->getEnd(),
 			$expression
 		), self::ERR_NO_OPERAND_UNARY));
 	}
 
 	public static function unexpectedToken(string $expression, Token $token) : self{
-		return self::generateWithHighlightedSubstring(new self($expression, $token->getStartPos(), $token->getEndPos(), sprintf(
+		return self::generateWithHighlightedSubstring(new self($expression, $token->getPos(), sprintf(
 			"Unexpected %s token encountered at \"%s\" (%d:%d) in \"%s\"",
 			$token->getType()->getName(),
-			substr($expression, $token->getStartPos(), $token->getEndPos() - $token->getStartPos()),
-			$token->getStartPos(),
-			$token->getEndPos(),
+			substr($expression, $token->getPos()->getStart(), $token->getPos()->length()),
+			$token->getPos()->getStart(),
+			$token->getPos()->getEnd(),
 			$expression
 		), self::ERR_UNEXPECTED_TOKEN));
 	}
 
 	public static function unexpectedTokenWhenParsing(TokenBuilderState $state) : self{
-		return self::generateWithHighlightedSubstring(new self($state->expression, $state->offset, $state->length, sprintf(
+		return self::generateWithHighlightedSubstring(new self($state->expression, new Position($state->offset, $state->length), sprintf(
 			"Unexpected token encountered at (%d:%d) \"%s\" when parsing \"%s\"",
 			$state->offset,
 			$state->length,
@@ -116,27 +115,27 @@ final class ParseException extends Exception{
 		), self::ERR_UNEXPECTED_TOKEN));
 	}
 
-	private static function unresolvableFcall(string $expression, Token $token, string $reason, ?Throwable $previous = null) : self{
-		return new self($expression, $token->getStartPos(), $token->getEndPos(), sprintf(
+	private static function unresolvableFcall(string $expression, Position $position, string $reason, ?Throwable $previous = null) : self{
+		return new self($expression, $position, sprintf(
 			"Cannot resolve function call at \"%s\" (%d:%d) in \"%s\": %s",
-			substr($expression, $token->getStartPos(), $token->getEndPos() - $token->getStartPos()),
-			$token->getStartPos(),
-			$token->getEndPos(),
+			substr($expression, $position->getStart(), $position->length()),
+			$position->getStart(),
+			$position->getEnd(),
 			$expression,
 			$reason
 		), self::ERR_UNRESOLVABLE_FCALL, $previous);
 	}
 
-	public static function unresolvableFcallGeneric(string $expression, Token $token, string $reason, ?Throwable $previous = null) : self{
-		return self::generateWithHighlightedSubstring(self::unresolvableFcall($expression, $token, $reason, $previous));
+	public static function unresolvableFcallGeneric(string $expression, Position $position, string $reason, ?Throwable $previous = null) : self{
+		return self::generateWithHighlightedSubstring(self::unresolvableFcall($expression, $position, $reason, $previous));
 	}
 
 	public static function unresolvableFcallNoDefaultParamValue(string $expression, FunctionCallToken $token, int $parameter) : self{
-		return self::generateWithHighlightedSubstring(self::unresolvableFcall($expression, $token, sprintf("Function \"%s\" does not have a default value for parameter #%d", $token->getFunction(), $parameter)));
+		return self::generateWithHighlightedSubstring(self::unresolvableFcall($expression, $token->getPos(), sprintf("Function \"%s\" does not have a default value for parameter #%d", $token->getFunction(), $parameter)));
 	}
 
-	public static function unresolvableFcallTooLessParams(string $expression, FunctionCallToken $token, int $expected, int $params_c) : self{
-		return self::generateWithHighlightedSubstring(self::unresolvableFcall($expression, $token, sprintf(
+	public static function unresolvableFcallTooLessParams(string $expression, Position $position, int $expected, int $params_c) : self{
+		return self::generateWithHighlightedSubstring(self::unresolvableFcall($expression, $position, sprintf(
 			"Too less parameters supplied to function call: Expected %d parameter%s, got %d parameter%s",
 			$expected,
 			$expected === 1 ? "" : "s",
@@ -145,8 +144,8 @@ final class ParseException extends Exception{
 		)));
 	}
 
-	public static function unresolvableFcallTooManyParams(string $expression, FunctionCallToken $token, FunctionInfo $function, int $params_c) : self{
-		return self::generateWithHighlightedSubstring(self::unresolvableFcall($expression, $token, sprintf(
+	public static function unresolvableFcallTooManyParams(string $expression, Position $position, FunctionInfo $function, int $params_c) : self{
+		return self::generateWithHighlightedSubstring(self::unresolvableFcall($expression, $position, sprintf(
 			"Too many parameters supplied to function call: Expected %d parameter%s, got %d parameter%s",
 			count($function->fallback_param_values),
 			count($function->fallback_param_values) === 1 ? "" : "s",
@@ -157,8 +156,7 @@ final class ParseException extends Exception{
 
 	public function __construct(
 		private string $expression,
-		private int $start_pos,
-		private int $end_pos,
+		private Position $position,
 		string $message = "",
 		int $code = 0,
 		?Throwable $previous = null
@@ -170,15 +168,11 @@ final class ParseException extends Exception{
 		return $this->expression;
 	}
 
-	public function getStartPos() : int{
-		return $this->start_pos;
-	}
-
-	public function getEndPos() : int{
-		return $this->end_pos;
+	public function getPos() : Position{
+		return $this->position;
 	}
 
 	public function getExpressionSubstring() : string{
-		return substr($this->expression, $this->start_pos, $this->end_pos - $this->start_pos);
+		return substr($this->expression, $this->position->getStart(), $this->position->length());
 	}
 }

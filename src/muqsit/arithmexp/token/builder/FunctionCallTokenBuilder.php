@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace muqsit\arithmexp\token\builder;
 
 use Generator;
+use muqsit\arithmexp\Position;
 use muqsit\arithmexp\token\FunctionCallArgumentSeparatorToken;
 use muqsit\arithmexp\token\FunctionCallToken;
 use muqsit\arithmexp\token\IdentifierToken;
@@ -20,7 +21,7 @@ final class FunctionCallTokenBuilder implements TokenBuilder{
 	public function build(TokenBuilderState $state) : Generator{
 		$char = $state->expression[$state->offset];
 		if($char === ","){
-			yield new FunctionCallArgumentSeparatorToken($state->offset, $state->offset + 1);
+			yield new FunctionCallArgumentSeparatorToken(new Position($state->offset, $state->offset + 1));
 		}
 	}
 
@@ -39,7 +40,7 @@ final class FunctionCallTokenBuilder implements TokenBuilder{
 
 			$open_parentheses = 0;
 			$argument_count = 0;
-			$end_pos = $token->getEndPos();
+			$end_pos = $token->getPos()->getEnd();
 			for($j = $i + 2; $j < $count; ++$j){
 				$inner_token = $state->captured_tokens[$j];
 				if($inner_token instanceof LeftParenthesisToken){
@@ -49,7 +50,7 @@ final class FunctionCallTokenBuilder implements TokenBuilder{
 
 				if($inner_token instanceof RightParenthesisToken){
 					if(--$open_parentheses < 0){
-						$end_pos = $inner_token->getEndPos();
+						$end_pos = $inner_token->getPos()->getEnd();
 						break;
 					}
 					continue;
@@ -69,7 +70,7 @@ final class FunctionCallTokenBuilder implements TokenBuilder{
 				}
 			}
 
-			$state->captured_tokens[$i] = new FunctionCallToken($token->getStartPos(), $end_pos, $token->getLabel(), $argument_count);
+			$state->captured_tokens[$i] = new FunctionCallToken(new Position($token->getPos()->getStart(), $end_pos), $token->getLabel(), $argument_count);
 		}
 	}
 }

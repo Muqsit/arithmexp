@@ -4,14 +4,15 @@ declare(strict_types=1);
 
 namespace muqsit\arithmexp\token;
 
+use muqsit\arithmexp\Position;
+
 final class UnaryOperatorToken extends SimpleToken{
 
 	public function __construct(
-		int $start_pos,
-		int $end_pos,
+		Position $position,
 		private string $operator
 	){
-		parent::__construct(TokenType::UNARY_OPERATOR(), $start_pos, $end_pos);
+		parent::__construct(TokenType::UNARY_OPERATOR(), $position);
 	}
 
 	public function getOperator() : string{

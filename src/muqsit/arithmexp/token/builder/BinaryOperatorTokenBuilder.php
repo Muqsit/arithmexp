@@ -6,6 +6,7 @@ namespace muqsit\arithmexp\token\builder;
 
 use Generator;
 use muqsit\arithmexp\operator\binary\BinaryOperatorRegistry;
+use muqsit\arithmexp\Position;
 use muqsit\arithmexp\token\BinaryOperatorToken;
 use muqsit\arithmexp\token\IdentifierToken;
 use muqsit\arithmexp\token\NumericLiteralToken;
@@ -46,7 +47,7 @@ final class BinaryOperatorTokenBuilder implements TokenBuilder{
 			$expression = $state->expression;
 			foreach($this->operators as $operator){
 				if(substr($expression, $offset, strlen($operator)) === $operator){
-					yield new BinaryOperatorToken($offset, $offset + strlen($operator), $operator);
+					yield new BinaryOperatorToken(new Position($offset, $offset + strlen($operator)), $operator);
 					break;
 				}
 			}
