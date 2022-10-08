@@ -46,7 +46,7 @@ final class Scanner{
 	 */
 	public function scan(string $expression) : array{
 		reset($this->token_scanners);
-		$state = new TokenBuilderState($expression, [], 0, strlen($expression), 0);
+		$state = TokenBuilderState::fromExpression($expression);
 		while($state->offset < $state->length){
 			if($state->expression[$state->offset] === " "){ // ignore space
 				$state->offset++;

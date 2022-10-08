@@ -6,8 +6,13 @@ namespace muqsit\arithmexp\token\builder;
 
 use muqsit\arithmexp\token\Token;
 use function array_key_last;
+use function strlen;
 
 final class TokenBuilderState{
+
+	public static function fromExpression(string $expression) : self{
+		return new self($expression, [], 0, strlen($expression), 0);
+	}
 
 	/**
 	 * @param string $expression
