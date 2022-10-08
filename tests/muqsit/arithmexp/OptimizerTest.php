@@ -34,6 +34,12 @@ final class OptimizerTest extends TestCase{
 		self::assertEquals(37.28 * cos(37) + sin(85) * 22 / cos(73) + sin(91) + 84.47 * cos(68) + sin(29), $expression->evaluate());
 	}
 
+	public function testConstantFoldingOptimizationForNumericLiteral() : void{
+		$expression = $this->parser->parse("1.23");
+		self::assertInstanceOf(ConstantExpression::class, $expression);
+		self::assertEquals(1.23, $expression->evaluate());
+	}
+
 	public function testConstantPropagationOptimization() : void{
 		$actual = $this->parser->parse("37.28 * cos(x) + sin(85) * 22 / cos(73) + sin(91) + 84.47 * cos(z) + sin(32)");
 		$expected = $this->unoptimized_parser->parse("5.919166371412 + 37.28 * cos(x) + 84.47 * cos(z)");
