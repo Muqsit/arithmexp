@@ -135,6 +135,16 @@ final class ParseException extends Exception{
 		return self::generateWithHighlightedSubstring(self::unresolvableFcall($expression, $token, sprintf("Function \"%s\" does not have a default value for parameter #%d", $token->getFunction(), $parameter)));
 	}
 
+	public static function unresolvableFcallTooLessParams(string $expression, FunctionCallToken $token, int $expected, int $params_c) : self{
+		return self::generateWithHighlightedSubstring(self::unresolvableFcall($expression, $token, sprintf(
+			"Too less parameters supplied to function call: Expected %d parameter%s, got %d parameter%s",
+			$expected,
+			$expected === 1 ? "" : "s",
+			$params_c,
+			$params_c === 1 ? "" : "s"
+		)));
+	}
+
 	public static function unresolvableFcallTooManyParams(string $expression, FunctionCallToken $token, FunctionInfo $function, int $params_c) : self{
 		return self::generateWithHighlightedSubstring(self::unresolvableFcall($expression, $token, sprintf(
 			"Too many parameters supplied to function call: Expected %d parameter%s, got %d parameter%s",

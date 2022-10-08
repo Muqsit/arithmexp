@@ -26,6 +26,7 @@ use muqsit\arithmexp\token\RightParenthesisToken;
 use muqsit\arithmexp\token\Token;
 use muqsit\arithmexp\token\UnaryOperatorToken;
 use RuntimeException;
+use function array_filter;
 use function array_key_last;
 use function array_map;
 use function array_shift;
@@ -34,6 +35,7 @@ use function array_unshift;
 use function assert;
 use function count;
 use function is_array;
+use function min;
 use function substr;
 
 final class Parser{
@@ -298,6 +300,7 @@ final class Parser{
 				}
 
 				$args_c = $token->getArgumentCount();
+
 				$param_tokens = $entry[$i + 1] ?? [];
 				assert(is_array($param_tokens));
 
@@ -332,8 +335,9 @@ final class Parser{
 					$params[] = null;
 				}
 
+				$params_c = count($params);
 				$l = 0;
-				for($j = 0, $max = count($params); $j < $max; ++$j){
+				for($j = 0; $j < $params_c; ++$j){
 					if($params[$j] === null){
 						if(isset($function->fallback_param_values[$j])){
 							$params[$j] = new NumericLiteralToken($token->getStartPos() + $l, $token->getEndPos() + $l, $function->fallback_param_values[$j]);
@@ -344,12 +348,18 @@ final class Parser{
 					}
 				}
 
-				if(count($params) !== $args_c){
-					throw new RuntimeException("Failed to parse complete list of arguments (" . count($params) . " !== {$args_c}) in function call at \"" . substr($expression, $token->getStartPos(), $token->getEndPos() - $token->getStartPos()) . "\" ({$token->getStartPos()}:{$token->getEndPos()}) in \"{$expression}\"");
+				if($params_c !== $args_c){
+					throw new RuntimeException("Failed to parse complete list of arguments (" . $params_c . " !== {$args_c}) in function call at \"" . substr($expression, $token->getStartPos(), $token->getEndPos() - $token->getStartPos()) . "\" ({$token->getStartPos()}:{$token->getEndPos()}) in \"{$expression}\"");
 				}
 
-				if(!$function->variadic && count($params) > count($function->fallback_param_values)){
-					throw ParseException::unresolvableFcallTooManyParams($expression, $token, $function, count($params));
+				if(!$function->variadic){
+					$expected_c = count(array_filter($function->fallback_param_values, static fn(mixed $value) : bool => $value === null));
+					if($params_c < $expected_c){
+						throw ParseException::unresolvableFcallTooLessParams($expression, $token, $expected_c, $params_c);
+					}
+					if($params_c > count($function->fallback_param_values)){
+						throw ParseException::unresolvableFcallTooManyParams($expression, $token, $function, $params_c);
+					}
 				}
 
 				array_splice($entry, $i, $args_c > 0 ? 2 : 1, [[$token, ...$params]]);
