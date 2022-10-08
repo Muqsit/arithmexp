@@ -93,6 +93,10 @@ final class Parser{
 		return $this->expression_optimizer_registry;
 	}
 
+	public function getScanner() : Scanner{
+		return $this->scanner;
+	}
+
 	/**
 	 * Parses a given mathematical expression for runtime evaluation.
 	 *
