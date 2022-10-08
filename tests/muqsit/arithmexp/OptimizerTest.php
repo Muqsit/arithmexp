@@ -166,9 +166,9 @@ final class OptimizerTest extends TestCase{
 	}
 
 	public function testDivisionOperatorStrengthReductionForEqualOperands() : void{
-		$actual = $this->parser->parse("x / x + y / y + z / z");
-		$expected = $this->unoptimized_parser->parse("3");
-		self::assertExpressionsEqual($expected, $actual);
+		$expression = $this->parser->parse("x / x + y / y + z / z");
+		self::assertInstanceOf(ConstantExpression::class, $expression);
+		self::assertEquals(3, $expression->evaluate());
 	}
 
 	public function testDivisionOperatorStrengthReductionForEqualOperandsWithGrouping() : void{
@@ -232,9 +232,9 @@ final class OptimizerTest extends TestCase{
 	}
 
 	public function testSubtractionOperatorStrengthReductionForEqualOperands() : void{
-		$actual = $this->parser->parse("x ** (x - x) - 1");
-		$expected = $this->unoptimized_parser->parse("0");
-		self::assertExpressionsEqual($expected, $actual);
+		$expression = $this->parser->parse("x ** (x - x) - 1");
+		self::assertInstanceOf(ConstantExpression::class, $expression);
+		self::assertEquals(0, $expression->evaluate());
 	}
 
 	public function testSubtractionOperatorStrengthReductionForEqualOperandsWithGrouping() : void{

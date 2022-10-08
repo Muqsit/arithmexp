@@ -76,7 +76,7 @@ final class OperatorStrengthReductionExpressionOptimizer implements ExpressionOp
 		}
 
 		return count($postfix_expression_tokens) === 1 && $postfix_expression_tokens[0] instanceof NumericLiteralExpressionToken ?
-			new ConstantExpression($expression->getExpression(), $postfix_expression_tokens, $postfix_expression_tokens[0]->value) :
+			new ConstantExpression($expression->getExpression(), $postfix_expression_tokens[0]->value) :
 			new RawExpression($expression->getExpression(), $postfix_expression_tokens);
 	}
 

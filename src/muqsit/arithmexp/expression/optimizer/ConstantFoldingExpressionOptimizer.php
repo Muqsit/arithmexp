@@ -55,7 +55,7 @@ final class ConstantFoldingExpressionOptimizer implements ExpressionOptimizer{
 		}
 
 		return count($postfix_expression_tokens) === 1 && $postfix_expression_tokens[0]->isDeterministic() ?
-			new ConstantExpression($expression->getExpression(), $postfix_expression_tokens, $postfix_expression_tokens[0]->getValue($expression, [])) :
+			new ConstantExpression($expression->getExpression(), $postfix_expression_tokens[0]->getValue($expression, [])) :
 			new RawExpression($expression->getExpression(), $postfix_expression_tokens);
 	}
 }
