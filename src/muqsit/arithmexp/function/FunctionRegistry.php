@@ -6,6 +6,7 @@ namespace muqsit\arithmexp\function;
 
 use Closure;
 use InvalidArgumentException;
+use function mt_rand;
 
 final class FunctionRegistry{
 
@@ -35,10 +36,10 @@ final class FunctionRegistry{
 		$registry->register("log10", Closure::fromCallable("log10"), true);
 		$registry->register("log1p", Closure::fromCallable("log1p"), true);
 		$registry->register("log", Closure::fromCallable("log"), true);
-		$registry->register("max", Closure::fromCallable("max"), true);
-		$registry->register("min", Closure::fromCallable("min"), true);
+		$registry->register("max", static fn(int|float $num1, int|float ...$nums) : int|float => max([$num1, ...$nums]), true);
+		$registry->register("min", static fn(int|float $num1, int|float ...$nums) : int|float => min([$num1, ...$nums]), true);
 		$registry->register("mt_getrandmax", Closure::fromCallable("mt_getrandmax"), true);
-		$registry->register("mt_rand", Closure::fromCallable("mt_rand"));
+		$registry->register("mt_rand", static fn(int $min, int $max) : int => mt_rand($min, $max));
 		$registry->register("pi", Closure::fromCallable("pi"), true);
 		$registry->register("pow", Closure::fromCallable("pow"), true);
 		$registry->register("rad2deg", Closure::fromCallable("rad2deg"), true);
