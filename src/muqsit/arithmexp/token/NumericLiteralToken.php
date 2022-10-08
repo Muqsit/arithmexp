@@ -19,6 +19,10 @@ final class NumericLiteralToken extends SimpleToken{
 		return $this->value;
 	}
 
+	public function repositioned(Position $position) : self{
+		return new self($position, $this->value);
+	}
+
 	public function __debugInfo() : array{
 		$info = parent::__debugInfo();
 		$info["value"] = $this->value;

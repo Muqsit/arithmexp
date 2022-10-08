@@ -12,4 +12,6 @@ interface Token extends JsonSerializable{
 	public function getType() : TokenType;
 
 	public function getPos() : Position;
+
+	public function repositioned(Position $position) : self;
 }

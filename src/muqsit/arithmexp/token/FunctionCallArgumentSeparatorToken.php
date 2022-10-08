@@ -12,6 +12,10 @@ final class FunctionCallArgumentSeparatorToken extends SimpleToken{
 		parent::__construct(TokenType::FUNCTION_CALL_ARGUMENT_SEPARATOR(), $position);
 	}
 
+	public function repositioned(Position $position) : self{
+		return new self($position);
+	}
+
 	public function jsonSerialize() : string{
 		return ",";
 	}

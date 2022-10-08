@@ -24,6 +24,10 @@ final class FunctionCallToken extends SimpleToken{
 		return $this->argument_count;
 	}
 
+	public function repositioned(Position $position) : self{
+		return new self($position, $this->function, $this->argument_count);
+	}
+
 	public function __debugInfo() : array{
 		$info = parent::__debugInfo();
 		$info["function"] = $this->function;

@@ -19,6 +19,10 @@ final class UnaryOperatorToken extends SimpleToken{
 		return $this->operator;
 	}
 
+	public function repositioned(Position $position) : self{
+		return new self($position, $this->operator);
+	}
+
 	public function __debugInfo() : array{
 		$info = parent::__debugInfo();
 		$info["operator"] = $this->operator;

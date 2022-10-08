@@ -19,6 +19,10 @@ final class IdentifierToken extends SimpleToken{
 		return $this->label;
 	}
 
+	public function repositioned(Position $position) : self{
+		return new self($position, $this->label);
+	}
+
 	public function __debugInfo() : array{
 		$info = parent::__debugInfo();
 		$info["label"] = $this->label;

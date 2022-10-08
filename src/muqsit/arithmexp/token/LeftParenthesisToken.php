@@ -12,6 +12,10 @@ final class LeftParenthesisToken extends SimpleToken{
 		parent::__construct(TokenType::PARENTHESIS_LEFT(), $position);
 	}
 
+	public function repositioned(Position $position) : self{
+		return new self($position);
+	}
+
 	public function jsonSerialize() : string{
 		return "(";
 	}
