@@ -11,14 +11,13 @@ use muqsit\arithmexp\expression\token\FunctionCallExpressionToken;
 use muqsit\arithmexp\expression\token\NumericLiteralExpressionToken;
 use muqsit\arithmexp\expression\token\VariableExpressionToken;
 use muqsit\arithmexp\Parser;
-use muqsit\arithmexp\token\BinaryOperatorToken;
 use muqsit\arithmexp\Util;
 use function array_filter;
 use function count;
 use function is_array;
 use function usort;
 
-final class OperatorReorderExpressionOptimizer implements ExpressionOptimizer{
+final class ReorderExpressionOptimizer implements ExpressionOptimizer{
 
 	public function __construct(){
 	}
