@@ -36,13 +36,8 @@ final class OperatorReorderExpressionOptimizer implements ExpressionOptimizer{
 			$token = $entry[2];
 			if(
 				!($token instanceof FunctionCallExpressionToken) ||
-				!($token->parent instanceof BinaryOperatorToken)
+				!$token->commutative
 			){
-				continue;
-			}
-
-			$operator = $binary_operator_registry->get($token->parent->getOperator());
-			if(!$operator->isCommutative()){
 				continue;
 			}
 
@@ -50,8 +45,8 @@ final class OperatorReorderExpressionOptimizer implements ExpressionOptimizer{
 			Util::flattenArray($entries, static fn(array $e) : bool => (count($e) === 1 && is_array($e[0])) || (
 				count($e) === 3 &&
 				$e[2] instanceof FunctionCallExpressionToken &&
-				$e[2]->parent instanceof BinaryOperatorToken &&
-				$binary_operator_registry->get($e[2]->parent->getOperator()) === $operator
+				$e[2]->commutative &&
+				$e[2]->function === $token->function
 			));
 			$operands = array_filter($entries, static fn(ExpressionToken|array $token) : bool => !($token instanceof FunctionCallExpressionToken));
 			usort($operands, fn(ExpressionToken|array $a, ExpressionToken|array $b) : int => match(true){

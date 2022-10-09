@@ -18,6 +18,7 @@ final class FunctionCallExpressionToken implements ExpressionToken{
 		public int $argument_count,
 		public Closure $function,
 		public bool $deterministic,
+		public bool $commutative,
 		public ?Token $parent = null
 	){}
 
@@ -29,6 +30,10 @@ final class FunctionCallExpressionToken implements ExpressionToken{
 		return $this->deterministic;
 	}
 
+	public function isCommutative() : bool{
+		return $this->commutative;
+	}
+
 	public function getValue(Expression $expression, array $variables) : int|float{
 		throw new RuntimeException("Don't know how to get value of " . self::class);
 	}
@@ -38,7 +43,8 @@ final class FunctionCallExpressionToken implements ExpressionToken{
 			$other->name === $this->name &&
 			$other->argument_count === $this->argument_count &&
 			$other->function === $this->function &&
-			$other->deterministic === $this->deterministic;
+			$other->deterministic === $this->deterministic &&
+			$other->commutative === $this->commutative;
 	}
 
 	public function __toString() : string{

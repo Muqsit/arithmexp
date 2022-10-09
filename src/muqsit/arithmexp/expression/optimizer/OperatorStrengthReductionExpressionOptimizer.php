@@ -134,7 +134,7 @@ final class OperatorStrengthReductionExpressionOptimizer implements ExpressionOp
 				$this->valueEquals($right, 2) => [
 					...$left,
 					...$left,
-					new FunctionCallExpressionToken(Util::positionContainingExpressionTokens($right), $m_op->getSymbol(), 2, $m_op->getOperator(), $m_op->isDeterministic(), $token)
+					new FunctionCallExpressionToken(Util::positionContainingExpressionTokens($right), $m_op->getSymbol(), 2, $m_op->getOperator(), $m_op->isDeterministic(), $m_op->isCommutative(), $token)
 				],
 				$this->valueEquals($right, 1) => $left,
 				$this->valueEquals($right, 0) => [new NumericLiteralExpressionToken(Util::positionContainingExpressionTokens($right), 1)],

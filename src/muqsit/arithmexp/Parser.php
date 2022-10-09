@@ -112,11 +112,11 @@ final class Parser{
 		foreach($tokens as $token){
 			if($token instanceof BinaryOperatorToken){
 				$operator = $this->binary_operator_registry->get($token->getOperator());
-				$replacement = new FunctionCallExpressionToken($token->getPos(), $operator->getSymbol(), 2, $operator->getOperator(), $operator->isDeterministic(), $token);
+				$replacement = new FunctionCallExpressionToken($token->getPos(), $operator->getSymbol(), 2, $operator->getOperator(), $operator->isDeterministic(), $operator->isCommutative(), $token);
 			}elseif($token instanceof FunctionCallToken){
 				$name = $token->getFunction();
 				$function = $this->function_registry->get($name);
-				$replacement = new FunctionCallExpressionToken($token->getPos(), $name, $token->getArgumentCount(), $function->closure, $function->deterministic, $token);
+				$replacement = new FunctionCallExpressionToken($token->getPos(), $name, $token->getArgumentCount(), $function->closure, $function->deterministic, $function->commutative, $token);
 			}elseif($token instanceof IdentifierToken){
 				$label = $token->getLabel();
 				$constant_value = $this->constant_registry->registered[$label] ?? null;
@@ -125,7 +125,7 @@ final class Parser{
 				$replacement = new NumericLiteralExpressionToken($token->getPos(), $token->getValue());
 			}elseif($token instanceof UnaryOperatorToken){
 				$operator = $this->unary_operator_registry->get($token->getOperator());
-				$replacement = new FunctionCallExpressionToken($token->getPos(), "({$operator->getSymbol()})", 1, $operator->getOperator(), $operator->isDeterministic(), $token);
+				$replacement = new FunctionCallExpressionToken($token->getPos(), "({$operator->getSymbol()})", 1, $operator->getOperator(), $operator->isDeterministic(), false, $token);
 			}else{
 				throw ParseException::unexpectedToken($expression, $token);
 			}
@@ -134,7 +134,7 @@ final class Parser{
 				$parameters = array_slice(Util::expressionTokenArrayToTree($postfix_expression_tokens, 0, count($postfix_expression_tokens)), -$replacement->argument_count);
 				Util::flattenArray($parameters);
 				$pos = Position::containing([Util::positionContainingExpressionTokens($parameters), $token->getPos()]);
-				$replacement = new FunctionCallExpressionToken($pos, $replacement->name, $replacement->argument_count, $replacement->function, $replacement->deterministic, $replacement->parent);
+				$replacement = new FunctionCallExpressionToken($pos, $replacement->name, $replacement->argument_count, $replacement->function, $replacement->deterministic, $replacement->commutative, $replacement->parent);
 			}
 
 			$postfix_expression_tokens[] = $replacement;

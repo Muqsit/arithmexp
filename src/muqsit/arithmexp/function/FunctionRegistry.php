@@ -36,8 +36,8 @@ final class FunctionRegistry{
 		$registry->register("log10", Closure::fromCallable("log10"), true);
 		$registry->register("log1p", Closure::fromCallable("log1p"), true);
 		$registry->register("log", Closure::fromCallable("log"), true);
-		$registry->register("max", static fn(int|float $num1, int|float ...$nums) : int|float => max([$num1, ...$nums]), true);
-		$registry->register("min", static fn(int|float $num1, int|float ...$nums) : int|float => min([$num1, ...$nums]), true);
+		$registry->register("max", static fn(int|float $num1, int|float ...$nums) : int|float => max([$num1, ...$nums]), true, true);
+		$registry->register("min", static fn(int|float $num1, int|float ...$nums) : int|float => min([$num1, ...$nums]), true, true);
 		$registry->register("mt_getrandmax", Closure::fromCallable("mt_getrandmax"), true);
 		$registry->register("mt_rand", static fn(int $min, int $max) : int => mt_rand($min, $max));
 		$registry->register("pi", Closure::fromCallable("pi"), true);
@@ -59,8 +59,8 @@ final class FunctionRegistry{
 	public function __construct(){
 	}
 
-	public function register(string $identifier, Closure $function, bool $deterministic = false) : void{
-		$this->registered[$identifier] = FunctionInfo::from($function, $deterministic);
+	public function register(string $identifier, Closure $function, bool $deterministic = false, bool $commutative = false) : void{
+		$this->registered[$identifier] = FunctionInfo::from($function, $deterministic, $commutative);
 	}
 
 	public function get(string $identifier) : FunctionInfo{

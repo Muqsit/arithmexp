@@ -15,7 +15,7 @@ use function is_int;
 
 final class FunctionInfo{
 
-	public static function from(Closure $callback, bool $deterministic) : self{
+	public static function from(Closure $callback, bool $deterministic, bool $commutative) : self{
 		$_function = new ReflectionFunction($callback);
 		return new self($callback, array_map(static function(ReflectionParameter $_parameter) : int|float|null{
 			if($_parameter->isDefaultValueAvailable()){
@@ -26,7 +26,7 @@ final class FunctionInfo{
 				return $value;
 			}
 			return null;
-		}, $_function->getParameters()), $_function->isVariadic(), $deterministic);
+		}, $_function->getParameters()), $_function->isVariadic(), $deterministic, $commutative);
 	}
 
 	/**
@@ -34,11 +34,13 @@ final class FunctionInfo{
 	 * @param array<int|float|null> $fallback_param_values
 	 * @param bool $variadic
 	 * @param bool $deterministic
+	 * @param bool $commutative
 	 */
 	public function __construct(
 		public Closure $closure,
 		public array $fallback_param_values,
 		public bool $variadic,
-		public bool $deterministic
+		public bool $deterministic,
+		public bool $commutative
 	){}
 }
