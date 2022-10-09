@@ -207,6 +207,12 @@ final class OptimizerTest extends TestCase{
 		self::assertExpressionsEqual($expected, $actual);
 	}
 
+	public function testDivisionOperatorStrengthReductionForCommonSubExpressionsAmongOperands() : void{
+		$actual = $this->parser->parse("(x * y) / (y * z)");
+		$expected = $this->unoptimized_parser->parse("x / z");
+		self::assertExpressionsEqual($expected, $actual);
+	}
+
 	public function testAdditionOperatorStrengthReductionForOperandZero() : void{
 		$actual = $this->parser->parse("(x + 0) + (0 + y)");
 		$expected = $this->unoptimized_parser->parse("x + y");

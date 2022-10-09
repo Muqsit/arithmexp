@@ -148,11 +148,10 @@ final class OperatorStrengthReductionExpressionOptimizer implements ExpressionOp
 				default => null
 			},
 			"/" => match(true){
-				$this->tokensEqualByReturnValue($left, $right) => [new NumericLiteralExpressionToken(Util::positionContainingExpressionTokens([...$left, ...$right]), 1)],
 				$this->valueEquals($left, 0) => [new NumericLiteralExpressionToken(Util::positionContainingExpressionTokens($left), 0)],
 				$this->valueEquals($right, 0) => throw ParseException::unresolvableExpressionDivisionByZero($expression->getExpression(), Util::positionContainingExpressionTokens($right)),
 				$this->valueEquals($right, 1) => $left,
-				default => null
+				default => $this->processDivision($parser, $operator_token, $left, $right)
 			},
 			"+", => match(true){
 				$this->valueEquals($left, 0) => $right,
@@ -167,5 +166,67 @@ final class OperatorStrengthReductionExpressionOptimizer implements ExpressionOp
 			},
 			default => null
 		};
+	}
+
+	/**
+	 * @param Parser $parser
+	 * @param FunctionCallExpressionToken $operator_token
+	 * @param ExpressionToken[] $left
+	 * @param ExpressionToken[] $right
+	 * @return ExpressionToken[]|null
+	 */
+	private function processDivision(Parser $parser, FunctionCallExpressionToken $operator_token, array $left, array $right) : ?array{
+		$binary_operator_registry = $parser->getBinaryOperatorRegistry();
+		$m_op = $binary_operator_registry->get("*");
+		$filter = static fn(array $array) : bool => count($array) === 1 || (
+			count($array) === 3 &&
+			$array[2] instanceof FunctionCallExpressionToken &&
+			$array[2]->parent instanceof BinaryOperatorToken &&
+			$binary_operator_registry->get($array[2]->parent->getOperator()) === $m_op
+		);
+
+		$left_tree = Util::expressionTokenArrayToTree($left);
+		Util::flattenArray($left_tree, $filter);
+
+		$right_tree = Util::expressionTokenArrayToTree($right);
+		Util::flattenArray($right_tree, $filter);
+
+		$changed = false;
+		foreach($left_tree as $i => $left_operand){
+			if(
+				$left_operand instanceof FunctionCallExpressionToken ||
+				($left_operand instanceof NumericLiteralExpressionToken && $left_operand->value === 1)
+			){
+				continue;
+			}
+
+			$left_operand = is_array($left_operand) ? $left_operand : [$left_operand];
+			Util::flattenArray($left_operand);
+			foreach($right_tree as $j => $right_operand){
+				if(
+					$right_operand instanceof FunctionCallExpressionToken ||
+					($right_operand instanceof NumericLiteralExpressionToken && $right_operand->value === 1)
+				){
+					continue;
+				}
+
+				$right_operand = is_array($right_operand) ? $right_operand : [$right_operand];
+				Util::flattenArray($right_operand);
+				if(!$this->tokensEqualByReturnValue($left_operand, $right_operand)){
+					continue;
+				}
+
+				// on cancelling a value in the numerator with a value in the denominator, replace them operands with 1 (identity element of division)
+				$left_tree[$i] = new NumericLiteralExpressionToken(Util::positionContainingExpressionTokens($left_operand), 1);
+				$right_tree[$j] = new NumericLiteralExpressionToken(Util::positionContainingExpressionTokens($right_operand), 1);
+				$changed = true;
+			}
+		}
+
+		if(!$changed){
+			return null;
+		}
+
+		return [...$left_tree, ...$right_tree, $operator_token];
 	}
 }

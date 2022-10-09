@@ -35,7 +35,6 @@ use function assert;
 use function count;
 use function is_array;
 use function min;
-use function substr;
 
 final class Parser{
 
