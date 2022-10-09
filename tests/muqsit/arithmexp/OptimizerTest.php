@@ -219,6 +219,12 @@ final class OptimizerTest extends TestCase{
 		self::assertEquals(1, $expression->evaluate());
 	}
 
+	public function testDivisionOperatorStrengthReductionForNonCommutativeFunctions() : void{
+		$actual = $this->parser->parse("pow(x, y) / pow(y, x)");
+		$expected = $this->unoptimized_parser->parse("pow(x, y) / pow(y, x)");
+		self::assertExpressionsEqual($expected, $actual);
+	}
+
 	public function testAdditionOperatorStrengthReductionForOperandZero() : void{
 		$actual = $this->parser->parse("(x + 0) + (0 + y)");
 		$expected = $this->unoptimized_parser->parse("x + y");
