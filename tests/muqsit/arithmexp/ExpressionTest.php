@@ -44,6 +44,13 @@ final class ExpressionTest extends TestCase{
 		self::assertEquals(2 ** 3 - 4 ** 5, $this->parser->parse("2 ** 3 - 4 ** 5")->evaluate());
 	}
 
+	public function testUnaryOperatorsInSequence() : void{
+		self::assertEquals(1, $this->parser->parse("--1")->evaluate());
+		self::assertEquals(-1, $this->parser->parse("-+1")->evaluate());
+		self::assertEquals(1, $this->parser->parse("-+-1")->evaluate());
+		self::assertEquals(-1, $this->parser->parse("---1")->evaluate());
+	}
+
 	public function testFunctionCallOrder() : void{
 		$capture = [];
 		$fn = static function(int $id, int ...$_) use(&$capture) : int{

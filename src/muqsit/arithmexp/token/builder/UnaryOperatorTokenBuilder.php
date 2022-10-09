@@ -46,10 +46,7 @@ final class UnaryOperatorTokenBuilder implements TokenBuilder{
 			$offset = $state->offset;
 			$expression = $state->expression;
 			foreach($this->operators as $operator){
-				if(
-					(!($token instanceof UnaryOperatorToken) || $token->getOperator() !== $operator) &&
-					substr($expression, $offset, strlen($operator)) === $operator
-				){
+				if(substr($expression, $offset, strlen($operator)) === $operator){
 					yield new UnaryOperatorToken(new Position($offset, $offset + strlen($operator)), $operator);
 					break;
 				}
