@@ -13,6 +13,7 @@ use muqsit\arithmexp\expression\token\VariableExpressionToken;
 use muqsit\arithmexp\Parser;
 use muqsit\arithmexp\Util;
 use function array_filter;
+use function array_key_last;
 use function count;
 use function is_array;
 use function usort;
@@ -23,16 +24,16 @@ final class ReorderExpressionOptimizer implements ExpressionOptimizer{
 	}
 
 	public function run(Parser $parser, Expression $expression) : Expression{
-		$binary_operator_registry = $parser->getBinaryOperatorRegistry();
 		$postfix_expression_tokens = $expression->getPostfixExpressionTokens();
 		$tree = Util::expressionTokenArrayToTree($postfix_expression_tokens);
 		$changed = false;
 		foreach(Util::traverseNestedArray($tree) as &$entry){
-			if(count($entry) !== 3){
+			$index = array_key_last($entry);
+			if($index === null){
 				continue;
 			}
 
-			$token = $entry[2];
+			$token = $entry[$index];
 			if(
 				!($token instanceof FunctionCallExpressionToken) ||
 				!$token->commutative
@@ -40,12 +41,17 @@ final class ReorderExpressionOptimizer implements ExpressionOptimizer{
 				continue;
 			}
 
-			$entries = [$entry[0], $entry[1], $entry[2]]; // copy &array
+			// copy &array
+			$entries = [];
+			foreach($entry as $value){
+				$entries[] = $value;
+			}
+
 			Util::flattenArray($entries, static fn(array $e) : bool => (count($e) === 1 && is_array($e[0])) || (
-				count($e) === 3 &&
-				$e[2] instanceof FunctionCallExpressionToken &&
-				$e[2]->commutative &&
-				$e[2]->function === $token->function
+				($index = array_key_last($e)) !== null &&
+				$e[$index] instanceof FunctionCallExpressionToken &&
+				$e[$index]->commutative &&
+				$e[$index]->function === $token->function
 			));
 			$operands = array_filter($entries, static fn(ExpressionToken|array $token) : bool => !($token instanceof FunctionCallExpressionToken));
 			usort($operands, fn(ExpressionToken|array $a, ExpressionToken|array $b) : int => match(true){
