@@ -100,18 +100,18 @@ final class ReorderExpressionOptimizer implements ExpressionOptimizer{
 			return -1;
 		}
 
-		if($a instanceof NumericLiteralExpressionToken && $b instanceof NumericLiteralExpressionToken){
-			return $a->value <=> $b->value;
+		if($a instanceof VariableExpressionToken && $b instanceof VariableExpressionToken){
+			return $a->label <=> $b->label;
 		}
-		if($a instanceof NumericLiteralExpressionToken){
+		if($a instanceof VariableExpressionToken){
 			return -1;
 		}
-		if($b instanceof NumericLiteralExpressionToken){
+		if($b instanceof VariableExpressionToken){
 			return 1;
 		}
 
-		if($a instanceof VariableExpressionToken && $b instanceof VariableExpressionToken){
-			return $a->label <=> $b->label;
+		if($a instanceof NumericLiteralExpressionToken && $b instanceof NumericLiteralExpressionToken){
+			return $a->value <=> $b->value;
 		}
 		return 0;
 	}
