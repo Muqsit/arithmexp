@@ -33,10 +33,7 @@ final class OperatorStrengthReductionExpressionOptimizer implements ExpressionOp
 		$changes = 0;
 		for($i = count($postfix_expression_tokens) - 1; $i >= 2; --$i){
 			$token = $postfix_expression_tokens[$i];
-			if(
-				!($token instanceof FunctionCallExpressionToken) ||
-				!($token->parent instanceof BinaryOperatorToken)
-			){
+			if(!($token instanceof FunctionCallExpressionToken)){
 				continue;
 			}
 
@@ -46,27 +43,28 @@ final class OperatorStrengthReductionExpressionOptimizer implements ExpressionOp
 				continue;
 			}
 
-			$left = $tree[$tree_c - $token->argument_count];
-			if(is_array($left)){
-				Util::flattenArray($left);
-			}else{
-				$left = [$left];
+			$param_tokens = [];
+			$param_tokens_c = 0;
+			for($j = 0; $j < $token->argument_count; ++$j){
+				$entry = $tree[($tree_c - $token->argument_count) + $j];
+				if(is_array($entry)){
+					Util::flattenArray($entry);
+				}else{
+					$entry = [$entry];
+				}
+				$param_tokens[] = $entry;
+				$param_tokens_c += count($entry);
 			}
 
-			$right = $tree[($tree_c - $token->argument_count) + 1];
-			if(is_array($right)){
-				Util::flattenArray($right);
-			}else{
-				$right = [$right];
-			}
-
-			$replacement = $this->process($parser, $expression, $token, $left, $right);
+			$replacement = match(true){
+				$token->parent instanceof BinaryOperatorToken => $this->processBinaryExpression($parser, $expression, $token, $param_tokens),
+				default => null
+			};
 			if($replacement === null){
 				continue;
 			}
 
-			$length = count($left) + count($right);
-			array_splice($postfix_expression_tokens, $i - $length, $length + 1, $replacement);
+			array_splice($postfix_expression_tokens, $i - $param_tokens_c, $param_tokens_c + 1, $replacement);
 			++$changes;
 			$i = count($postfix_expression_tokens);
 		}
@@ -116,17 +114,17 @@ final class OperatorStrengthReductionExpressionOptimizer implements ExpressionOp
 	 * @param Parser $parser
 	 * @param Expression $expression
 	 * @param FunctionCallExpressionToken $operator_token
-	 * @param ExpressionToken[] $left
-	 * @param ExpressionToken[] $right
+	 * @param ExpressionToken[][] $param_tokens
 	 * @return ExpressionToken[]|null
 	 * @throws ParseException
 	 */
-	private function process(Parser $parser, Expression $expression, FunctionCallExpressionToken $operator_token, array $left, array $right) : ?array{
+	private function processBinaryExpression(Parser $parser, Expression $expression, FunctionCallExpressionToken $operator_token, array $param_tokens) : ?array{
 		$token = $operator_token->parent;
 		assert($token instanceof BinaryOperatorToken);
 
 		$m_op = $parser->getBinaryOperatorRegistry()->get("*");
 
+		[$left, $right] = $param_tokens;
 		return match($token->getOperator()){
 			"**" => match(true){
 				$this->valueEquals($left, 0) => [new NumericLiteralExpressionToken(Util::positionContainingExpressionTokens($left), 0)],
