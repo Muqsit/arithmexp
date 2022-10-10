@@ -7,11 +7,16 @@ namespace muqsit\arithmexp;
 use Closure;
 use muqsit\arithmexp\expression\ConstantExpression;
 use muqsit\arithmexp\expression\Expression;
+use muqsit\arithmexp\expression\RawExpression;
 use muqsit\arithmexp\expression\token\ExpressionToken;
+use muqsit\arithmexp\expression\token\FunctionCallExpressionToken;
+use muqsit\arithmexp\expression\token\NumericLiteralExpressionToken;
+use muqsit\arithmexp\expression\token\VariableExpressionToken;
 use muqsit\arithmexp\operator\binary\assignment\RightBinaryOperatorAssignment;
 use muqsit\arithmexp\operator\binary\BinaryOperatorPrecedence;
 use muqsit\arithmexp\operator\binary\SimpleBinaryOperator;
 use PHPUnit\Framework\TestCase;
+use function array_map;
 
 final class OptimizerTest extends TestCase{
 
@@ -271,5 +276,23 @@ final class OptimizerTest extends TestCase{
 		$expression = $this->parser->parse("min(x, y) - min(y, x)");
 		self::assertInstanceOf(ConstantExpression::class, $expression);
 		self::assertEquals(0, $expression->evaluate());
+	}
+
+	public function testPositiveOperatorStrengthReductionForCommutativeFunctions() : void{
+		$actual = $this->parser->parse("+x");
+		$expected = $this->unoptimized_parser->parse("x");
+		self::assertExpressionsEqual($expected, $actual);
+	}
+
+	public function testNegativeOperatorStrengthReductionForCommutativeFunctions() : void{
+		$actual = $this->parser->parse("---x");
+
+		$expected = $this->unoptimized_parser->parse("x * 1");
+		$expected = new RawExpression($expected->getExpression(), array_map(
+			static fn(ExpressionToken $token) : ExpressionToken => $token instanceof NumericLiteralExpressionToken && $token->value === 1 ? new NumericLiteralExpressionToken($token->getPos(), -1) : $token,
+			$expected->getPostfixExpressionTokens()
+		));
+
+		self::assertExpressionsEqual($expected, $actual);
 	}
 }
