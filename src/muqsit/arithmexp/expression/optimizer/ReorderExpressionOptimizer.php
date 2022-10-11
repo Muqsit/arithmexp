@@ -12,8 +12,8 @@ use muqsit\arithmexp\expression\token\NumericLiteralExpressionToken;
 use muqsit\arithmexp\expression\token\VariableExpressionToken;
 use muqsit\arithmexp\Parser;
 use muqsit\arithmexp\Util;
-use function array_filter;
 use function array_key_last;
+use function array_values;
 use function count;
 use function is_array;
 use function usort;
@@ -34,43 +34,26 @@ final class ReorderExpressionOptimizer implements ExpressionOptimizer{
 			}
 
 			$token = $entry[$index];
-			if(
-				!($token instanceof FunctionCallExpressionToken) ||
-				!$token->commutative
-			){
+			if(!($token instanceof FunctionCallExpressionToken) || !$token->commutative){
 				continue;
 			}
 
-			// copy &array
-			$entries = [];
-			foreach($entry as $value){
-				$entries[] = $value;
-			}
-
-			Util::flattenArray($entries, static fn(array $e) : bool => (count($e) === 1 && is_array($e[0])) || (
+			$updated = array_values($entry); // copy &array
+			Util::flattenArray($updated, static fn(array $e) : bool => count($e) > 2 && (
 				($index = array_key_last($e)) !== null &&
 				$e[$index] instanceof FunctionCallExpressionToken &&
 				$e[$index]->commutative &&
 				$e[$index]->function === $token->function
 			));
-			$operands = array_filter($entries, static fn(ExpressionToken|array $token) : bool => !($token instanceof FunctionCallExpressionToken));
-			usort($operands, fn(ExpressionToken|array $a, ExpressionToken|array $b) : int => match(true){
-				is_array($a) => is_array($b) ? 0 : 1,
-				is_array($b) => -1,
+			usort($updated, fn(ExpressionToken|array $a, ExpressionToken|array $b) : int => match(true){
+				is_array($a) => is_array($b) ? 0 : -1,
+				is_array($b) => 1,
 				default => $this->compare($a, $b)
 			});
-
-			$j = 0;
-			foreach($entries as $i => $value){
-				if(!($value instanceof FunctionCallExpressionToken)){
-					$index = $j++;
-					if($value !== $operands[$index]){
-						$changed = true;
-						$entries[$i] = $operands[$index];
-					}
-				}
+			if($updated !== $entry){
+				$entry = $updated;
+				$changed = true;
 			}
-			$entry = Util::expressionTokenArrayToTree($entries);
 		}
 
 		unset($entry);
