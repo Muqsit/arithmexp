@@ -12,6 +12,11 @@ use muqsit\arithmexp\operator\binary\SimpleBinaryOperator;
 use muqsit\arithmexp\operator\unary\SimpleUnaryOperator;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
+use function array_combine;
+use function array_keys;
+use function array_reverse;
+use function array_values;
+use function sort;
 
 final class ExpressionTest extends TestCase{
 
@@ -28,6 +33,28 @@ final class ExpressionTest extends TestCase{
 			self::assertIsFloat($expression->evaluate(["x" => 1, "y" => 1.0]));
 			self::assertIsFloat($expression->evaluate(["x" => 1.0, "y" => 1]));
 			self::assertIsFloat($expression->evaluate(["x" => 1.0, "y" => 1.0]));
+		}
+	}
+
+	public function testOperatorAssociativity() : void{
+		self::assertEquals(5 ** 4 ** 3 ** 2, $this->parser->parse("5 ** 4 ** 3 ** 2")->evaluate());
+		self::assertEquals(5 ** (4 ** 3 ** 2), $this->parser->parse("5 ** (4 ** 3 ** 2)")->evaluate());
+		self::assertEquals((5 ** 4 ** 3) ** 2, $this->parser->parse("(5 ** 4 ** 3) ** 2")->evaluate());
+		self::assertEquals((5 ** 4) ** 3 ** 2, $this->parser->parse("(5 ** 4) ** 3 ** 2")->evaluate());
+		self::assertEquals(4 ** 3 ** 2, $this->parser->parse("4 ** 3 ** 2")->evaluate());
+
+		$variables = ["y" => 5, "w" => 4, "z" => 3, "x" => 2];
+		$names = array_keys($variables);
+		$val = array_values($variables);
+		$names_sorted = $names;
+		sort($names_sorted);
+		foreach([$names, array_reverse($names), $names_sorted, array_reverse($names_sorted)] as $v){
+			$vars = array_combine($v, $val);
+			self::assertEquals($val[0] ** $val[1] ** $val[2] ** $val[3], $this->parser->parse("{$v[0]} ** {$v[1]} ** {$v[2]} ** {$v[3]}")->evaluate($vars));
+			self::assertEquals($val[0] ** ($val[1] ** $val[2] ** $val[3]), $this->parser->parse("{$v[0]} ** ({$v[1]} ** {$v[2]} ** {$v[3]})")->evaluate($vars));
+			self::assertEquals(($val[0] ** $val[1] ** $val[2]) ** $val[3], $this->parser->parse("({$v[0]} ** {$v[1]} ** {$v[2]}) ** {$v[3]}")->evaluate($vars));
+			self::assertEquals(($val[0] ** $val[1]) ** $val[2] ** $val[3], $this->parser->parse("({$v[0]} ** {$v[1]}) ** {$v[2]} ** {$v[3]}")->evaluate($vars));
+			self::assertEquals($val[1] ** $val[2] ** $val[3], $this->parser->parse("{$v[1]} ** {$v[2]} ** {$v[3]}")->evaluate($vars));
 		}
 	}
 
