@@ -35,7 +35,7 @@ trait GenericExpressionTrait{
 	/**
 	 * @return Generator<string>
 	 */
-	final public function getVariables() : Generator{
+	final public function findVariables() : Generator{
 		foreach($this->postfix_expression_tokens as $token){
 			if($token instanceof VariableExpressionToken){
 				yield $token->label;

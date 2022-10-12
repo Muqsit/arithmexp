@@ -19,7 +19,7 @@ interface Expression{
 	/**
 	 * @return Generator<string>
 	 */
-	public function getVariables() : Generator;
+	public function findVariables() : Generator;
 
 	/**
 	 * @param array<string, int|float> $variable_values
