@@ -87,6 +87,12 @@ final class OptimizerTest extends TestCase{
 		self::assertEquals(0, $expression->evaluate());
 	}
 
+	public function testExponentOperatorStrengthReductionForOperandTwo() : void{
+		$expression = $this->parser->parse("2 ** 2");
+		self::assertInstanceOf(ConstantExpression::class, $expression);
+		self::assertEquals(4, $expression->evaluate());
+	}
+
 	public function testExponentOperatorStrengthReductionForRightOperandTwo() : void{
 		$actual = $this->parser->parse("x ** 2 + x ** 3 + y ** (5 - 3)");
 		$expected = $this->unoptimized_parser->parse("(x * x) + (x ** 3 + y * y)");

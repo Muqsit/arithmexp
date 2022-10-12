@@ -152,7 +152,7 @@ final class OperatorStrengthReductionExpressionOptimizer implements ExpressionOp
 			"**" => match(true){
 				$this->valueEquals($left, 0) => [new NumericLiteralExpressionToken(Util::positionContainingExpressionTokens($left), 0)],
 				$this->valueEquals($left, 1) => [new NumericLiteralExpressionToken(Util::positionContainingExpressionTokens($left), 1)],
-				$this->valueEquals($right, 2) => [
+				$this->valueEquals($right, 2) && !$this->valueEquals($left, 2) => [
 					...$left,
 					...$left,
 					new FunctionCallExpressionToken(Util::positionContainingExpressionTokens($right), $m_op->getSymbol(), 2, $m_op->getOperator(), $m_op->isDeterministic(), $m_op->isCommutative(), $token)
