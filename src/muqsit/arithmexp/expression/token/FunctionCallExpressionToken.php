@@ -34,8 +34,8 @@ final class FunctionCallExpressionToken implements ExpressionToken{
 		return $this->commutative;
 	}
 
-	public function getValue(Expression $expression, array $variables) : int|float{
-		throw new RuntimeException("Don't know how to get value of " . self::class);
+	public function retrieveValue(Expression $expression, array $variables) : int|float{
+		throw new RuntimeException("Don't know how to retrieve value of " . self::class);
 	}
 
 	public function equals(ExpressionToken $other) : bool{

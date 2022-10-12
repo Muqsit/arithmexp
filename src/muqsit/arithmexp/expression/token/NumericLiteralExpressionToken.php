@@ -22,7 +22,7 @@ final class NumericLiteralExpressionToken implements ExpressionToken{
 		return true;
 	}
 
-	public function getValue(Expression $expression, array $variables) : int|float{
+	public function retrieveValue(Expression $expression, array $variables) : int|float{
 		return $this->value;
 	}
 

@@ -19,7 +19,7 @@ final class RawExpression implements Expression{
 				$ptr -= $token->argument_count - 1;
 				$stack[$ptr] = ($token->function)(...array_slice($stack, $ptr, $token->argument_count));
 			}else{
-				$stack[++$ptr] = $token->getValue($this, $variable_values);
+				$stack[++$ptr] = $token->retrieveValue($this, $variable_values);
 			}
 		}
 

@@ -19,7 +19,7 @@ interface ExpressionToken extends Stringable{
 	 * @param array<string, int|float> $variables
 	 * @return int|float
 	 */
-	public function getValue(Expression $expression, array $variables) : int|float;
+	public function retrieveValue(Expression $expression, array $variables) : int|float;
 
 	public function equals(self $other) : bool;
 }
