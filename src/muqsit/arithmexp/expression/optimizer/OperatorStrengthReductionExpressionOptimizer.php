@@ -232,13 +232,13 @@ final class OperatorStrengthReductionExpressionOptimizer implements ExpressionOp
 
 				$right_operand = is_array($right_operand) ? $right_operand : [$right_operand];
 				Util::flattenArray($right_operand);
-				if(!$this->tokensEqualByReturnValue($left_operand, $right_operand)){
+				$replacement = $this->processDivisionBetween($parser, $operator_token, $left_operand, $right_operand);
+				if($replacement === null){
 					continue;
 				}
 
-				// on cancelling a value in the numerator with a value in the denominator, replace them operands with 1 (identity element of division)
-				$left_tree[$i] = new NumericLiteralExpressionToken(Util::positionContainingExpressionTokens($left_operand), 1);
-				$right_tree[$j] = new NumericLiteralExpressionToken(Util::positionContainingExpressionTokens($right_operand), 1);
+				array_splice($left_tree, $i, 1, $replacement[0]);
+				array_splice($right_tree, $j, 1, $replacement[1]);
 				$changed = true;
 			}
 		}
@@ -248,5 +248,93 @@ final class OperatorStrengthReductionExpressionOptimizer implements ExpressionOp
 		}
 
 		return [...$left_tree, ...$right_tree, $operator_token];
+	}
+
+	/**
+	 * @param Parser $parser
+	 * @param FunctionCallExpressionToken $operator_token
+	 * @param ExpressionToken[] $left_operand
+	 * @param ExpressionToken[] $right_operand
+	 * @return array{ExpressionToken[], ExpressionToken[]}|null
+	 */
+	private function processDivisionBetween(Parser $parser, FunctionCallExpressionToken $operator_token, array $left_operand, array $right_operand) : ?array{
+		// reduce (x / x) to (1 / 1)
+		if($this->tokensEqualByReturnValue($left_operand, $right_operand)){
+			return [
+				// on cancelling a value in the numerator with a value in the denominator, replace them operands with 1 (identity element of division)
+				[new NumericLiteralExpressionToken(Util::positionContainingExpressionTokens($left_operand), 1)],
+				[new NumericLiteralExpressionToken(Util::positionContainingExpressionTokens($right_operand), 1)]
+			];
+		}
+
+		// reduce (x ** y / x ** z) to {[x ** (y - z)] / 1}
+		[$left_tree, $right_tree] = Util::expressionTokenArrayToTree([...$left_operand, ...$right_operand]);
+		$binary_operator_registry = $parser->getBinaryOperatorRegistry();
+		$e_op = $binary_operator_registry->get("**");
+		if(
+			is_array($left_tree) &&
+			is_array($right_tree) &&
+
+			count($left_tree) === 3 &&
+			count($left_tree) === count($right_tree) &&
+
+			$left_tree[2] instanceof FunctionCallExpressionToken &&
+			$left_tree[2]->parent instanceof BinaryOperatorToken &&
+			$binary_operator_registry->get($left_tree[2]->parent->getOperator()) === $e_op &&
+
+			$right_tree[2] instanceof FunctionCallExpressionToken &&
+			$right_tree[2]->parent instanceof BinaryOperatorToken &&
+			$binary_operator_registry->get($right_tree[2]->parent->getOperator()) === $e_op
+		){
+			$lvalue = $left_tree[0];
+			if(is_array($lvalue)){
+				Util::flattenArray($lvalue);
+			}else{
+				$lvalue = [$lvalue];
+			}
+
+			$rvalue = $right_tree[0];
+			if(is_array($rvalue)){
+				Util::flattenArray($rvalue);
+			}else{
+				$rvalue = [$rvalue];
+			}
+
+			if($this->tokensEqualByReturnValue($lvalue, $rvalue)){
+				$s_op = $binary_operator_registry->get("-");
+				$left = [
+					$lvalue,
+					[
+						$left_tree[1],
+						$right_tree[1],
+						new FunctionCallExpressionToken(
+							Util::positionContainingExpressionTokens([...$left_operand, ...$right_operand]),
+							$s_op->getSymbol(),
+							2,
+							$s_op->getOperator(),
+							$s_op->isDeterministic(),
+							$s_op->isCommutative(),
+							new BinaryOperatorToken($operator_token->getPos(), $s_op->getSymbol())
+						)
+					],
+					new FunctionCallExpressionToken(
+						Util::positionContainingExpressionTokens([...$left_operand, ...$right_operand]),
+						$e_op->getSymbol(),
+						2,
+						$e_op->getOperator(),
+						$e_op->isDeterministic(),
+						$e_op->isCommutative(),
+						new BinaryOperatorToken($operator_token->getPos(), $e_op->getSymbol())
+					)
+				];
+				Util::flattenArray($left);
+				return [
+					$left,
+					[new NumericLiteralExpressionToken(Util::positionContainingExpressionTokens($right_operand), 1)]
+				];
+			}
+		}
+
+		return null;
 	}
 }
