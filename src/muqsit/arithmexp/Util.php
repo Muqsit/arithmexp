@@ -45,8 +45,9 @@ final class Util{
 	}
 
 	/**
-	 * @param mixed[] $array
-	 * @param (Closure(mixed[]) : bool)|null $filter
+	 * @template T
+	 * @param T[]|T[][] $array
+	 * @param (Closure(T[]) : bool)|null $filter
 	 */
 	public static function flattenArray(array &$array, ?Closure $filter = null) : void{
 		$stack = [&$array];
