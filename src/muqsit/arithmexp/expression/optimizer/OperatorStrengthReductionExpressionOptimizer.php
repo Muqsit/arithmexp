@@ -211,39 +211,38 @@ final class OperatorStrengthReductionExpressionOptimizer implements ExpressionOp
 		$right_tree = Util::expressionTokenArrayToTree($right);
 		Util::flattenArray($right_tree, $filter);
 
-		$changed = false;
-		foreach($left_tree as $i => $left_operand){
-			if(
-				$left_operand instanceof FunctionCallExpressionToken ||
-				($left_operand instanceof NumericLiteralExpressionToken && $left_operand->value === 1)
-			){
-				continue;
-			}
-
-			$left_operand = is_array($left_operand) ? $left_operand : [$left_operand];
-			Util::flattenArray($left_operand);
-			foreach($right_tree as $j => $right_operand){
-				if(
-					$right_operand instanceof FunctionCallExpressionToken ||
-					($right_operand instanceof NumericLiteralExpressionToken && $right_operand->value === 1)
-				){
+		$changes = 0;
+		do{
+			$changed = false;
+			foreach($left_tree as $i => $left_operand){
+				if($left_operand instanceof FunctionCallExpressionToken || ($left_operand instanceof NumericLiteralExpressionToken && $left_operand->value === 1)){
 					continue;
 				}
 
-				$right_operand = is_array($right_operand) ? $right_operand : [$right_operand];
-				Util::flattenArray($right_operand);
-				$replacement = $this->processDivisionBetween($parser, $operator_token, $left_operand, $right_operand);
-				if($replacement === null){
-					continue;
+				$left_operand = is_array($left_operand) ? $left_operand : [$left_operand];
+				Util::flattenArray($left_operand);
+				foreach($right_tree as $j => $right_operand){
+					if($right_operand instanceof FunctionCallExpressionToken || ($right_operand instanceof NumericLiteralExpressionToken && $right_operand->value === 1)){
+						continue;
+					}
+
+					$right_operand = is_array($right_operand) ? $right_operand : [$right_operand];
+					Util::flattenArray($right_operand);
+					$replacement = $this->processDivisionBetween($parser, $operator_token, $left_operand, $right_operand);
+					if($replacement === null){
+						continue;
+					}
+
+					array_splice($left_tree, $i, 1, $replacement[0]);
+					array_splice($right_tree, $j, 1, $replacement[1]);
+					$changed = true;
+					++$changes;
+					break 2;
 				}
-
-				array_splice($left_tree, $i, 1, $replacement[0]);
-				array_splice($right_tree, $j, 1, $replacement[1]);
-				$changed = true;
 			}
-		}
+		}while($changed);
 
-		if(!$changed){
+		if($changes === 0){
 			return null;
 		}
 
