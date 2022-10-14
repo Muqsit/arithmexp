@@ -13,6 +13,12 @@ use muqsit\arithmexp\expression\token\NumericLiteralExpressionToken;
 use muqsit\arithmexp\expression\token\VariableExpressionToken;
 use muqsit\arithmexp\ParseException;
 use muqsit\arithmexp\Parser;
+use muqsit\arithmexp\pattern\matcher\AnyPatternMatcher;
+use muqsit\arithmexp\pattern\matcher\ArrayPatternMatcher;
+use muqsit\arithmexp\pattern\matcher\BinaryOperatorPatternMatcher;
+use muqsit\arithmexp\pattern\matcher\PatternMatcher;
+use muqsit\arithmexp\pattern\matcher\UnaryOperatorPatternMatcher;
+use muqsit\arithmexp\pattern\Pattern;
 use muqsit\arithmexp\token\BinaryOperatorToken;
 use muqsit\arithmexp\token\UnaryOperatorToken;
 use muqsit\arithmexp\Util;
@@ -25,49 +31,71 @@ use function is_array;
 
 final class OperatorStrengthReductionExpressionOptimizer implements ExpressionOptimizer{
 
+	private PatternMatcher $binary_operation_matcher;
+	private PatternMatcher $unary_operation_matcher;
+	private PatternMatcher $division_operand_separator_matcher;
+	private PatternMatcher $exponentiation_operation_matcher;
+
 	public function __construct(){
+		$this->binary_operation_matcher = new ArrayPatternMatcher([
+			AnyPatternMatcher::instance(),
+			AnyPatternMatcher::instance(),
+			BinaryOperatorPatternMatcher::setOf(["**", "*", "/", "+", "-"])
+		]);
+		$this->unary_operation_matcher = new ArrayPatternMatcher([
+			AnyPatternMatcher::instance(),
+			UnaryOperatorPatternMatcher::setOf(["+", "-"])
+		]);
+		$this->division_operand_separator_matcher = new ArrayPatternMatcher([
+			AnyPatternMatcher::instance(),
+			AnyPatternMatcher::instance(),
+			BinaryOperatorPatternMatcher::setOf(["*"])
+		]);
+		$this->exponentiation_operation_matcher = new ArrayPatternMatcher([
+			AnyPatternMatcher::instance(),
+			AnyPatternMatcher::instance(),
+			BinaryOperatorPatternMatcher::setOf(["**"])
+		]);
+	}
+
+	/**
+	 * @param ExpressionToken|ExpressionToken[]|ExpressionToken[][] $entry
+	 * @return ExpressionToken[]
+	 */
+	private function flattened(array|ExpressionToken $entry) : array{
+		if(is_array($entry)){
+			Util::flattenArray($entry);
+		}else{
+			$entry = [$entry];
+		}
+		return $entry;
 	}
 
 	public function run(Parser $parser, Expression $expression) : Expression{
-		$postfix_expression_tokens = $expression->getPostfixExpressionTokens();
+		$postfix_expression_tokens = Util::expressionTokenArrayToTree($expression->getPostfixExpressionTokens());
 
 		$changes = 0;
-		for($i = count($postfix_expression_tokens) - 1; $i >= 1; --$i){
-			$token = $postfix_expression_tokens[$i];
-			if(!($token instanceof FunctionCallExpressionToken)){
-				continue;
+		/** @var array{ExpressionToken|ExpressionToken[], ExpressionToken|ExpressionToken[], FunctionCallExpressionToken} $entry */
+		foreach(Pattern::findMatching($this->binary_operation_matcher, $postfix_expression_tokens) as &$entry){
+			$replacement = $this->processBinaryExpression($parser, $expression, $entry[2], $this->flattened($entry[0]), $this->flattened($entry[1]));
+			if($replacement !== null){
+				$entry = $replacement;
+				++$changes;
 			}
-
-			$tree = Util::expressionTokenArrayToTree($postfix_expression_tokens, 0, $i);
-			$tree_c = count($tree);
-
-			$param_tokens = [];
-			$param_tokens_c = 0;
-			for($j = 0; $j < $token->argument_count; ++$j){
-				$entry = $tree[($tree_c - $token->argument_count) + $j];
-				if(is_array($entry)){
-					Util::flattenArray($entry);
-				}else{
-					$entry = [$entry];
-				}
-				$param_tokens[] = $entry;
-				$param_tokens_c += count($entry);
-			}
-
-			$replacement = match(true){
-				$token->parent instanceof BinaryOperatorToken => $this->processBinaryExpression($parser, $expression, $token, $param_tokens),
-				$token->parent instanceof UnaryOperatorToken => $this->processUnaryExpression($parser, $token, $param_tokens),
-				default => null
-			};
-			if($replacement === null){
-				continue;
-			}
-
-			array_splice($postfix_expression_tokens, $i - $param_tokens_c, $param_tokens_c + 1, $replacement);
-			++$changes;
-			$i = count($postfix_expression_tokens);
 		}
+		unset($entry);
 
+		/** @var array{ExpressionToken|ExpressionToken[], FunctionCallExpressionToken} $entry */
+		foreach(Pattern::findMatching($this->unary_operation_matcher, $postfix_expression_tokens) as &$entry){
+			$replacement = $this->processUnaryExpression($parser, $entry[1], $this->flattened($entry[0]));
+			if($replacement !== null){
+				$entry = $replacement;
+				++$changes;
+			}
+		}
+		unset($entry);
+
+		Util::flattenArray($postfix_expression_tokens);
 		return match(true){
 			count($postfix_expression_tokens) === 1 && $postfix_expression_tokens[0] instanceof NumericLiteralExpressionToken => new ConstantExpression($expression->getExpression(), $postfix_expression_tokens[0]->value),
 			default => $changes > 0 ? new RawExpression($expression->getExpression(), $postfix_expression_tokens) : $expression
@@ -112,16 +140,13 @@ final class OperatorStrengthReductionExpressionOptimizer implements ExpressionOp
 	/**
 	 * @param Parser $parser
 	 * @param FunctionCallExpressionToken $operator_token
-	 * @param ExpressionToken[][] $param_tokens
+	 * @param ExpressionToken[] $operand
 	 * @return ExpressionToken[]|null
 	 */
-	private function processUnaryExpression(Parser $parser, FunctionCallExpressionToken $operator_token, array $param_tokens) : ?array{
+	private function processUnaryExpression(Parser $parser, FunctionCallExpressionToken $operator_token, array $operand) : ?array{
 		$token = $operator_token->parent;
 		assert($token instanceof UnaryOperatorToken);
-
 		$m_op = $parser->getBinaryOperatorRegistry()->get("*");
-
-		[$operand] = $param_tokens;
 		return match($token->getOperator()){
 			"+" => $operand,
 			"-" => [
@@ -137,17 +162,15 @@ final class OperatorStrengthReductionExpressionOptimizer implements ExpressionOp
 	 * @param Parser $parser
 	 * @param Expression $expression
 	 * @param FunctionCallExpressionToken $operator_token
-	 * @param ExpressionToken[][] $param_tokens
+	 * @param ExpressionToken[] $left
+	 * @param ExpressionToken[] $right
 	 * @return ExpressionToken[]|null
 	 * @throws ParseException
 	 */
-	private function processBinaryExpression(Parser $parser, Expression $expression, FunctionCallExpressionToken $operator_token, array $param_tokens) : ?array{
+	private function processBinaryExpression(Parser $parser, Expression $expression, FunctionCallExpressionToken $operator_token, array $left, array $right) : ?array{
 		$token = $operator_token->parent;
 		assert($token instanceof BinaryOperatorToken);
-
 		$m_op = $parser->getBinaryOperatorRegistry()->get("*");
-
-		[$left, $right] = $param_tokens;
 		return match($token->getOperator()){
 			"**" => match(true){
 				$this->valueEquals($left, 0) => [new NumericLiteralExpressionToken(Util::positionContainingExpressionTokens([...$left, ...$right]), 0)],
@@ -155,7 +178,7 @@ final class OperatorStrengthReductionExpressionOptimizer implements ExpressionOp
 				$this->valueEquals($right, 2) && !$this->valueEquals($left, 2) => [
 					...$left,
 					...$left,
-					new FunctionCallExpressionToken(Util::positionContainingExpressionTokens($right), $m_op->getSymbol(), 2, $m_op->getOperator(), $m_op->isDeterministic(), $m_op->isCommutative(), $token)
+					new FunctionCallExpressionToken(Util::positionContainingExpressionTokens($right), $m_op->getSymbol(), 2, $m_op->getOperator(), $m_op->isDeterministic(), $m_op->isCommutative(), new BinaryOperatorToken($token->getPos(), $m_op->getSymbol()))
 				],
 				$this->valueEquals($right, 1) => $left,
 				$this->valueEquals($right, 0) => [new NumericLiteralExpressionToken(Util::positionContainingExpressionTokens([...$left, ...$right]), 1)],
@@ -196,14 +219,7 @@ final class OperatorStrengthReductionExpressionOptimizer implements ExpressionOp
 	 * @return ExpressionToken[]|null
 	 */
 	private function processDivision(Parser $parser, FunctionCallExpressionToken $operator_token, array $left, array $right) : ?array{
-		$binary_operator_registry = $parser->getBinaryOperatorRegistry();
-		$m_op = $binary_operator_registry->get("*");
-		$filter = static fn(array $array) : bool => count($array) === 1 || (
-			count($array) === 3 &&
-			$array[2] instanceof FunctionCallExpressionToken &&
-			$array[2]->parent instanceof BinaryOperatorToken &&
-			$binary_operator_registry->get($array[2]->parent->getOperator()) === $m_op
-		);
+		$filter = fn(array $array) : bool => $this->division_operand_separator_matcher->matches($array);
 
 		$left_tree = Util::expressionTokenArrayToTree($left);
 		Util::flattenArray($left_tree, $filter);
@@ -219,15 +235,13 @@ final class OperatorStrengthReductionExpressionOptimizer implements ExpressionOp
 					continue;
 				}
 
-				$left_operand = is_array($left_operand) ? $left_operand : [$left_operand];
-				Util::flattenArray($left_operand);
+				$left_operand = $this->flattened($left_operand);
 				foreach($right_tree as $j => $right_operand){
 					if($right_operand instanceof FunctionCallExpressionToken || ($right_operand instanceof NumericLiteralExpressionToken && $right_operand->value === 1)){
 						continue;
 					}
 
-					$right_operand = is_array($right_operand) ? $right_operand : [$right_operand];
-					Util::flattenArray($right_operand);
+					$right_operand = $this->flattened($right_operand);
 					$replacement = $this->processDivisionBetween($parser, $operator_token, $left_operand, $right_operand);
 					if($replacement === null){
 						continue;
@@ -268,67 +282,23 @@ final class OperatorStrengthReductionExpressionOptimizer implements ExpressionOp
 
 		// reduce (x ** y / x ** z) to {[x ** (y - z)] / 1}
 		[$left_tree, $right_tree] = Util::expressionTokenArrayToTree([...$left_operand, ...$right_operand]);
-		$binary_operator_registry = $parser->getBinaryOperatorRegistry();
-		$e_op = $binary_operator_registry->get("**");
-		if(
-			is_array($left_tree) &&
-			is_array($right_tree) &&
-
-			count($left_tree) === 3 &&
-			count($left_tree) === count($right_tree) &&
-
-			$left_tree[2] instanceof FunctionCallExpressionToken &&
-			$left_tree[2]->parent instanceof BinaryOperatorToken &&
-			$binary_operator_registry->get($left_tree[2]->parent->getOperator()) === $e_op &&
-
-			$right_tree[2] instanceof FunctionCallExpressionToken &&
-			$right_tree[2]->parent instanceof BinaryOperatorToken &&
-			$binary_operator_registry->get($right_tree[2]->parent->getOperator()) === $e_op
-		){
-			$lvalue = $left_tree[0];
-			if(is_array($lvalue)){
-				Util::flattenArray($lvalue);
-			}else{
-				$lvalue = [$lvalue];
-			}
-
-			$rvalue = $right_tree[0];
-			if(is_array($rvalue)){
-				Util::flattenArray($rvalue);
-			}else{
-				$rvalue = [$rvalue];
-			}
-
+		if($this->exponentiation_operation_matcher->matches($left_tree) && $this->exponentiation_operation_matcher->matches($right_tree)){
+			$lvalue = $this->flattened($left_tree[0]);
+			$rvalue = $this->flattened($right_tree[0]);
 			if($this->tokensEqualByReturnValue($lvalue, $rvalue)){
+				$binary_operator_registry = $parser->getBinaryOperatorRegistry();
+				$e_op = $binary_operator_registry->get("**");
 				$s_op = $binary_operator_registry->get("-");
-				$left = [
-					$lvalue,
-					[
-						$left_tree[1],
-						$right_tree[1],
-						new FunctionCallExpressionToken(
-							Util::positionContainingExpressionTokens([...$left_operand, ...$right_operand]),
-							$s_op->getSymbol(),
-							2,
-							$s_op->getOperator(),
-							$s_op->isDeterministic(),
-							$s_op->isCommutative(),
-							new BinaryOperatorToken($operator_token->getPos(), $s_op->getSymbol())
-						)
-					],
-					new FunctionCallExpressionToken(
-						Util::positionContainingExpressionTokens([...$left_operand, ...$right_operand]),
-						$e_op->getSymbol(),
-						2,
-						$e_op->getOperator(),
-						$e_op->isDeterministic(),
-						$e_op->isCommutative(),
-						new BinaryOperatorToken($operator_token->getPos(), $e_op->getSymbol())
-					)
-				];
-				Util::flattenArray($left);
 				return [
-					$left,
+					$this->flattened([
+						$lvalue,
+						[
+							$left_tree[1],
+							$right_tree[1],
+							new FunctionCallExpressionToken(Util::positionContainingExpressionTokens([...$lvalue, ...$rvalue]), $s_op->getSymbol(), 2, $s_op->getOperator(), $s_op->isDeterministic(), $s_op->isCommutative(), new BinaryOperatorToken($operator_token->getPos(), $s_op->getSymbol()))
+						],
+						new FunctionCallExpressionToken($operator_token->getPos(), $e_op->getSymbol(), 2, $e_op->getOperator(), $e_op->isDeterministic(), $e_op->isCommutative(), new BinaryOperatorToken($operator_token->getPos(), $e_op->getSymbol()))
+					]),
 					[new NumericLiteralExpressionToken(Util::positionContainingExpressionTokens($right_operand), 1)]
 				];
 			}
