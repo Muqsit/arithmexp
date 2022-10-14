@@ -89,4 +89,12 @@ final class ParserTest extends TestCase{
 	public function testDivisionByZeroBetweenNonNumericLiterals() : void{
 		TestUtil::assertParserThrows($this->parser, "y / (x - x)", ParseException::ERR_UNRESOLVABLE_EXPRESSION, 5,10);
 	}
+
+	public function testModuloByZeroBetweenNumericLiterals() : void{
+		TestUtil::assertParserThrows($this->parser, "1 % 0", ParseException::ERR_UNRESOLVABLE_EXPRESSION, 4, 5);
+	}
+
+	public function testModuloByZeroBetweenNonNumericLiterals() : void{
+		TestUtil::assertParserThrows($this->parser, "y % (x - x)", ParseException::ERR_UNRESOLVABLE_EXPRESSION, 5,10);
+	}
 }

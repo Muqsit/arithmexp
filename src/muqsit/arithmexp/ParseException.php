@@ -170,6 +170,10 @@ final class ParseException extends Exception{
 		return self::generateWithHighlightedSubstring(self::unresolvableExpression($expression, $position, "Division by zero"));
 	}
 
+	public static function unresolvableExpressionModuloByZero(string $expression, Position $position) : self{
+		return self::generateWithHighlightedSubstring(self::unresolvableExpression($expression, $position, "Modulo by zero"));
+	}
+
 	public function __construct(
 		private string $expression,
 		private Position $position,

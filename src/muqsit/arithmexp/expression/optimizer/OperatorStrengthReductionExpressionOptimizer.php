@@ -40,7 +40,7 @@ final class OperatorStrengthReductionExpressionOptimizer implements ExpressionOp
 		$this->binary_operation_matcher = new ArrayPatternMatcher([
 			AnyPatternMatcher::instance(),
 			AnyPatternMatcher::instance(),
-			BinaryOperatorPatternMatcher::setOf(["**", "*", "/", "+", "-"])
+			BinaryOperatorPatternMatcher::setOf(["**", "*", "/", "+", "-", "%"])
 		]);
 		$this->unary_operation_matcher = new ArrayPatternMatcher([
 			AnyPatternMatcher::instance(),
@@ -195,6 +195,11 @@ final class OperatorStrengthReductionExpressionOptimizer implements ExpressionOp
 				$this->valueEquals($right, 0) => throw ParseException::unresolvableExpressionDivisionByZero($expression->getExpression(), Util::positionContainingExpressionTokens($right)),
 				$this->valueEquals($right, 1) => $left,
 				default => $this->processDivision($parser, $operator_token, $left, $right)
+			},
+			"%" => match(true){
+				$this->valueEquals($right, 0) => throw ParseException::unresolvableExpressionModuloByZero($expression->getExpression(), Util::positionContainingExpressionTokens($right)),
+				$this->valueEquals($right, 1) => [new NumericLiteralExpressionToken(Util::positionContainingExpressionTokens([...$left, ...$right]), 0)],
+				default => null
 			},
 			"+", => match(true){
 				$this->valueEquals($left, 0) => $right,
