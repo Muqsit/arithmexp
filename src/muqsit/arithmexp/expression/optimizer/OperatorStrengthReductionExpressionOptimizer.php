@@ -281,6 +281,10 @@ final class OperatorStrengthReductionExpressionOptimizer implements ExpressionOp
 		}
 
 		// reduce (x ** y / x ** z) to {[x ** (y - z)] / 1}
+		/**
+		 * @var ExpressionToken[] $left_tree
+		 * @var ExpressionToken[] $right_tree
+		 */
 		[$left_tree, $right_tree] = Util::expressionTokenArrayToTree([...$left_operand, ...$right_operand]);
 		if($this->exponentiation_operation_matcher->matches($left_tree) && $this->exponentiation_operation_matcher->matches($right_tree)){
 			$lvalue = $this->flattened($left_tree[0]);

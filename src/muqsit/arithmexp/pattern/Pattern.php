@@ -17,6 +17,7 @@ final class Pattern{
 	 * @return Generator<ExpressionToken[]>
 	 */
 	public static function &findMatching(PatternMatcher $matcher, array &$tree) : Generator{
+		/** @var ExpressionToken[] $entry */
 		foreach(Util::traverseNestedArray($tree) as &$entry){
 			if($matcher->matches($entry)){
 				yield $entry;
