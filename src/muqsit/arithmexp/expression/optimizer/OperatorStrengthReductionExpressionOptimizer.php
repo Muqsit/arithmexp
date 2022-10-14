@@ -255,12 +255,7 @@ final class OperatorStrengthReductionExpressionOptimizer implements ExpressionOp
 				}
 			}
 		}while($changed);
-
-		if($changes === 0){
-			return null;
-		}
-
-		return [...$left_tree, ...$right_tree, $operator_token];
+		return $changes > 0 ? [...$left_tree, ...$right_tree, $operator_token] : null;
 	}
 
 	/**
