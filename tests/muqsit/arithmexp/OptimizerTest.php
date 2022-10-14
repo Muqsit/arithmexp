@@ -43,6 +43,18 @@ final class OptimizerTest extends TestCase{
 		self::assertEquals(1.23, $expression->evaluate());
 	}
 
+	public function testConstantFoldingOptimizationForNestedFunctionCall() : void{
+		$expression = $this->parser->parse("min(pi())");
+		self::assertInstanceOf(ConstantExpression::class, $expression);
+		self::assertEquals(min([pi()]), $expression->evaluate());
+	}
+
+	public function testConstantFoldingOptimizationForNestedFunctionCalls() : void{
+		$expression = $this->parser->parse("min(pi() + pi() + pi() + pi())");
+		self::assertInstanceOf(ConstantExpression::class, $expression);
+		self::assertEquals(min([pi() + pi() + pi() + pi()]), $expression->evaluate());
+	}
+
 	public function testConstantPropagationOptimization() : void{
 		$actual = $this->parser->parse("37.28 * cos(x) + sin(85) * 22 / cos(73) + sin(91) + 84.47 * cos(z) + sin(32)");
 		$expected = $this->unoptimized_parser->parse("(cos(x) * 37.28) + ((cos(z) * 84.47) + 5.919166371412)");

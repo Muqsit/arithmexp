@@ -24,36 +24,40 @@ final class ConstantFoldingExpressionOptimizer implements ExpressionOptimizer{
 	}
 
 	public function run(Parser $parser, Expression $expression) : Expression{
-		$postfix_expression_tokens = $expression->getPostfixExpressionTokens();
+		$postfix_expression_tokens = Util::expressionTokenArrayToTree($expression->getPostfixExpressionTokens());
 		$changes = 0;
 		do{
 			$found = false;
-			foreach($postfix_expression_tokens as $i => $token){
-				if(!($token instanceof FunctionCallExpressionToken) || !$token->isDeterministic()){
-					continue;
-				}
+			foreach(Util::traverseNestedArray($postfix_expression_tokens) as &$entry){
+				for($i = count($entry) - 1; $i >= 0; --$i){
+					$token = $entry[$i];
+					if(!($token instanceof FunctionCallExpressionToken) || !$token->isDeterministic()){
+						continue;
+					}
 
-				$params = array_slice($postfix_expression_tokens, $i - $token->argument_count, $token->argument_count);
-				if(count(array_filter($params, static fn(ExpressionToken $token) : bool => $token instanceof FunctionCallExpressionToken || !$token->isDeterministic())) > 0){
-					continue;
-				}
+					$params = array_slice($entry, $i - $token->argument_count, $token->argument_count);
+					Util::flattenArray($params);
+					if(count(array_filter($params, static fn(ExpressionToken $token) : bool => $token instanceof FunctionCallExpressionToken || !$token->isDeterministic())) > 0){
+						continue;
+					}
 
-				array_splice($postfix_expression_tokens, $i - $token->argument_count, $token->argument_count + 1, [
-					new NumericLiteralExpressionToken(
+					array_splice($entry, $i - $token->argument_count, 1 + $token->argument_count, [new NumericLiteralExpressionToken(
 						Util::positionContainingExpressionTokens($params),
 						($token->function)(...array_map(static fn(ExpressionToken $token) : int|float => $token->retrieveValue($expression, []), $params))
-					)
-				]);
-				$found = true;
-				++$changes;
-				break;
+					)]);
+					$i -= $token->argument_count;
+					$found = true;
+					++$changes;
+				}
 			}
+			unset($entry);
 		}while($found);
 
 		if($changes === 0){
 			return $expression;
 		}
 
+		Util::flattenArray($postfix_expression_tokens);
 		return count($postfix_expression_tokens) === 1 && $postfix_expression_tokens[0]->isDeterministic() ?
 			new ConstantExpression($expression->getExpression(), $postfix_expression_tokens[0]->retrieveValue($expression, [])) :
 			new RawExpression($expression->getExpression(), $postfix_expression_tokens);
