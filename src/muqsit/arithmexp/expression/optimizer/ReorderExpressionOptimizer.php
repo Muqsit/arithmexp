@@ -74,7 +74,7 @@ final class ReorderExpressionOptimizer implements ExpressionOptimizer{
 	 */
 	private function compare(ExpressionToken $a, ExpressionToken $b) : int{
 		if($a instanceof FunctionCallExpressionToken && $b instanceof FunctionCallExpressionToken){
-			return $a->name <=> $b->name;
+			return 0;
 		}
 		if($a instanceof FunctionCallExpressionToken){
 			return 1;
