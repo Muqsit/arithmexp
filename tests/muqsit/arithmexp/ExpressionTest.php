@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace muqsit\arithmexp;
 
 use Closure;
+use InvalidArgumentException;
 use muqsit\arithmexp\operator\binary\assignment\LeftBinaryOperatorAssignment;
 use muqsit\arithmexp\operator\binary\assignment\RightBinaryOperatorAssignment;
 use muqsit\arithmexp\operator\binary\BinaryOperatorPrecedence;
@@ -24,6 +25,12 @@ final class ExpressionTest extends TestCase{
 
 	protected function setUp() : void{
 		$this->parser = Parser::createDefault();
+	}
+
+	public function testUndefinedVariable() : void{
+		$this->expectException(InvalidArgumentException::class);
+		$this->expectExceptionMessage("No value supplied for variable \"x\" in \"pi * x\"");
+		$this->parser->parse("pi * x")->evaluate();
 	}
 
 	public function testReturnTypeConsistency() : void{
