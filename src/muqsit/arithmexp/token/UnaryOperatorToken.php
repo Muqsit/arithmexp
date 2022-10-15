@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace muqsit\arithmexp\token;
 
+use muqsit\arithmexp\expression\token\ExpressionToken;
+use muqsit\arithmexp\expression\token\FunctionCallExpressionToken;
+use muqsit\arithmexp\Parser;
 use muqsit\arithmexp\Position;
 
 final class UnaryOperatorToken extends SimpleToken{
@@ -21,6 +24,11 @@ final class UnaryOperatorToken extends SimpleToken{
 
 	public function repositioned(Position $position) : self{
 		return new self($position, $this->operator);
+	}
+
+	public function toExpressionToken(Parser $parser, string $expression) : ExpressionToken{
+		$operator = $parser->getUnaryOperatorRegistry()->get($this->operator);
+		return new FunctionCallExpressionToken($this->position, "({$operator->getSymbol()})", 1, $operator->getOperator(), $operator->isDeterministic(), false, $this);
 	}
 
 	public function __debugInfo() : array{
