@@ -66,4 +66,11 @@ final class FunctionRegistry{
 	public function get(string $identifier) : FunctionInfo{
 		return $this->registered[$identifier] ?? throw new InvalidArgumentException("Function \"{$identifier}\" is not registered");
 	}
+
+	/**
+	 * @return array<string, FunctionInfo>
+	 */
+	public function getRegistered() : array{
+		return $this->registered;
+	}
 }
