@@ -33,7 +33,7 @@ final class OperatorStrengthReductionExpressionOptimizer implements ExpressionOp
 
 	private PatternMatcher $binary_operation_matcher;
 	private PatternMatcher $unary_operation_matcher;
-	private PatternMatcher $division_operand_separator_matcher;
+	private PatternMatcher $multiplication_operation_matcher;
 	private PatternMatcher $exponentiation_operation_matcher;
 
 	public function __construct(){
@@ -46,7 +46,7 @@ final class OperatorStrengthReductionExpressionOptimizer implements ExpressionOp
 			AnyPatternMatcher::instance(),
 			UnaryOperatorPatternMatcher::setOf(["+", "-"])
 		]);
-		$this->division_operand_separator_matcher = new ArrayPatternMatcher([
+		$this->multiplication_operation_matcher = new ArrayPatternMatcher([
 			AnyPatternMatcher::instance(),
 			AnyPatternMatcher::instance(),
 			BinaryOperatorPatternMatcher::setOf(["*"])
@@ -201,10 +201,10 @@ final class OperatorStrengthReductionExpressionOptimizer implements ExpressionOp
 				$this->valueEquals($right, 1) => [new NumericLiteralExpressionToken(Util::positionContainingExpressionTokens([...$left, ...$right]), 0)],
 				default => null
 			},
-			"+", => match(true){
+			"+" => match(true){
 				$this->valueEquals($left, 0) => $right,
 				$this->valueEquals($right, 0) => $left,
-				default => null
+				default => $this->processAddition($parser, $operator_token, $left, $right)
 			},
 			"-" => match(true){
 				$this->tokensEqualByReturnValue($left, $right) => [new NumericLiteralExpressionToken(Util::positionContainingExpressionTokens([...$left, ...$right]), 0)],
@@ -223,8 +223,51 @@ final class OperatorStrengthReductionExpressionOptimizer implements ExpressionOp
 	 * @param ExpressionToken[] $right
 	 * @return ExpressionToken[]|null
 	 */
+	private function processAddition(Parser $parser, FunctionCallExpressionToken $operator_token, array $left, array $right) : ?array{
+		$filter = fn(array $array) : bool => $this->multiplication_operation_matcher->matches($array);
+
+		$left_tree = Util::expressionTokenArrayToTree($left);
+		Util::flattenArray($left_tree, $filter);
+
+		foreach($left_tree as $index => $left_operand){
+			if($left_operand instanceof NumericLiteralExpressionToken && $left_operand->value < 0){
+				$left_tree[$index] = new NumericLiteralExpressionToken($left_operand->getPos(), -$left_operand->value);
+				$s_op = $parser->getBinaryOperatorRegistry()->get("-");
+				return [
+					...$right,
+					...$this->flattened($left_tree),
+					new FunctionCallExpressionToken($operator_token->getPos(), $s_op->getSymbol(), 2, $s_op->getOperator(), $s_op->isDeterministic(), $s_op->isCommutative(), new BinaryOperatorToken($operator_token->getPos(), $s_op->getSymbol()))
+				];
+			}
+		}
+
+		$right_tree = Util::expressionTokenArrayToTree($right);
+		Util::flattenArray($right_tree, $filter);
+		foreach($right_tree as $index => $right_operand){
+			if($right_operand instanceof NumericLiteralExpressionToken && $right_operand->value < 0){
+				$right_tree[$index] = new NumericLiteralExpressionToken($right_operand->getPos(), -$right_operand->value);
+				$s_op = $parser->getBinaryOperatorRegistry()->get("-");
+				return [
+					...$left,
+					...$this->flattened($right_tree),
+					new FunctionCallExpressionToken($operator_token->getPos(), $s_op->getSymbol(), 2, $s_op->getOperator(), $s_op->isDeterministic(), $s_op->isCommutative(), new BinaryOperatorToken($operator_token->getPos(), $s_op->getSymbol()))
+				];
+			}
+		}
+
+
+		return null;
+	}
+
+	/**
+	 * @param Parser $parser
+	 * @param FunctionCallExpressionToken $operator_token
+	 * @param ExpressionToken[] $left
+	 * @param ExpressionToken[] $right
+	 * @return ExpressionToken[]|null
+	 */
 	private function processDivision(Parser $parser, FunctionCallExpressionToken $operator_token, array $left, array $right) : ?array{
-		$filter = fn(array $array) : bool => $this->division_operand_separator_matcher->matches($array);
+		$filter = fn(array $array) : bool => $this->multiplication_operation_matcher->matches($array);
 
 		$left_tree = Util::expressionTokenArrayToTree($left);
 		Util::flattenArray($left_tree, $filter);
