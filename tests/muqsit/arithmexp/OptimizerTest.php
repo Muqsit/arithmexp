@@ -302,7 +302,7 @@ final class OptimizerTest extends TestCase{
 
 	public function testSubtractionOperatorStrengthReductionForOperandZero() : void{
 		$actual = $this->parser->parse("(x - 0) - (0 - y)");
-		$expected = $this->unoptimized_parser->parse("x - y");
+		$expected = $this->unoptimized_parser->parse("x + y");
 		self::assertExpressionsEqual($expected, $actual);
 	}
 
