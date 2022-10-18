@@ -210,7 +210,7 @@ final class OperatorStrengthReductionExpressionOptimizer implements ExpressionOp
 				$this->tokensEqualByReturnValue($left, $right) => [new NumericLiteralExpressionToken(Util::positionContainingExpressionTokens([...$left, ...$right]), 0)],
 				$this->valueEquals($left, 0) => $right,
 				$this->valueEquals($right, 0) => $left,
-				default => null
+				default => $this->processSubtraction($parser, $operator_token, $left, $right)
 			},
 			default => null
 		};
@@ -251,6 +251,56 @@ final class OperatorStrengthReductionExpressionOptimizer implements ExpressionOp
 					...$left,
 					...$this->flattened($right_tree),
 					new FunctionCallExpressionToken($operator_token->getPos(), $s_op->getSymbol(), 2, $s_op->getOperator(), $s_op->isDeterministic(), $s_op->isCommutative(), new BinaryOperatorToken($operator_token->getPos(), $s_op->getSymbol()))
+				];
+			}
+		}
+
+
+		return null;
+	}
+
+	/**
+	 * @param Parser $parser
+	 * @param FunctionCallExpressionToken $operator_token
+	 * @param ExpressionToken[] $left
+	 * @param ExpressionToken[] $right
+	 * @return ExpressionToken[]|null
+	 */
+	private function processSubtraction(Parser $parser, FunctionCallExpressionToken $operator_token, array $left, array $right) : ?array{
+		$filter = fn(array $array) : bool => $this->multiplication_operation_matcher->matches($array);
+
+		$left_tree = Util::expressionTokenArrayToTree($left);
+		Util::flattenArray($left_tree, $filter);
+
+		// -x - y = -(x + y)
+		foreach($left_tree as $index => $left_operand){
+			if($left_operand instanceof NumericLiteralExpressionToken && $left_operand->value < 0){
+				$left_tree[$index] = new NumericLiteralExpressionToken($left_operand->getPos(), -$left_operand->value);
+				$a_op = $parser->getBinaryOperatorRegistry()->get("+");
+				$m_op = $parser->getBinaryOperatorRegistry()->get("*");
+				return [
+					new NumericLiteralExpressionToken($left_operand->getPos(), -1),
+					...$this->flattened([
+						$left_tree,
+						$right,
+						new FunctionCallExpressionToken($operator_token->getPos(), $a_op->getSymbol(), 2, $a_op->getOperator(), $a_op->isDeterministic(), $a_op->isCommutative(), new BinaryOperatorToken($operator_token->getPos(), $a_op->getSymbol()))
+					]),
+					new FunctionCallExpressionToken($operator_token->getPos(), $m_op->getSymbol(), 2, $m_op->getOperator(), $m_op->isDeterministic(), $m_op->isCommutative(), new BinaryOperatorToken($operator_token->getPos(), $m_op->getSymbol()))
+				];
+			}
+		}
+
+		// x - -y = x + y
+		$right_tree = Util::expressionTokenArrayToTree($right);
+		Util::flattenArray($right_tree, $filter);
+		foreach($right_tree as $index => $right_operand){
+			if($right_operand instanceof NumericLiteralExpressionToken && $right_operand->value < 0){
+				$right_tree[$index] = new NumericLiteralExpressionToken($right_operand->getPos(), -$right_operand->value);
+				$a_op = $parser->getBinaryOperatorRegistry()->get("+");
+				return [
+					...$left,
+					...$this->flattened($right_tree),
+					new FunctionCallExpressionToken($operator_token->getPos(), $a_op->getSymbol(), 2, $a_op->getOperator(), $a_op->isDeterministic(), $a_op->isCommutative(), new BinaryOperatorToken($operator_token->getPos(), $a_op->getSymbol()))
 				];
 			}
 		}
