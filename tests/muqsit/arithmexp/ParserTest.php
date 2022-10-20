@@ -46,8 +46,28 @@ final class ParserTest extends TestCase{
 		TestUtil::assertParserThrows($this->parser, "x + (2 * y + (z / 2) + 5", ParseException::ERR_NO_CLOSING_PAREN, 4, 5);
 	}
 
+	public function testNoClosingParenthesisOfDifferingType() : void{
+		TestUtil::assertParserThrows($this->parser, "x + [(2 * y + z / 2) + 5", ParseException::ERR_NO_CLOSING_PAREN, 4, 5);
+	}
+
+	public function testUnexpectedParenthesisOfOpeningType() : void{
+		TestUtil::assertParserThrows($this->parser, "x + ([2 * y + z / 2) + 5", ParseException::ERR_UNEXPECTED_PAREN, 19, 20);
+	}
+
 	public function testNoOpeningParenthesis() : void{
 		TestUtil::assertParserThrows($this->parser, "x + (2 * y + z / 2)) + 5", ParseException::ERR_NO_OPENING_PAREN, 19, 20);
+	}
+
+	public function testNoOpeningParenthesisOfDifferingType() : void{
+		TestUtil::assertParserThrows($this->parser, "x + (2 * y + z / 2)] + 5", ParseException::ERR_NO_OPENING_PAREN, 19, 20);
+	}
+
+	public function testUnexpectedParenthesisOfClosingType() : void{
+		TestUtil::assertParserThrows($this->parser, "x + (2 * y + z / 2]) + 5", ParseException::ERR_UNEXPECTED_PAREN, 18, 19);
+	}
+
+	public function testUnexpectedParenthesisTypeInOverlap() : void{
+		TestUtil::assertParserThrows($this->parser, "x + (2 * y + z / [2)] + 5", ParseException::ERR_UNEXPECTED_PAREN, 19, 20);
 	}
 
 	public function testNoUnaryOperand() : void{
