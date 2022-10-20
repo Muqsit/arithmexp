@@ -186,7 +186,7 @@ final class Parser{
 					continue;
 				}
 				if($member_token->getParenthesisType() !== $token->getParenthesisType()){
-					throw ParseException::unexpectedParenthesisType($expression, $token->getPos());
+					throw ParseException::unexpectedParenthesisType($expression, $member_token->getPos());
 				}
 				if($member_token->getParenthesisMark() !== ParenthesisToken::MARK_CLOSING){
 					throw ParseException::noClosingParenthesis($expression, $token->getPos());
