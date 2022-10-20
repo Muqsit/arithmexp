@@ -25,9 +25,10 @@ final class ParseException extends Exception{
 	public const ERR_NO_OPERAND_BINARY_LEFT = 100004;
 	public const ERR_NO_OPERAND_BINARY_RIGHT = 100005;
 	public const ERR_NO_OPERAND_UNARY = 100006;
-	public const ERR_UNEXPECTED_TOKEN = 100007;
-	public const ERR_UNRESOLVABLE_EXPRESSION = 100008;
-	public const ERR_UNRESOLVABLE_FCALL = 100009;
+	public const ERR_UNEXPECTED_PAREN = 100007;
+	public const ERR_UNEXPECTED_TOKEN = 100008;
+	public const ERR_UNRESOLVABLE_EXPRESSION = 100009;
+	public const ERR_UNRESOLVABLE_FCALL = 100010;
 
 	public static function generateWithHighlightedSubstring(self $exception) : self{
 		return new self(
@@ -92,7 +93,7 @@ final class ParseException extends Exception{
 			$position->getStart(),
 			$position->getEnd(),
 			$expression
-		), self::ERR_NO_OPENING_PAREN));
+		), self::ERR_UNEXPECTED_PAREN));
 	}
 
 	public static function noUnaryOperand(string $expression, Position $position) : self{
