@@ -15,6 +15,8 @@ final class ParenthesisToken extends SimpleToken{
 	public const MARK_CLOSING = 1;
 
 	public const TYPE_ROUND = 0;
+	public const TYPE_SQUARE = 1;
+	public const TYPE_CURLY = 2;
 
 	/**
 	 * @param self::MARK_* $mark
@@ -26,6 +28,14 @@ final class ParenthesisToken extends SimpleToken{
 			self::TYPE_ROUND => match($mark){
 				self::MARK_OPENING => "(",
 				self::MARK_CLOSING => ")"
+			},
+			self::TYPE_SQUARE => match($mark){
+				self::MARK_OPENING => "[",
+				self::MARK_CLOSING => "]"
+			},
+			self::TYPE_CURLY => match($mark){
+				self::MARK_OPENING => "{",
+				self::MARK_CLOSING => "}"
 			}
 		};
 	}

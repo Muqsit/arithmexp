@@ -15,7 +15,7 @@ final class ParenthesisTokenBuilder implements TokenBuilder{
 
 	public function __construct(){
 		foreach([ParenthesisToken::MARK_OPENING, ParenthesisToken::MARK_CLOSING] as $mark){
-			foreach([ParenthesisToken::TYPE_ROUND] as $type){
+			foreach([ParenthesisToken::TYPE_ROUND, ParenthesisToken::TYPE_SQUARE, ParenthesisToken::TYPE_CURLY] as $type){
 				$this->symbols_to_mark_type[ParenthesisToken::symbolFrom($mark, $type)] = [$mark, $type];
 			}
 		}
