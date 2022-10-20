@@ -47,7 +47,7 @@ final class ParserTest extends TestCase{
 	}
 
 	public function testNoOpeningParenthesis() : void{
-		TestUtil::assertParserThrows($this->parser, "x + (2 * y + z / 2)) + 5", ParseException::ERR_NO_OPENING_PAREN, 18, 19);
+		TestUtil::assertParserThrows($this->parser, "x + (2 * y + z / 2)) + 5", ParseException::ERR_NO_OPENING_PAREN, 19, 20);
 	}
 
 	public function testNoUnaryOperand() : void{

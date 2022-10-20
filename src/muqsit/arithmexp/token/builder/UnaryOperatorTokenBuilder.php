@@ -9,7 +9,7 @@ use muqsit\arithmexp\operator\unary\UnaryOperatorRegistry;
 use muqsit\arithmexp\Position;
 use muqsit\arithmexp\token\IdentifierToken;
 use muqsit\arithmexp\token\NumericLiteralToken;
-use muqsit\arithmexp\token\RightParenthesisToken;
+use muqsit\arithmexp\token\ParenthesisToken;
 use muqsit\arithmexp\token\UnaryOperatorToken;
 use function array_keys;
 use function strlen;
@@ -40,8 +40,8 @@ final class UnaryOperatorTokenBuilder implements TokenBuilder{
 		$token = $state->getLastCapturedToken();
 		if(
 			!($token instanceof NumericLiteralToken) &&
-			!($token instanceof RightParenthesisToken) &&
-			!($token instanceof IdentifierToken)
+			!($token instanceof IdentifierToken) &&
+			(!($token instanceof ParenthesisToken) || $token->getParenthesisMark() === ParenthesisToken::MARK_OPENING)
 		){
 			$offset = $state->offset;
 			$expression = $state->expression;

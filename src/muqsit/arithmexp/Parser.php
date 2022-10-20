@@ -16,9 +16,8 @@ use muqsit\arithmexp\operator\unary\UnaryOperatorRegistry;
 use muqsit\arithmexp\token\BinaryOperatorToken;
 use muqsit\arithmexp\token\FunctionCallArgumentSeparatorToken;
 use muqsit\arithmexp\token\FunctionCallToken;
-use muqsit\arithmexp\token\LeftParenthesisToken;
 use muqsit\arithmexp\token\NumericLiteralToken;
-use muqsit\arithmexp\token\RightParenthesisToken;
+use muqsit\arithmexp\token\ParenthesisToken;
 use muqsit\arithmexp\token\Token;
 use muqsit\arithmexp\token\UnaryOperatorToken;
 use RuntimeException;
@@ -158,7 +157,7 @@ final class Parser{
 
 	/**
 	 * Transforms a given token tree in-place by removing parenthesis tokens
-	 * {@see LeftParenthesisToken, RightParenthesisToken} by introducing nesting.
+	 * {@see ParenthesisToken} by introducing nesting.
 	 *
 	 * This transforms [LP, NUM, OP, NUM, RP, OP, NUM] to [[NUM, OP, NUM], OP, NUM].
 	 *
@@ -167,34 +166,42 @@ final class Parser{
 	 * @throws ParseException
 	 */
 	private function deparenthesizeTokens(string $expression, array &$tokens) : void{
-		$right_parens = [];
-		$right_parens_found = 0;
 		for($i = count($tokens) - 1; $i >= 0; --$i){
 			$token = $tokens[$i];
-			if(!($token instanceof LeftParenthesisToken)){
-				if($token instanceof RightParenthesisToken){
-					$right_parens[] = $token;
-				}
+			if(!($token instanceof ParenthesisToken)){
 				continue;
 			}
 
-			/** @var Token[] $group */
-			$group = [];
-			$j = $i + 1;
-			while(!(($tokens[$j] ?? throw ParseException::noClosingParenthesis($expression, $token->getPos())) instanceof RightParenthesisToken)){
-				$group[] = $tokens[$j++];
+			if($token->getParenthesisMark() !== ParenthesisToken::MARK_OPENING){
+				continue;
 			}
 
-			++$right_parens_found;
+			$j = $i + 1;
+			$group = [];
+			while(true){
+				$member_token = $tokens[$j] ?? throw ParseException::noClosingParenthesis($expression, $token->getPos());
+				if(!($member_token instanceof ParenthesisToken)){
+					$group[] = $member_token;
+					++$j;
+					continue;
+				}
+				if($member_token->getParenthesisMark() !== ParenthesisToken::MARK_CLOSING){
+					throw ParseException::noClosingParenthesis($expression, $token->getPos());
+				}
+				break;
+			}
+
 			array_splice($tokens, $i, 1 + ($j - $i), match(count($group)){
 				0 => [],
 				1 => $group,
 				default => [$group]
 			});
 		}
-
-		if(isset($right_parens[$right_parens_found])){
-			throw ParseException::noOpeningParenthesis($expression, $right_parens[$right_parens_found]->getPos());
+		foreach($tokens as $token){
+			if($token instanceof ParenthesisToken){
+				assert($token->getParenthesisMark() === ParenthesisToken::MARK_CLOSING);
+				throw ParseException::noOpeningParenthesis($expression, $token->getPos());
+			}
 		}
 	}
 

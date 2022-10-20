@@ -10,7 +10,7 @@ use muqsit\arithmexp\Position;
 use muqsit\arithmexp\token\BinaryOperatorToken;
 use muqsit\arithmexp\token\IdentifierToken;
 use muqsit\arithmexp\token\NumericLiteralToken;
-use muqsit\arithmexp\token\RightParenthesisToken;
+use muqsit\arithmexp\token\ParenthesisToken;
 use function array_keys;
 use function strlen;
 use function usort;
@@ -40,8 +40,8 @@ final class BinaryOperatorTokenBuilder implements TokenBuilder{
 		$token = $state->getLastCapturedToken();
 		if(
 			$token instanceof NumericLiteralToken ||
-			$token instanceof RightParenthesisToken ||
-			$token instanceof IdentifierToken
+			$token instanceof IdentifierToken ||
+			($token instanceof ParenthesisToken && $token->getParenthesisMark() === ParenthesisToken::MARK_CLOSING)
 		){
 			$offset = $state->offset;
 			$expression = $state->expression;

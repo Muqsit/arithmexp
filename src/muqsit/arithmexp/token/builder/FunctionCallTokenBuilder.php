@@ -9,8 +9,7 @@ use muqsit\arithmexp\Position;
 use muqsit\arithmexp\token\FunctionCallArgumentSeparatorToken;
 use muqsit\arithmexp\token\FunctionCallToken;
 use muqsit\arithmexp\token\IdentifierToken;
-use muqsit\arithmexp\token\LeftParenthesisToken;
-use muqsit\arithmexp\token\RightParenthesisToken;
+use muqsit\arithmexp\token\ParenthesisToken;
 use function count;
 
 final class FunctionCallTokenBuilder implements TokenBuilder{
@@ -33,7 +32,10 @@ final class FunctionCallTokenBuilder implements TokenBuilder{
 			if(
 				!($token instanceof IdentifierToken) ||
 				!isset($state->captured_tokens[$i + 1]) ||
-				!($state->captured_tokens[$i + 1] instanceof LeftParenthesisToken)
+				!(
+					$state->captured_tokens[$i + 1] instanceof ParenthesisToken &&
+					$state->captured_tokens[$i + 1]->getParenthesisMark() === ParenthesisToken::MARK_OPENING
+				)
 			){
 				continue;
 			}
@@ -43,17 +45,19 @@ final class FunctionCallTokenBuilder implements TokenBuilder{
 			$end_pos = $token->getPos()->getEnd();
 			for($j = $i + 2; $j < $count; ++$j){
 				$inner_token = $state->captured_tokens[$j];
-				if($inner_token instanceof LeftParenthesisToken){
-					++$open_parentheses;
-					continue;
-				}
-
-				if($inner_token instanceof RightParenthesisToken){
-					if(--$open_parentheses < 0){
-						$end_pos = $inner_token->getPos()->getEnd();
-						break;
+				if($inner_token instanceof ParenthesisToken){
+					$parenthesis_type = $inner_token->getParenthesisMark();
+					if($parenthesis_type === ParenthesisToken::MARK_OPENING){
+						++$open_parentheses;
+						continue;
 					}
-					continue;
+					if($parenthesis_type === ParenthesisToken::MARK_CLOSING){
+						if(--$open_parentheses < 0){
+							$end_pos = $inner_token->getPos()->getEnd();
+							break;
+						}
+						continue;
+					}
 				}
 
 				if($open_parentheses > 0){
