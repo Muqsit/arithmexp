@@ -85,6 +85,16 @@ final class ParseException extends Exception{
 		), self::ERR_NO_OPENING_PAREN));
 	}
 
+	public static function unexpectedParenthesisType(string $expression, Position $position) : self{
+		return self::generateWithHighlightedSubstring(new self($expression, $position, sprintf(
+			"Unexpected parenthesis type specified at \"%s\" (%d:%d) in \"%s\"",
+			$position->in($expression),
+			$position->getStart(),
+			$position->getEnd(),
+			$expression
+		), self::ERR_NO_OPENING_PAREN));
+	}
+
 	public static function noUnaryOperand(string $expression, Position $position) : self{
 		return self::generateWithHighlightedSubstring(new self($expression, $position, sprintf(
 			"No operand specified for unary operator at \"%s\" (%d:%d) in \"%s\"",
