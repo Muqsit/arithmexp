@@ -29,13 +29,15 @@ final class FunctionCallTokenBuilder implements TokenBuilder{
 		for($i = $count - 1; $i >= 0; --$i){
 			$token = $state->captured_tokens[$i];
 
+			if(!($token instanceof IdentifierToken) || !isset($state->captured_tokens[$i + 1])){
+				continue;
+			}
+
+			$next_token = $state->captured_tokens[$i + 1];
 			if(
-				!($token instanceof IdentifierToken) ||
-				!isset($state->captured_tokens[$i + 1]) ||
-				!(
-					$state->captured_tokens[$i + 1] instanceof ParenthesisToken &&
-					$state->captured_tokens[$i + 1]->getParenthesisMark() === ParenthesisToken::MARK_OPENING
-				)
+				!($next_token instanceof ParenthesisToken) ||
+				$next_token->getParenthesisMark() !== ParenthesisToken::MARK_OPENING ||
+				$next_token->getParenthesisType() !== ParenthesisToken::TYPE_ROUND
 			){
 				continue;
 			}
@@ -46,6 +48,10 @@ final class FunctionCallTokenBuilder implements TokenBuilder{
 			for($j = $i + 2; $j < $count; ++$j){
 				$inner_token = $state->captured_tokens[$j];
 				if($inner_token instanceof ParenthesisToken){
+					if($inner_token->getParenthesisType() !== ParenthesisToken::TYPE_ROUND){
+						continue;
+					}
+
 					$parenthesis_type = $inner_token->getParenthesisMark();
 					if($parenthesis_type === ParenthesisToken::MARK_OPENING){
 						++$open_parentheses;
