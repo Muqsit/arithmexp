@@ -70,6 +70,12 @@ final class ParserTest extends TestCase{
 		TestUtil::assertParserThrows($this->parser, "x + (2 * y + z / [2)] + 5", ParseException::ERR_UNEXPECTED_PAREN, 19, 20);
 	}
 
+	public function testFunctionCallWithDifferingParenthesisTypes() : void{
+		$this->parser->parse("tan(x)");
+		TestUtil::assertParserThrows($this->parser, "tan[x]", ParseException::ERR_UNEXPECTED_TOKEN, 4, 5);
+		TestUtil::assertParserThrows($this->parser, "tan{x}", ParseException::ERR_UNEXPECTED_TOKEN, 4, 5);
+	}
+
 	public function testNoUnaryOperand() : void{
 		TestUtil::assertParserThrows($this->parser, "x*+", ParseException::ERR_NO_OPERAND_UNARY, 2, 3);
 	}
