@@ -34,9 +34,11 @@ final class ParseException extends Exception{
 		return new self(
 			$exception->expression,
 			$exception->position,
-			$exception->getMessage() . PHP_EOL .
-			" | " . $exception->expression . PHP_EOL .
-			" | " . str_repeat(" ", $exception->position->getStart()) . str_repeat("^", $exception->position->length()),
+			$exception->getMessage() . ($exception->position->length() === strlen($exception->expression) ? "" :
+				PHP_EOL .
+				" | " . $exception->expression . PHP_EOL .
+				" | " . str_repeat(" ", $exception->position->getStart()) . str_repeat("^", $exception->position->length())
+			),
 			$exception->code,
 			$exception->getPrevious()
 		);
