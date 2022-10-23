@@ -368,6 +368,24 @@ final class OperatorStrengthReductionExpressionOptimizer implements ExpressionOp
 	 * @return array{ExpressionToken[], ExpressionToken[]}|null
 	 */
 	private function processDivisionBetween(Parser $parser, FunctionCallExpressionToken $operator_token, array $left_operand, array $right_operand) : ?array{
+		// reduce (n1 / n2) to (n / 1) where n1 and n2 are numeric, and n = n1 / n2
+		if(
+			count($left_operand) === 1 &&
+			$left_operand[0] instanceof NumericLiteralExpressionToken &&
+			count($right_operand) === 1 &&
+			$right_operand[0] instanceof NumericLiteralExpressionToken
+		){
+			$result = new RawExpression("{$left_operand[0]} {$operator_token} {$right_operand[0]}", [
+				$left_operand[0],
+				$right_operand[0],
+				$operator_token
+			]);
+			return [
+				[new NumericLiteralExpressionToken(Util::positionContainingExpressionTokens($left_operand), $result->evaluate())],
+				[new NumericLiteralExpressionToken(Util::positionContainingExpressionTokens($right_operand), 1)]
+			];
+		}
+
 		// reduce (x / x) to (1 / 1)
 		if($this->tokensEqualByReturnValue($left_operand, $right_operand)){
 			return [
