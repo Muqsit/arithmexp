@@ -234,6 +234,12 @@ final class OptimizerTest extends TestCase{
 		self::assertExpressionsEqual($expected, $actual);
 	}
 
+	public function testDivisionOperatorStrengthReductionForNumericSubExpressionsAmongOperands() : void{
+		$actual = $this->parser->parse("(x * 2) / (4 * y)");
+		$expected = $this->unoptimized_parser->parse("x * 0.5 / y");
+		self::assertExpressionsEqual($expected, $actual);
+	}
+
 	public function testDivisionOperatorStrengthReductionForCommutativeFunctions() : void{
 		$expression = $this->parser->parse("min(x, y) / min(y, x)");
 		self::assertInstanceOf(ConstantExpression::class, $expression);
