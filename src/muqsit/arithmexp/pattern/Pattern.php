@@ -6,7 +6,9 @@ namespace muqsit\arithmexp\pattern;
 
 use Generator;
 use muqsit\arithmexp\expression\token\ExpressionToken;
+use muqsit\arithmexp\pattern\matcher\NotPatternMatcher;
 use muqsit\arithmexp\pattern\matcher\PatternMatcher;
+use muqsit\arithmexp\pattern\matcher\InstanceOfPatternMatcher;
 use muqsit\arithmexp\Util;
 
 final class Pattern{
@@ -23,5 +25,17 @@ final class Pattern{
 				yield $entry;
 			}
 		}
+	}
+
+	public static function not(PatternMatcher $matcher) : PatternMatcher{
+		return new NotPatternMatcher($matcher);
+	}
+
+	/**
+	 * @param class-string<ExpressionToken> $type
+	 * @return PatternMatcher
+	 */
+	public static function instanceof(string $type) : PatternMatcher{
+		return new InstanceOfPatternMatcher($type);
 	}
 }
