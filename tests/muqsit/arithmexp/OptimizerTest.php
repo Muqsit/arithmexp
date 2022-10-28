@@ -324,6 +324,12 @@ final class OptimizerTest extends TestCase{
 		self::assertEquals(0, $expression->evaluate());
 	}
 
+	public function testSubtractionOperatorStrengthReductionForEqualOperandsYieldingNaN() : void{
+		$expression = $this->parser->parse("inf - inf");
+		self::assertInstanceOf(ConstantExpression::class, $expression);
+		self::assertNan($expression->evaluate());
+	}
+
 	public function testSubtractionOperatorStrengthReductionForEqualOperandsWithGrouping() : void{
 		$expression = $this->parser->parse("(x * y * z) - (x * y * z)");
 		self::assertInstanceOf(ConstantExpression::class, $expression);

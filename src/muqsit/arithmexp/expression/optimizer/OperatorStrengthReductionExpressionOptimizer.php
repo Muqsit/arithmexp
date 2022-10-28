@@ -31,12 +31,14 @@ use function is_array;
 
 final class OperatorStrengthReductionExpressionOptimizer implements ExpressionOptimizer{
 
+	private PatternMatcher $any_non_numeric_matcher;
 	private PatternMatcher $binary_operation_matcher;
 	private PatternMatcher $unary_operation_matcher;
 	private PatternMatcher $multiplication_operation_matcher;
 	private PatternMatcher $exponentiation_operation_matcher;
 
 	public function __construct(){
+		$this->any_non_numeric_matcher = Pattern::not(Pattern::instanceof(NumericLiteralExpressionToken::class));
 		$this->binary_operation_matcher = new ArrayPatternMatcher([
 			AnyPatternMatcher::instance(),
 			AnyPatternMatcher::instance(),
@@ -207,7 +209,7 @@ final class OperatorStrengthReductionExpressionOptimizer implements ExpressionOp
 				default => $this->processAddition($parser, $operator_token, $left, $right)
 			},
 			"-" => match(true){
-				$this->tokensEqualByReturnValue($left, $right) => [new NumericLiteralExpressionToken(Util::positionContainingExpressionTokens([...$left, ...$right]), 0)],
+				$this->tokensEqualByReturnValue($left, $right) && $this->any_non_numeric_matcher->matches([...$left, ...$right]) => [new NumericLiteralExpressionToken(Util::positionContainingExpressionTokens([...$left, ...$right]), 0)],
 				$this->valueEquals($left, 0) => [
 					new NumericLiteralEXpressionToken(Util::positionContainingExpressionTokens($right), -1),
 					...$right,
