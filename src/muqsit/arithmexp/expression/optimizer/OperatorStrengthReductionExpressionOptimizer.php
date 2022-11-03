@@ -230,6 +230,7 @@ final class OperatorStrengthReductionExpressionOptimizer implements ExpressionOp
 			"+" => match(true){
 				$this->valueEquals($left, 0) => $right,
 				$this->valueEquals($right, 0) => $left,
+				$this->valueIsNan($left), $this->valueIsNan($right) => [new NumericLiteralExpressionToken(Util::positionContainingExpressionTokens([...$left, ...$right]), NAN)],
 				default => $this->processAddition($parser, $operator_token, $left, $right)
 			},
 			"-" => match(true){
