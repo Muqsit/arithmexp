@@ -23,6 +23,7 @@ use muqsit\arithmexp\token\BinaryOperatorToken;
 use muqsit\arithmexp\token\UnaryOperatorToken;
 use muqsit\arithmexp\Util;
 use RuntimeException;
+use function array_filter;
 use function array_splice;
 use function assert;
 use function count;
@@ -389,7 +390,10 @@ final class OperatorStrengthReductionExpressionOptimizer implements ExpressionOp
 		}
 
 		// reduce (x / x) to (1 / 1)
-		if($this->tokensEqualByReturnValue($left_operand, $right_operand)){
+		if(
+			$this->tokensEqualByReturnValue($left_operand, $right_operand) &&
+			count(array_filter([...$left_operand, ...$right_operand], static fn(ExpressionToken $token) : bool => !$token->isDeterministic())) > 0
+		){
 			return [
 				// on cancelling a value in the numerator with a value in the denominator, replace them operands with 1 (identity element of division)
 				[new NumericLiteralExpressionToken(Util::positionContainingExpressionTokens($left_operand), 1)],
