@@ -209,11 +209,14 @@ final class Parser{
 	 * @throws ParseException
 	 */
 	private function groupOperatorTokens(string $expression, array &$tokens) : void{
-		$prioritize = [];
-		do{
-			foreach(Util::traverseNestedArray($tokens) as &$entry){
+		foreach(Util::traverseNestedArray($tokens) as &$entry){
+			$prioritize = [];
+			do{
 				foreach($this->operator_manager->getByPrecedence() as $list){
-					foreach($list->getAssignment()->traverse($list, $entry) as $index => $token){
+					foreach($list->getAssignment()->traverse($list, $entry) as $state){
+						$index = $state->index;
+						$token = $state->value;
+
 						if(count($prioritize) > 0){
 							$token_id = spl_object_id($token);
 							if($prioritize[count($prioritize) - 1] !== $token_id){
@@ -248,11 +251,11 @@ final class Parser{
 							break 2;
 						}
 
-						array_splice($entry, $begin, count($replacement), [$replacement]);
+						$state->splice($begin, count($replacement), [$replacement]);
 					}
 				}
-			}
-		}while(count($prioritize) > 0);
+			}while(count($prioritize) > 0);
+		}
 	}
 
 	/**

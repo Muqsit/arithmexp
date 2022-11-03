@@ -24,13 +24,19 @@ final class RightOperatorAssignment implements OperatorAssignment{
 	}
 
 	public function traverse(OperatorList $list, array &$tokens) : Generator{
+		$state = new OperatorAssignmentTraverserState($tokens);
 		$operators = $list->getBinary();
 		$index = count($tokens);
 		while(--$index >= 0){
 			$value = $tokens[$index];
 			if($value instanceof BinaryOperatorToken && isset($operators[$value->getOperator()])){
-				yield $index => $value;
-				$index = count($tokens);
+				$state->index = $index;
+				$state->value = $value;
+				yield $state;
+				if($state->changed){
+					$index = count($tokens);
+					$state->changed = false;
+				}
 			}
 		}
 	}
