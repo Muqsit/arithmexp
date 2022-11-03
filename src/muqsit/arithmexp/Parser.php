@@ -248,7 +248,7 @@ final class Parser{
 							foreach($operator_tokens as $operator_token){
 								$prioritize[] = spl_object_id($operator_token);
 							}
-							break 2;
+							break;
 						}
 
 						$state->splice($begin, count($replacement), [$replacement]);
