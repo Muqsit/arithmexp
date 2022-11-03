@@ -14,7 +14,6 @@ use muqsit\arithmexp\expression\token\NumericLiteralExpressionToken;
 use muqsit\arithmexp\ParseException;
 use muqsit\arithmexp\Parser;
 use muqsit\arithmexp\token\BinaryOperatorToken;
-use muqsit\arithmexp\token\Token;
 use muqsit\arithmexp\Util;
 use RuntimeException;
 use function array_filter;
