@@ -120,6 +120,10 @@ final class ParserTest extends TestCase{
 		TestUtil::assertParserThrows($this->parser, "2 + 3 * (4, 5) / 6", ParseException::ERR_UNEXPECTED_TOKEN, 10, 11);
 	}
 
+	public function testDivisionByZeroBetweenZeroLiterals() : void{
+		TestUtil::assertParserThrows($this->parser, "0 / 0", ParseException::ERR_UNRESOLVABLE_EXPRESSION, 4, 5);
+	}
+
 	public function testDivisionByZeroBetweenNumericLiterals() : void{
 		TestUtil::assertParserThrows($this->parser, "1 / 0", ParseException::ERR_UNRESOLVABLE_EXPRESSION, 4, 5);
 	}
