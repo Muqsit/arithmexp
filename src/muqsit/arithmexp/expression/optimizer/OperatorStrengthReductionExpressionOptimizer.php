@@ -75,6 +75,10 @@ final class OperatorStrengthReductionExpressionOptimizer implements ExpressionOp
 	}
 
 	public function run(Parser $parser, Expression $expression) : Expression{
+		if(count(array_filter($expression->getPostfixExpressionTokens(), static fn(ExpressionToken $token) : bool => !$token->isDeterministic())) === 0){
+			return $expression;
+		}
+
 		$postfix_expression_tokens = Util::expressionTokenArrayToTree($expression->getPostfixExpressionTokens());
 
 		$changes = 0;
@@ -390,10 +394,7 @@ final class OperatorStrengthReductionExpressionOptimizer implements ExpressionOp
 		}
 
 		// reduce (x / x) to (1 / 1)
-		if(
-			$this->tokensEqualByReturnValue($left_operand, $right_operand) &&
-			count(array_filter([...$left_operand, ...$right_operand], static fn(ExpressionToken $token) : bool => !$token->isDeterministic())) > 0
-		){
+		if($this->tokensEqualByReturnValue($left_operand, $right_operand)){
 			return [
 				// on cancelling a value in the numerator with a value in the denominator, replace them operands with 1 (identity element of division)
 				[new NumericLiteralExpressionToken(Util::positionContainingExpressionTokens($left_operand), 1)],
