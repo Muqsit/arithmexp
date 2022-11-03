@@ -10,6 +10,8 @@ interface UnaryOperator{
 
 	public function getSymbol() : string;
 
+	public function getPrecedence() : int;
+
 	public function getName() : string;
 
 	/**

@@ -10,9 +10,9 @@ use muqsit\arithmexp\expression\Expression;
 use muqsit\arithmexp\expression\RawExpression;
 use muqsit\arithmexp\expression\token\ExpressionToken;
 use muqsit\arithmexp\expression\token\NumericLiteralExpressionToken;
-use muqsit\arithmexp\operator\binary\assignment\RightBinaryOperatorAssignment;
-use muqsit\arithmexp\operator\binary\BinaryOperatorPrecedence;
+use muqsit\arithmexp\operator\assignment\RightOperatorAssignment;
 use muqsit\arithmexp\operator\binary\SimpleBinaryOperator;
+use muqsit\arithmexp\operator\OperatorPrecedence;
 use PHPUnit\Framework\TestCase;
 use function array_map;
 
@@ -74,12 +74,12 @@ final class OptimizerTest extends TestCase{
 	}
 
 	public function testNonDeterminsticOperatorExclusionFromOptimization() : void{
-		$operator = new SimpleBinaryOperator(":", "Random", BinaryOperatorPrecedence::EXPONENTIAL, RightBinaryOperatorAssignment::instance(), Closure::fromCallable("mt_rand"), false, false);
+		$operator = new SimpleBinaryOperator(":", "Random", OperatorPrecedence::EXPONENTIAL, RightOperatorAssignment::instance(), Closure::fromCallable("mt_rand"), false, false);
 
-		$this->parser->getBinaryOperatorRegistry()->register($operator);
+		$this->parser->getOperatorManager()->getBinaryRegistry()->register($operator);
 		$actual = $this->parser->parse("1:4 / 1:4");
 
-		$this->unoptimized_parser->getBinaryOperatorRegistry()->register($operator);
+		$this->unoptimized_parser->getOperatorManager()->getBinaryRegistry()->register($operator);
 		$expected = $this->unoptimized_parser->parse("1:4 / 1:4");
 		self::assertExpressionsEqual($expected, $actual);
 	}

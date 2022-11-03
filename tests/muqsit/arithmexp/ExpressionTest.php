@@ -6,10 +6,10 @@ namespace muqsit\arithmexp;
 
 use Closure;
 use InvalidArgumentException;
-use muqsit\arithmexp\operator\binary\assignment\LeftBinaryOperatorAssignment;
-use muqsit\arithmexp\operator\binary\assignment\RightBinaryOperatorAssignment;
-use muqsit\arithmexp\operator\binary\BinaryOperatorPrecedence;
+use muqsit\arithmexp\operator\assignment\LeftOperatorAssignment;
+use muqsit\arithmexp\operator\assignment\RightOperatorAssignment;
 use muqsit\arithmexp\operator\binary\SimpleBinaryOperator;
+use muqsit\arithmexp\operator\OperatorPrecedence;
 use muqsit\arithmexp\operator\unary\SimpleUnaryOperator;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
@@ -148,11 +148,11 @@ final class ExpressionTest extends TestCase{
 	}
 
 	public function testNonstandardBinaryOperator() : void{
-		$this->parser->getBinaryOperatorRegistry()->register(new SimpleBinaryOperator(
+		$this->parser->getOperatorManager()->getBinaryRegistry()->register(new SimpleBinaryOperator(
 			"..",
 			"Random Range",
 			0,
-			RightBinaryOperatorAssignment::instance(),
+			RightOperatorAssignment::instance(),
 			Closure::fromCallable("mt_rand"),
 			false
 		));
@@ -164,11 +164,11 @@ final class ExpressionTest extends TestCase{
 	}
 
 	public function testNonstandardBinaryOperatorWithExistingSymbol() : void{
-		$this->parser->getBinaryOperatorRegistry()->register(new SimpleBinaryOperator(
+		$this->parser->getOperatorManager()->getBinaryRegistry()->register(new SimpleBinaryOperator(
 			"//",
 			"Integer Division",
-			BinaryOperatorPrecedence::MULTIPLICATION_DIVISION_MODULO,
-			LeftBinaryOperatorAssignment::instance(),
+			OperatorPrecedence::MULTIPLICATION_DIVISION_MODULO,
+			LeftOperatorAssignment::instance(),
 			Closure::fromCallable("intdiv"),
 			false
 		));
@@ -178,9 +178,10 @@ final class ExpressionTest extends TestCase{
 	}
 
 	public function testNonstandardUnaryOperator() : void{
-		$this->parser->getUnaryOperatorRegistry()->register(new SimpleUnaryOperator(
+		$this->parser->getOperatorManager()->getUnaryRegistry()->register(new SimpleUnaryOperator(
 			"±",
 			"Modulus",
+			OperatorPrecedence::UNARY_NEGATIVE_POSITIVE,
 			Closure::fromCallable("abs")
 		));
 
@@ -189,9 +190,10 @@ final class ExpressionTest extends TestCase{
 	}
 
 	public function testNonstandardUnaryOperatorWithExistingSymbol() : void{
-		$this->parser->getUnaryOperatorRegistry()->register(new SimpleUnaryOperator(
+		$this->parser->getOperatorManager()->getUnaryRegistry()->register(new SimpleUnaryOperator(
 			"--",
 			"Decrement",
+			OperatorPrecedence::UNARY_NEGATIVE_POSITIVE,
 			static fn(int|float $x) : int|float => $x - 1
 		));
 

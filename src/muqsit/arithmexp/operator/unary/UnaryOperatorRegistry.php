@@ -6,14 +6,15 @@ namespace muqsit\arithmexp\operator\unary;
 
 use InvalidArgumentException;
 use muqsit\arithmexp\operator\ChangeListenableTrait;
+use muqsit\arithmexp\operator\OperatorPrecedence;
 
 final class UnaryOperatorRegistry{
 	use ChangeListenableTrait;
 
 	public static function createDefault() : self{
 		$registry = new self();
-		$registry->register(new SimpleUnaryOperator("+", "Positive", static fn(int|float $x) : int|float => +$x, true));
-		$registry->register(new SimpleUnaryOperator("-", "Negative", static fn(int|float $x) : int|float => -$x, true));
+		$registry->register(new SimpleUnaryOperator("+", "Positive", OperatorPrecedence::UNARY_NEGATIVE_POSITIVE, static fn(int|float $x) : int|float => +$x, true));
+		$registry->register(new SimpleUnaryOperator("-", "Negative", OperatorPrecedence::UNARY_NEGATIVE_POSITIVE, static fn(int|float $x) : int|float => -$x, true));
 		return $registry;
 	}
 
@@ -24,7 +25,18 @@ final class UnaryOperatorRegistry{
 	}
 
 	public function register(UnaryOperator $operator) : void{
-		$this->registered[$operator->getSymbol()] = $operator;
+		$previous = $this->registered[$symbol = $operator->getSymbol()] ?? null;
+		$this->registered[$symbol] = $operator;
+		try{
+			$this->notifyChangeHandler();
+		}catch(InvalidArgumentException $e){
+			if($previous === null){
+				unset($this->registered[$symbol]);
+			}else{
+				$this->registered[$symbol] = $previous;
+			}
+			throw $e;
+		}
 		$this->notifyChangeListener();
 	}
 

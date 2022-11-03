@@ -12,6 +12,7 @@ use muqsit\arithmexp\expression\RawExpression;
 use muqsit\arithmexp\expression\token\FunctionCallExpressionToken;
 use muqsit\arithmexp\function\FunctionRegistry;
 use muqsit\arithmexp\operator\binary\BinaryOperatorRegistry;
+use muqsit\arithmexp\operator\OperatorManager;
 use muqsit\arithmexp\operator\unary\UnaryOperatorRegistry;
 use muqsit\arithmexp\token\BinaryOperatorToken;
 use muqsit\arithmexp\token\FunctionCallArgumentSeparatorToken;
@@ -35,23 +36,20 @@ use function min;
 final class Parser{
 
 	public static function createDefault() : self{
-		$binary_operator_registry = BinaryOperatorRegistry::createDefault();
-		$unary_operator_registry = UnaryOperatorRegistry::createDefault();
+		$operator_manager = OperatorManager::createDefault();
 		return new self(
-			$binary_operator_registry,
-			$unary_operator_registry,
+			$operator_manager,
 			ConstantRegistry::createDefault(),
 			FunctionRegistry::createDefault(),
 			ExpressionOptimizerRegistry::createDefault(),
-			Scanner::createDefault($binary_operator_registry, $unary_operator_registry)
+			Scanner::createDefault($operator_manager->getBinaryRegistry(), $operator_manager->getUnaryRegistry())
 		);
 	}
 
 	public static function createUnoptimized() : self{
 		$default = self::createDefault();
 		return new self(
-			$default->binary_operator_registry,
-			$default->unary_operator_registry,
+			$default->operator_manager,
 			$default->constant_registry,
 			$default->function_registry,
 			new ExpressionOptimizerRegistry(),
@@ -60,20 +58,15 @@ final class Parser{
 	}
 
 	public function __construct(
-		private BinaryOperatorRegistry $binary_operator_registry,
-		private UnaryOperatorRegistry $unary_operator_registry,
+		private OperatorManager $operator_manager,
 		private ConstantRegistry $constant_registry,
 		private FunctionRegistry $function_registry,
 		private ExpressionOptimizerRegistry $expression_optimizer_registry,
 		private Scanner $scanner
 	){}
 
-	public function getBinaryOperatorRegistry() : BinaryOperatorRegistry{
-		return $this->binary_operator_registry;
-	}
-
-	public function getUnaryOperatorRegistry() : UnaryOperatorRegistry{
-		return $this->unary_operator_registry;
+	public function getOperatorManager() : OperatorManager{
+		return $this->operator_manager;
 	}
 
 	public function getConstantRegistry() : ConstantRegistry{
@@ -142,8 +135,7 @@ final class Parser{
 		}
 
 		$this->groupFunctionCallTokens($tokens);
-		$this->groupUnaryOperatorTokens($expression, $tokens);
-		$this->groupBinaryOperations($expression, $tokens);
+		$this->groupOperatorTokens($expression, $tokens);
 		$this->transformFunctionCallTokens($expression, $tokens);
 
 		if(count($tokens) > 1){
@@ -209,49 +201,58 @@ final class Parser{
 	}
 
 	/**
-	 * Transforms a given token tree in-place by grouping {@see UnaryOperatorToken}
-	 * instances together with its operand.
+	 * Transforms a given token tree in-place by grouping operator token instances
+	 * together with their operand(s).
 	 *
 	 * @param string $expression
 	 * @param Token[]|Token[][] $tokens
 	 * @throws ParseException
 	 */
-	private function groupUnaryOperatorTokens(string $expression, array &$tokens) : void{
-		foreach(Util::traverseNestedArray($tokens) as &$entry){
-			for($i = count($entry) - 1; $i >= 0; --$i){
-				$token = $entry[$i];
-				if($token instanceof UnaryOperatorToken){
-					array_splice($entry, $i, 2, [[
-						$token,
-						$entry[$i + 1] ?? throw ParseException::noUnaryOperand($expression, $token->getPos())
-					]]);
-				}
-			}
-		}
-	}
+	private function groupOperatorTokens(string $expression, array &$tokens) : void{
+		$prioritize = [];
+		do{
+			foreach(Util::traverseNestedArray($tokens) as &$entry){
+				foreach($this->operator_manager->getByPrecedence() as $list){
+					foreach($list->getAssignment()->traverse($list, $entry) as $index => $token){
+						if(count($prioritize) > 0){
+							$token_id = spl_object_id($token);
+							if($prioritize[count($prioritize) - 1] !== $token_id){
+								break;
+							}
+							array_pop($prioritize);
+						}
 
-	/**
-	 * Transforms a given token tree in-place by grouping all binary operations for
-	 * low-complexity processing, converting [TOK, BOP, TOK, BOP, TOK] to
-	 * [[[TOK, BOP, TOK], BOP, TOK]].
-	 *
-	 * @param string $expression
-	 * @param Token[]|Token[][] $tokens
-	 * @throws ParseException
-	 */
-	private function groupBinaryOperations(string $expression, array &$tokens) : void{
-		foreach(Util::traverseNestedArray($tokens) as &$entry){
-			foreach($this->binary_operator_registry->getRegisteredByPrecedence() as $list){
-				$operators = $list->getOperators();
-				foreach($list->getAssignment()->traverse($operators, $entry) as $index => $value){
-					array_splice($entry, $index - 1, 3, [[
-						$entry[$index - 1] ?? throw ParseException::noBinaryOperandLeft($expression, $value->getPos()),
-						$value,
-						$entry[$index + 1] ?? throw ParseException::noBinaryOperandRight($expression, $value->getPos())
-					]]);
+						[$begin, $replacement] = match(true){
+							$token instanceof BinaryOperatorToken => [$index - 1, [
+								$entry[$index - 1] ?? throw ParseException::noBinaryOperandLeft($expression, $token->getPos()),
+								$token,
+								$entry[$index + 1] ?? throw ParseException::noBinaryOperandRight($expression, $token->getPos())
+							]],
+							$token instanceof UnaryOperatorToken => [$index, [
+								$token,
+								$entry[$index + 1] ?? throw ParseException::noUnaryOperand($expression, $token->getPos())
+							]]
+						};
+
+						$operator_tokens = array_filter($replacement, static fn(Token|array $sub_token) : bool => $sub_token !== $token && (
+							$sub_token instanceof BinaryOperatorToken ||
+							$sub_token instanceof UnaryOperatorToken
+						));
+						if(count($operator_tokens) > 0){
+							// discard replacement when an ungrouped operator is encountered
+							// this ensures x ** -y does not result in [[x, **, -], y]
+							$prioritize[] = spl_object_id($token);
+							foreach($operator_tokens as $operator_token){
+								$prioritize[] = spl_object_id($operator_token);
+							}
+							break 2;
+						}
+
+						array_splice($entry, $begin, count($replacement), [$replacement]);
+					}
 				}
 			}
-		}
+		}while(count($prioritize) > 0);
 	}
 
 	/**

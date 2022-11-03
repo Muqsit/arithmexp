@@ -2,13 +2,14 @@
 
 declare(strict_types=1);
 
-namespace muqsit\arithmexp\operator\binary\assignment;
+namespace muqsit\arithmexp\operator\assignment;
 
-use Generator;
+use muqsit\arithmexp\operator\OperatorList;
 use muqsit\arithmexp\token\BinaryOperatorToken;
+use Generator;
 use function count;
 
-final class RightBinaryOperatorAssignment implements BinaryOperatorAssignment{
+final class LeftOperatorAssignment implements OperatorAssignment{
 
 	public static function instance() : self{
 		static $instance = null;
@@ -19,16 +20,19 @@ final class RightBinaryOperatorAssignment implements BinaryOperatorAssignment{
 	}
 
 	public function getType() : int{
-		return self::TYPE_RIGHT;
+		return self::TYPE_LEFT;
 	}
 
-	public function traverse(array $operators, array &$tokens) : Generator{
-		$index = count($tokens);
-		while(--$index >= 0){
+	public function traverse(OperatorList $list, array &$tokens) : Generator{
+		$operators = $list->getBinary();
+		$index = -1;
+		$count = count($tokens);
+		while(++$index < $count){
 			$value = $tokens[$index];
 			if($value instanceof BinaryOperatorToken && isset($operators[$value->getOperator()])){
 				yield $index => $value;
-				$index = count($tokens);
+				$index = -1;
+				$count = count($tokens);
 			}
 		}
 	}

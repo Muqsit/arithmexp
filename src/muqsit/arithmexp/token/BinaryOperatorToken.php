@@ -27,7 +27,7 @@ final class BinaryOperatorToken extends SimpleToken{
 	}
 
 	public function toExpressionToken(Parser $parser, string $expression) : ExpressionToken{
-		$operator = $parser->getBinaryOperatorRegistry()->get($this->operator);
+		$operator = $parser->getOperatorManager()->getBinaryRegistry()->get($this->operator);
 		return new FunctionCallExpressionToken($this->position, $operator->getSymbol(), 2, $operator->getOperator(), $operator->isDeterministic(), $operator->isCommutative(), $this);
 	}
 

@@ -148,7 +148,7 @@ final class OperatorStrengthReductionExpressionOptimizer implements ExpressionOp
 	private function processUnaryExpression(Parser $parser, FunctionCallExpressionToken $operator_token, array $operand) : ?array{
 		$token = $operator_token->parent;
 		assert($token instanceof UnaryOperatorToken);
-		$m_op = $parser->getBinaryOperatorRegistry()->get("*");
+		$m_op = $parser->getOperatorManager()->getBinaryRegistry()->get("*");
 		return match($token->getOperator()){
 			"+" => $operand,
 			"-" => [
@@ -172,7 +172,7 @@ final class OperatorStrengthReductionExpressionOptimizer implements ExpressionOp
 	private function processBinaryExpression(Parser $parser, Expression $expression, FunctionCallExpressionToken $operator_token, array $left, array $right) : ?array{
 		$token = $operator_token->parent;
 		assert($token instanceof BinaryOperatorToken);
-		$m_op = $parser->getBinaryOperatorRegistry()->get("*");
+		$m_op = $parser->getOperatorManager()->getBinaryRegistry()->get("*");
 		return match($token->getOperator()){
 			"**" => match(true){
 				$this->valueEquals($left, 0) => [new NumericLiteralExpressionToken(Util::positionContainingExpressionTokens([...$left, ...$right]), 0)],
@@ -238,7 +238,7 @@ final class OperatorStrengthReductionExpressionOptimizer implements ExpressionOp
 		foreach($left_tree as $index => $left_operand){
 			if($left_operand instanceof NumericLiteralExpressionToken && $left_operand->value < 0){
 				$left_tree[$index] = new NumericLiteralExpressionToken($left_operand->getPos(), -$left_operand->value);
-				$s_op = $parser->getBinaryOperatorRegistry()->get("-");
+				$s_op = $parser->getOperatorManager()->getBinaryRegistry()->get("-");
 				return [
 					...$right,
 					...$this->flattened($left_tree),
@@ -252,7 +252,7 @@ final class OperatorStrengthReductionExpressionOptimizer implements ExpressionOp
 		foreach($right_tree as $index => $right_operand){
 			if($right_operand instanceof NumericLiteralExpressionToken && $right_operand->value < 0){
 				$right_tree[$index] = new NumericLiteralExpressionToken($right_operand->getPos(), -$right_operand->value);
-				$s_op = $parser->getBinaryOperatorRegistry()->get("-");
+				$s_op = $parser->getOperatorManager()->getBinaryRegistry()->get("-");
 				return [
 					...$left,
 					...$this->flattened($right_tree),
@@ -282,8 +282,8 @@ final class OperatorStrengthReductionExpressionOptimizer implements ExpressionOp
 		foreach($left_tree as $index => $left_operand){
 			if($left_operand instanceof NumericLiteralExpressionToken && $left_operand->value < 0){
 				$left_tree[$index] = new NumericLiteralExpressionToken($left_operand->getPos(), -$left_operand->value);
-				$a_op = $parser->getBinaryOperatorRegistry()->get("+");
-				$m_op = $parser->getBinaryOperatorRegistry()->get("*");
+				$a_op = $parser->getOperatorManager()->getBinaryRegistry()->get("+");
+				$m_op = $parser->getOperatorManager()->getBinaryRegistry()->get("*");
 				return [
 					new NumericLiteralExpressionToken($left_operand->getPos(), -1),
 					...$this->flattened([
@@ -302,7 +302,7 @@ final class OperatorStrengthReductionExpressionOptimizer implements ExpressionOp
 		foreach($right_tree as $index => $right_operand){
 			if($right_operand instanceof NumericLiteralExpressionToken && $right_operand->value < 0){
 				$right_tree[$index] = new NumericLiteralExpressionToken($right_operand->getPos(), -$right_operand->value);
-				$a_op = $parser->getBinaryOperatorRegistry()->get("+");
+				$a_op = $parser->getOperatorManager()->getBinaryRegistry()->get("+");
 				return [
 					...$left,
 					...$this->flattened($right_tree),
@@ -407,7 +407,7 @@ final class OperatorStrengthReductionExpressionOptimizer implements ExpressionOp
 			$lvalue = $this->flattened($left_tree[0]);
 			$rvalue = $this->flattened($right_tree[0]);
 			if($this->tokensEqualByReturnValue($lvalue, $rvalue)){
-				$binary_operator_registry = $parser->getBinaryOperatorRegistry();
+				$binary_operator_registry = $parser->getOperatorManager()->getBinaryRegistry();
 				$e_op = $binary_operator_registry->get("**");
 				$s_op = $binary_operator_registry->get("-");
 				return [

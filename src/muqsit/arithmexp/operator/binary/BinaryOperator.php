@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace muqsit\arithmexp\operator\binary;
 
 use Closure;
-use muqsit\arithmexp\operator\binary\assignment\BinaryOperatorAssignment;
+use muqsit\arithmexp\operator\assignment\OperatorAssignment;
 
 interface BinaryOperator{
 
@@ -15,7 +15,7 @@ interface BinaryOperator{
 
 	public function getPrecedence() : int;
 
-	public function getAssignment() : BinaryOperatorAssignment;
+	public function getAssignment() : OperatorAssignment;
 
 	/**
 	 * @return Closure(int|float, int|float) : (int|float)

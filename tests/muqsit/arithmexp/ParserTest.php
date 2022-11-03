@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace muqsit\arithmexp;
 
 use InvalidArgumentException;
-use muqsit\arithmexp\operator\binary\assignment\LeftBinaryOperatorAssignment;
-use muqsit\arithmexp\operator\binary\assignment\RightBinaryOperatorAssignment;
+use muqsit\arithmexp\operator\assignment\LeftOperatorAssignment;
+use muqsit\arithmexp\operator\assignment\RightOperatorAssignment;
 use muqsit\arithmexp\operator\binary\SimpleBinaryOperator;
 use PHPUnit\Framework\TestCase;
 
@@ -20,10 +20,10 @@ final class ParserTest extends TestCase{
 
 	public function testBinaryOperatorsOfSamePrecedence() : void{
 		$this->expectException(InvalidArgumentException::class);
-		$this->expectExceptionMessage("Cannot process binary operators of the same precedence but with different assignment types");
-		$registry = $this->parser->getBinaryOperatorRegistry();
-		$registry->register(new SimpleBinaryOperator("~", "BO1", 128, LeftBinaryOperatorAssignment::instance(), static fn(int|float $x, int|float $y) : int|float => $x + $y, false, true));
-		$registry->register(new SimpleBinaryOperator("\$", "BO2", 128, RightBinaryOperatorAssignment::instance(), static fn(int|float $x, int|float $y) : int|float => $x + $y, false, true));
+		$this->expectExceptionMessage("Cannot process operators with same precedence (3) but different assignment types (0, 1)");
+		$registry = $this->parser->getOperatorManager()->getBinaryRegistry();
+		$registry->register(new SimpleBinaryOperator("~", "BO1", 128, LeftOperatorAssignment::instance(), static fn(int|float $x, int|float $y) : int|float => $x + $y, false, true));
+		$registry->register(new SimpleBinaryOperator("\$", "BO2", 128, RightOperatorAssignment::instance(), static fn(int|float $x, int|float $y) : int|float => $x + $y, false, true));
 	}
 
 	public function testEmptyString() : void{
