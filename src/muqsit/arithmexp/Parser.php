@@ -218,8 +218,7 @@ final class Parser{
 						$token = $state->value;
 
 						if(count($prioritize) > 0){
-							$token_id = spl_object_id($token);
-							if($prioritize[count($prioritize) - 1] !== $token_id){
+							if($prioritize[count($prioritize) - 1] !== spl_object_id($token)){
 								continue;
 							}
 							array_pop($prioritize);
