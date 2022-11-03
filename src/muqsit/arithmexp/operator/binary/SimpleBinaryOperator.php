@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace muqsit\arithmexp\operator\binary;
 
 use Closure;
+use muqsit\arithmexp\function\FunctionFlags;
 use muqsit\arithmexp\operator\assignment\OperatorAssignment;
 
 final class SimpleBinaryOperator implements BinaryOperator{
@@ -15,8 +16,7 @@ final class SimpleBinaryOperator implements BinaryOperator{
 	 * @param int $precedence
 	 * @param OperatorAssignment $assignment_type
 	 * @param Closure(int|float, int|float) : (int|float) $operator
-	 * @param bool $commutative
-	 * @param bool $deterministic
+	 * @param int-mask-of<FunctionFlags::*> $flags
 	 */
 	public function __construct(
 		private string $symbol,
@@ -24,8 +24,7 @@ final class SimpleBinaryOperator implements BinaryOperator{
 		private int $precedence,
 		private OperatorAssignment $assignment_type,
 		private Closure $operator,
-		private bool $commutative,
-		private bool $deterministic = false
+		private int $flags = 0
 	){}
 
 	public function getSymbol() : string{
@@ -48,11 +47,7 @@ final class SimpleBinaryOperator implements BinaryOperator{
 		return $this->operator;
 	}
 
-	public function isCommutative() : bool{
-		return $this->commutative;
-	}
-
-	public function isDeterministic() : bool{
-		return $this->deterministic;
+	public function getFlags() : int{
+		return $this->flags;
 	}
 }

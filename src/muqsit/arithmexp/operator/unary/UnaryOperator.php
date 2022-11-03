@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace muqsit\arithmexp\operator\unary;
 
 use Closure;
+use muqsit\arithmexp\function\FunctionFlags;
 
 interface UnaryOperator{
 
@@ -19,5 +20,8 @@ interface UnaryOperator{
 	 */
 	public function getOperator() : Closure;
 
-	public function isDeterministic() : bool;
+	/**
+	 * @return int-mask-of<FunctionFlags::*>
+	 */
+	public function getFlags() : int;
 }

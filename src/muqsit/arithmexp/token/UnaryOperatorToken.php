@@ -28,7 +28,7 @@ final class UnaryOperatorToken extends SimpleToken{
 
 	public function toExpressionToken(Parser $parser, string $expression) : ExpressionToken{
 		$operator = $parser->getOperatorManager()->getUnaryRegistry()->get($this->operator);
-		return new FunctionCallExpressionToken($this->position, "({$operator->getSymbol()})", 1, $operator->getOperator(), $operator->isDeterministic(), false, $this);
+		return new FunctionCallExpressionToken($this->position, "({$operator->getSymbol()})", 1, $operator->getOperator(), $operator->getFlags(), $this);
 	}
 
 	public function __debugInfo() : array{

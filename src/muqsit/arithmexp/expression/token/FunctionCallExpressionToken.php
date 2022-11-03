@@ -6,19 +6,27 @@ namespace muqsit\arithmexp\expression\token;
 
 use Closure;
 use muqsit\arithmexp\expression\Expression;
+use muqsit\arithmexp\function\FunctionFlags;
 use muqsit\arithmexp\Position;
 use muqsit\arithmexp\token\Token;
 use RuntimeException;
 
 final class FunctionCallExpressionToken implements ExpressionToken{
 
+	/**
+	 * @param Position $position
+	 * @param string $name
+	 * @param int $argument_count
+	 * @param Closure $function
+	 * @param int-mask-of<FunctionFlags::*> $flags
+	 * @param Token|null $parent
+	 */
 	public function __construct(
 		public Position $position,
 		public string $name,
 		public int $argument_count,
 		public Closure $function,
-		public bool $deterministic,
-		public bool $commutative,
+		public int $flags,
 		public ?Token $parent = null
 	){}
 
@@ -26,12 +34,15 @@ final class FunctionCallExpressionToken implements ExpressionToken{
 		return $this->position;
 	}
 
-	public function isDeterministic() : bool{
-		return $this->deterministic;
+	/**
+	 * @return int-mask-of<FunctionFlags::*>
+	 */
+	public function getFlags() : int{
+		return $this->flags;
 	}
 
-	public function isCommutative() : bool{
-		return $this->commutative;
+	public function isDeterministic() : bool{
+		return ($this->flags & FunctionFlags::DETERMINISTIC) > 0;
 	}
 
 	public function retrieveValue(Expression $expression, array $variables) : int|float{
@@ -43,8 +54,7 @@ final class FunctionCallExpressionToken implements ExpressionToken{
 			$other->name === $this->name &&
 			$other->argument_count === $this->argument_count &&
 			$other->function === $this->function &&
-			$other->deterministic === $this->deterministic &&
-			$other->commutative === $this->commutative;
+			$other->flags === $this->flags;
 	}
 
 	public function __toString() : string{

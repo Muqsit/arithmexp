@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace muqsit\arithmexp\operator\unary;
 
 use Closure;
+use muqsit\arithmexp\function\FunctionFlags;
 
 final class SimpleUnaryOperator implements UnaryOperator{
 
@@ -13,14 +14,14 @@ final class SimpleUnaryOperator implements UnaryOperator{
 	 * @param string $name
 	 * @param int $precedence
 	 * @param Closure(int|float) : (int|float) $operator
-	 * @param bool $deterministic
+	 * @param int-mask-of<FunctionFlags::*> $flags
 	 */
 	public function __construct(
 		private string $symbol,
 		private string $name,
 		private int $precedence,
 		private Closure $operator,
-		private bool $deterministic = false
+		private int $flags = 0
 	){}
 
 	public function getSymbol() : string{
@@ -39,7 +40,7 @@ final class SimpleUnaryOperator implements UnaryOperator{
 		return $this->operator;
 	}
 
-	public function isDeterministic() : bool{
-		return $this->deterministic;
+	public function getFlags() : int{
+		return $this->flags;
 	}
 }

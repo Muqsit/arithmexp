@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace muqsit\arithmexp\operator\binary;
 
 use Closure;
+use muqsit\arithmexp\function\FunctionFlags;
 use muqsit\arithmexp\operator\assignment\OperatorAssignment;
 
 interface BinaryOperator{
@@ -22,7 +23,8 @@ interface BinaryOperator{
 	 */
 	public function getOperator() : Closure;
 
-	public function isCommutative() : bool;
-
-	public function isDeterministic() : bool;
+	/**
+	 * @return int-mask-of<FunctionFlags::*>
+	 */
+	public function getFlags() : int;
 }

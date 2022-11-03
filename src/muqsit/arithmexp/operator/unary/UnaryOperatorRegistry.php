@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace muqsit\arithmexp\operator\unary;
 
 use InvalidArgumentException;
+use muqsit\arithmexp\function\FunctionFlags;
 use muqsit\arithmexp\operator\ChangeListenableTrait;
 use muqsit\arithmexp\operator\OperatorPrecedence;
 
@@ -13,8 +14,8 @@ final class UnaryOperatorRegistry{
 
 	public static function createDefault() : self{
 		$registry = new self();
-		$registry->register(new SimpleUnaryOperator("+", "Positive", OperatorPrecedence::UNARY_NEGATIVE_POSITIVE, static fn(int|float $x) : int|float => +$x, true));
-		$registry->register(new SimpleUnaryOperator("-", "Negative", OperatorPrecedence::UNARY_NEGATIVE_POSITIVE, static fn(int|float $x) : int|float => -$x, true));
+		$registry->register(new SimpleUnaryOperator("+", "Positive", OperatorPrecedence::UNARY_NEGATIVE_POSITIVE, static fn(int|float $x) : int|float => +$x, FunctionFlags::DETERMINISTIC));
+		$registry->register(new SimpleUnaryOperator("-", "Negative", OperatorPrecedence::UNARY_NEGATIVE_POSITIVE, static fn(int|float $x) : int|float => -$x, FunctionFlags::DETERMINISTIC));
 		return $registry;
 	}
 

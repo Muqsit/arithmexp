@@ -6,6 +6,7 @@ namespace muqsit\arithmexp;
 
 use Closure;
 use InvalidArgumentException;
+use muqsit\arithmexp\function\FunctionFlags;
 use muqsit\arithmexp\operator\assignment\LeftOperatorAssignment;
 use muqsit\arithmexp\operator\assignment\RightOperatorAssignment;
 use muqsit\arithmexp\operator\binary\SimpleBinaryOperator;
@@ -120,7 +121,7 @@ final class ExpressionTest extends TestCase{
 			return $value;
 		};
 
-		$this->parser->getFunctionRegistry()->register("fn", $fn, true);
+		$this->parser->getFunctionRegistry()->register("fn", $fn, FunctionFlags::DETERMINISTIC);
 		$expression = $this->parser->parse("2 ** fn(2) + fn(fn(4))");
 		$disable_fcall = true;
 		self::assertEquals(2 ** 2 + 4, $expression->evaluate());
@@ -158,8 +159,7 @@ final class ExpressionTest extends TestCase{
 			"Random Range",
 			0,
 			RightOperatorAssignment::instance(),
-			Closure::fromCallable("mt_rand"),
-			false
+			Closure::fromCallable("mt_rand")
 		));
 
 		$result = $this->parser->parse("27 / -(36..89 / 4.7) + 57")->evaluate();
@@ -174,8 +174,7 @@ final class ExpressionTest extends TestCase{
 			"Integer Division",
 			OperatorPrecedence::MULTIPLICATION_DIVISION_MODULO,
 			LeftOperatorAssignment::instance(),
-			Closure::fromCallable("intdiv"),
-			false
+			Closure::fromCallable("intdiv")
 		));
 
 		$expression = $this->parser->parse("7 // 3");

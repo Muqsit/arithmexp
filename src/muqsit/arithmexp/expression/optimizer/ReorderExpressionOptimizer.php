@@ -10,6 +10,7 @@ use muqsit\arithmexp\expression\token\ExpressionToken;
 use muqsit\arithmexp\expression\token\FunctionCallExpressionToken;
 use muqsit\arithmexp\expression\token\NumericLiteralExpressionToken;
 use muqsit\arithmexp\expression\token\VariableExpressionToken;
+use muqsit\arithmexp\function\FunctionFlags;
 use muqsit\arithmexp\Parser;
 use muqsit\arithmexp\Util;
 use function array_key_last;
@@ -34,7 +35,7 @@ final class ReorderExpressionOptimizer implements ExpressionOptimizer{
 			}
 
 			$token = $entry[$index];
-			if(!($token instanceof FunctionCallExpressionToken) || !$token->commutative){
+			if(!($token instanceof FunctionCallExpressionToken) || ($token->flags & FunctionFlags::COMMUTATIVE) === 0){
 				continue;
 			}
 
@@ -42,7 +43,7 @@ final class ReorderExpressionOptimizer implements ExpressionOptimizer{
 			Util::flattenArray($updated, static fn(array $e) : bool => count($e) > 2 && (
 				($index = array_key_last($e)) !== null &&
 				$e[$index] instanceof FunctionCallExpressionToken &&
-				$e[$index]->commutative &&
+				($e[$index]->flags & FunctionFlags::COMMUTATIVE) > 0 &&
 				$e[$index]->function === $token->function
 			));
 			usort($updated, fn(ExpressionToken|array $a, ExpressionToken|array $b) : int => match(true){

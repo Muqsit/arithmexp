@@ -33,7 +33,7 @@ final class FunctionCallToken extends SimpleToken{
 
 	public function toExpressionToken(Parser $parser, string $expression) : ExpressionToken{
 		$function = $parser->getFunctionRegistry()->get($this->function);
-		return new FunctionCallExpressionToken($this->position, $this->function, $this->argument_count, $function->closure, $function->deterministic, $function->commutative, $this);
+		return new FunctionCallExpressionToken($this->position, $this->function, $this->argument_count, $function->closure, $function->flags, $this);
 	}
 
 	public function __debugInfo() : array{

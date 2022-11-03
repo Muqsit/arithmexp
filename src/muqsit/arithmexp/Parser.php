@@ -102,7 +102,7 @@ final class Parser{
 				$parameters = array_slice(Util::expressionTokenArrayToTree($postfix_expression_tokens, 0, count($postfix_expression_tokens)), -$replacement->argument_count);
 				Util::flattenArray($parameters);
 				$pos = Position::containing([Util::positionContainingExpressionTokens($parameters), $token->getPos()]);
-				$replacement = new FunctionCallExpressionToken($pos, $replacement->name, $replacement->argument_count, $replacement->function, $replacement->deterministic, $replacement->commutative, $replacement->parent);
+				$replacement = new FunctionCallExpressionToken($pos, $replacement->name, $replacement->argument_count, $replacement->function, $replacement->flags, $replacement->parent);
 			}
 			$postfix_expression_tokens[] = $replacement;
 		}
