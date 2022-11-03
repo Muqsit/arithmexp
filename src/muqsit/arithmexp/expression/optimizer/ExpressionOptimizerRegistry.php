@@ -15,6 +15,7 @@ final class ExpressionOptimizerRegistry{
 		$registry->register("reorder", new ReorderExpressionOptimizer());
 		$registry->register("operator_strength_reduction", new OperatorStrengthReductionExpressionOptimizer());
 		$registry->register("constant_folding", new ConstantFoldingExpressionOptimizer());
+		$registry->register("idempotence_folding", new IdempotenceFoldingExpressionOptimizer());
 		return $registry;
 	}
 

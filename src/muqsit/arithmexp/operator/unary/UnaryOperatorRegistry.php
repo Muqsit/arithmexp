@@ -14,7 +14,7 @@ final class UnaryOperatorRegistry{
 
 	public static function createDefault() : self{
 		$registry = new self();
-		$registry->register(new SimpleUnaryOperator("+", "Positive", OperatorPrecedence::UNARY_NEGATIVE_POSITIVE, static fn(int|float $x) : int|float => +$x, FunctionFlags::DETERMINISTIC));
+		$registry->register(new SimpleUnaryOperator("+", "Positive", OperatorPrecedence::UNARY_NEGATIVE_POSITIVE, static fn(int|float $x) : int|float => +$x, FunctionFlags::DETERMINISTIC | FunctionFlags::IDEMPOTENT));
 		$registry->register(new SimpleUnaryOperator("-", "Negative", OperatorPrecedence::UNARY_NEGATIVE_POSITIVE, static fn(int|float $x) : int|float => -$x, FunctionFlags::DETERMINISTIC));
 		return $registry;
 	}
