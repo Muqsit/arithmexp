@@ -198,6 +198,12 @@ final class OptimizerTest extends TestCase{
 		self::assertEquals(1, $expression->evaluate());
 	}
 
+	public function testDivisionOperatorStrengthReductionForEqualOperandsReturningNan() : void{
+		$expression = $this->parser->parse("sqrt(-1) / sqrt(-1)");
+		self::assertInstanceOf(ConstantExpression::class, $expression);
+		self::assertNan($expression->evaluate());
+	}
+
 	public function testDivisionOperatorStrengthReductionForCommutativelyEqualOperands() : void{
 		$expression = $this->parser->parse("(x + y + z) / (y + x + z)");
 		self::assertInstanceOf(ConstantExpression::class, $expression);
