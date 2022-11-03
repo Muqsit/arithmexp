@@ -61,7 +61,25 @@ final class OptimizerTest extends TestCase{
 		self::assertExpressionsEqual($expected, $actual);
 	}
 
-	public function testDivisionConstantFoldingForEqualOperandsReturningNan() : void{
+	public function testDivisionConstantFoldingForRightOperandNan() : void{
+		$expression = $this->parser->parse("min(1, 2) / nan");
+		self::assertInstanceOf(ConstantExpression::class, $expression);
+		self::assertNan($expression->evaluate());
+	}
+
+	public function testSubtractionConstantFoldingBetweenInf() : void{
+		$expression = $this->parser->parse("inf - inf");
+		self::assertInstanceOf(ConstantExpression::class, $expression);
+		self::assertNan($expression->evaluate());
+	}
+
+	public function testSubtractionConstantFoldingBetweenNan() : void{
+		$expression = $this->parser->parse("nan - nan");
+		self::assertInstanceOf(ConstantExpression::class, $expression);
+		self::assertNan($expression->evaluate());
+	}
+
+	public function testDivisionConstantFoldingForFunctionCallOperandsReturningNan() : void{
 		$expression = $this->parser->parse("sqrt(-1) / sqrt(-1)");
 		self::assertInstanceOf(ConstantExpression::class, $expression);
 		self::assertNan($expression->evaluate());
@@ -204,6 +222,16 @@ final class OptimizerTest extends TestCase{
 		self::assertEquals(1, $expression->evaluate());
 	}
 
+	public function testMultiplicationOperatorStrengthReductionForNanOperands() : void{
+		$expression = $this->parser->parse("nan * x");
+		self::assertInstanceOf(ConstantExpression::class, $expression);
+		self::assertNan($expression->evaluate());
+
+		$expression = $this->parser->parse("x * nan");
+		self::assertInstanceOf(ConstantExpression::class, $expression);
+		self::assertNan($expression->evaluate());
+	}
+
 	public function testDivisionOperatorStrengthReductionForCommutativelyEqualOperands() : void{
 		$expression = $this->parser->parse("(x + y + z) / (y + x + z)");
 		self::assertInstanceOf(ConstantExpression::class, $expression);
@@ -220,6 +248,12 @@ final class OptimizerTest extends TestCase{
 		$expression = $this->parser->parse("0 / (x + y + z)");
 		self::assertInstanceOf(ConstantExpression::class, $expression);
 		self::assertEquals(0, $expression->evaluate());
+	}
+
+	public function testDivisionOperatorStrengthReductionForRightOperandNan() : void{
+		$expression = $this->parser->parse("mt_rand(1, 2) / nan");
+		self::assertInstanceOf(ConstantExpression::class, $expression);
+		self::assertNan($expression->evaluate());
 	}
 
 	public function testDivisionOperatorStrengthReductionForRightOperandOne() : void{
@@ -288,6 +322,16 @@ final class OptimizerTest extends TestCase{
 		self::assertExpressionsEqual($expected, $actual);
 	}
 
+	public function testAdditionOperatorStrengthReductionForNanOperands() : void{
+		$expression = $this->parser->parse("nan + x");
+		self::assertInstanceOf(ConstantExpression::class, $expression);
+		self::assertNan($expression->evaluate());
+
+		$expression = $this->parser->parse("x + nan");
+		self::assertInstanceOf(ConstantExpression::class, $expression);
+		self::assertNan($expression->evaluate());
+	}
+
 	public function testAdditionOperatorStrengthReductionForNegativeLeftOperand() : void{
 		$actual = $this->parser->parse("-x + y");
 		$expected = $this->unoptimized_parser->parse("y - x");
@@ -352,6 +396,16 @@ final class OptimizerTest extends TestCase{
 		$expression = $this->parser->parse("min(x, y) - min(y, x)");
 		self::assertInstanceOf(ConstantExpression::class, $expression);
 		self::assertEquals(0, $expression->evaluate());
+	}
+
+	public function testSubtractionOperatorStrengthReductionForNanOperands() : void{
+		$expression = $this->parser->parse("nan - x");
+		self::assertInstanceOf(ConstantExpression::class, $expression);
+		self::assertNan($expression->evaluate());
+
+		$expression = $this->parser->parse("x - nan");
+		self::assertInstanceOf(ConstantExpression::class, $expression);
+		self::assertNan($expression->evaluate());
 	}
 
 	public function testSubtractionOperatorStrengthReductionForNegativeLeftOperand() : void{
