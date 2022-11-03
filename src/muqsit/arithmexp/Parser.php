@@ -220,7 +220,7 @@ final class Parser{
 						if(count($prioritize) > 0){
 							$token_id = spl_object_id($token);
 							if($prioritize[count($prioritize) - 1] !== $token_id){
-								break;
+								continue;
 							}
 							array_pop($prioritize);
 						}
