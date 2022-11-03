@@ -74,6 +74,8 @@ final class ExpressionTest extends TestCase{
 
 		self::assertEquals(-3 ** 2, $this->parser->parse("-3 ** 2")->evaluate());
 		self::assertEquals(-3 ** -2 ** 4, $this->parser->parse("-3 ** -2 ** 4")->evaluate());
+		self::assertEquals(-(-(3 ** 2)), $this->parser->parse("--3 ** 2")->evaluate());
+		self::assertEquals(3 ** -(-2), $this->parser->parse("3 ** --2")->evaluate());
 
 		self::assertEquals(2 / -1 * 3 ** -3 / 4 * 5, $this->parser->parse("2 / -1 * 3 ** -3 / 4 * 5")->evaluate());
 		self::assertEquals(2 / 3 + 4 * 5, $this->parser->parse("2 / 3 + 4 * 5")->evaluate());
