@@ -42,7 +42,7 @@ final class Parser{
 			ConstantRegistry::createDefault(),
 			FunctionRegistry::createDefault(),
 			ExpressionOptimizerRegistry::createDefault(),
-			Scanner::createDefault($operator_manager->getBinaryRegistry(), $operator_manager->getUnaryRegistry())
+			Scanner::createDefault($operator_manager)
 		);
 	}
 
