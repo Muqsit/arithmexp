@@ -61,6 +61,12 @@ final class OptimizerTest extends TestCase{
 		self::assertExpressionsEqual($expected, $actual);
 	}
 
+	public function testDivisionConstantFoldingForEqualOperandsReturningNan() : void{
+		$expression = $this->parser->parse("sqrt(-1) / sqrt(-1)");
+		self::assertInstanceOf(ConstantExpression::class, $expression);
+		self::assertNan($expression->evaluate());
+	}
+
 	public function testNoOptimization() : void{
 		$actual = $this->parser->parse("37.28 * cos(mt_rand(x, y) / 23.84) ** 3");
 		$expected = $this->unoptimized_parser->parse("cos(mt_rand(x, y) / 23.84) ** 3 * 37.28");
@@ -196,12 +202,6 @@ final class OptimizerTest extends TestCase{
 		$expression = $this->parser->parse("(x + y + z) / (x + y + z)");
 		self::assertInstanceOf(ConstantExpression::class, $expression);
 		self::assertEquals(1, $expression->evaluate());
-	}
-
-	public function testDivisionOperatorStrengthReductionForEqualOperandsReturningNan() : void{
-		$expression = $this->parser->parse("sqrt(-1) / sqrt(-1)");
-		self::assertInstanceOf(ConstantExpression::class, $expression);
-		self::assertNan($expression->evaluate());
 	}
 
 	public function testDivisionOperatorStrengthReductionForCommutativelyEqualOperands() : void{
