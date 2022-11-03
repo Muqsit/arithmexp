@@ -6,7 +6,7 @@ namespace muqsit\arithmexp\function;
 
 interface FunctionFlags{
 
-	public const DETERMINISTIC = 1 << 0;
-	public const COMMUTATIVE = 1 << 1;
+	public const COMMUTATIVE = 1 << 0;
+	public const DETERMINISTIC = 1 << 1;
 	public const IDEMPOTENT = 1 << 2;
 }
