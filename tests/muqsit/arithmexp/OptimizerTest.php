@@ -455,4 +455,16 @@ final class OptimizerTest extends TestCase{
 
 		self::assertExpressionsEqual($expected, $actual);
 	}
+
+	public function testIdempotenceFoldingForSingleArgumentFunction() : void{
+		$actual = $this->parser->parse("ceil(ceil(ceil(mt_rand(1, 2))))");
+		$expected = $this->unoptimized_parser->parse("ceil(mt_rand(1, 2))");
+		self::assertExpressionsEqual($expected, $actual);
+	}
+
+	public function testIdempotenceFoldingForMultiArgumentFunction() : void{
+		$actual = $this->parser->parse("min(x, min(y), min(min(z)))");
+		$expected = $this->unoptimized_parser->parse("min(min(y), min(z), x)");
+		self::assertExpressionsEqual($expected, $actual);
+	}
 }
