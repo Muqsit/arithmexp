@@ -29,6 +29,8 @@ use function assert;
 use function count;
 use function gettype;
 use function is_array;
+use function is_nan;
+use const NAN;
 
 final class OperatorStrengthReductionExpressionOptimizer implements ExpressionOptimizer{
 
@@ -131,6 +133,14 @@ final class OperatorStrengthReductionExpressionOptimizer implements ExpressionOp
 	}
 
 	/**
+	 * @param ExpressionToken[] $tokens
+	 * @return bool
+	 */
+	private function valueIsNan(array $tokens) : bool{
+		return count($tokens) === 1 && $tokens[0] instanceof NumericLiteralExpressionToken && is_nan($tokens[0]->value);
+	}
+
+	/**
 	 * @param ExpressionToken[] $x
 	 * @param ExpressionToken[] $y
 	 * @return bool
@@ -209,6 +219,7 @@ final class OperatorStrengthReductionExpressionOptimizer implements ExpressionOp
 				$this->valueEquals($right, 0) => throw ParseException::unresolvableExpressionDivisionByZero($expression->getExpression(), Util::positionContainingExpressionTokens($right)),
 				$this->valueEquals($left, 0) => [new NumericLiteralExpressionToken(Util::positionContainingExpressionTokens([...$left, ...$right]), 0)],
 				$this->valueEquals($right, 1) => $left,
+				$this->valueIsNan($right) => [new NumericLiteralExpressionToken(Util::positionContainingExpressionTokens([...$left, ...$right]), NAN)],
 				default => $this->processDivision($parser, $expression, $operator_token, $left, $right)
 			},
 			"%" => match(true){
