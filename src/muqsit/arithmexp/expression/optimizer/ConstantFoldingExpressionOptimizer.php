@@ -24,11 +24,16 @@ final class ConstantFoldingExpressionOptimizer implements ExpressionOptimizer{
 	}
 
 	public function run(Parser $parser, Expression $expression) : Expression{
-		$postfix_expression_tokens = Util::expressionTokenArrayToTree($expression->getPostfixExpressionTokens());
+		$postfix_expression_tokens = $expression->getPostfixExpressionTokens();
+		if(count($postfix_expression_tokens) === 1 && $postfix_expression_tokens[0]->isDeterministic()){
+			return $expression instanceof ConstantExpression ? $expression : new ConstantExpression($expression->getExpression(), $postfix_expression_tokens[0]->retrieveValue($expression, []));
+		}
+
+		$postfix_expression_token_tree = Util::expressionTokenArrayToTree($postfix_expression_tokens);
 		$changes = 0;
 		do{
 			$found = false;
-			foreach(Util::traverseNestedArray($postfix_expression_tokens) as &$entry){
+			foreach(Util::traverseNestedArray($postfix_expression_token_tree) as &$entry){
 				for($i = count($entry) - 1; $i >= 0; --$i){
 					$token = $entry[$i];
 					if(!($token instanceof FunctionCallExpressionToken) || !$token->isDeterministic()){
@@ -57,9 +62,7 @@ final class ConstantFoldingExpressionOptimizer implements ExpressionOptimizer{
 			return $expression;
 		}
 
-		Util::flattenArray($postfix_expression_tokens);
-		return count($postfix_expression_tokens) === 1 && $postfix_expression_tokens[0]->isDeterministic() ?
-			new ConstantExpression($expression->getExpression(), $postfix_expression_tokens[0]->retrieveValue($expression, [])) :
-			new RawExpression($expression->getExpression(), $postfix_expression_tokens);
+		Util::flattenArray($postfix_expression_token_tree);
+		return new RawExpression($expression->getExpression(), $postfix_expression_token_tree);
 	}
 }
