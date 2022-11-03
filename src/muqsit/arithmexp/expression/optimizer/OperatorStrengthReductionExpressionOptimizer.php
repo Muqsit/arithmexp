@@ -201,7 +201,7 @@ final class OperatorStrengthReductionExpressionOptimizer implements ExpressionOp
 				$this->valueEquals($right, 0) => throw ParseException::unresolvableExpressionDivisionByZero($expression->getExpression(), Util::positionContainingExpressionTokens($right)),
 				$this->valueEquals($left, 0) => [new NumericLiteralExpressionToken(Util::positionContainingExpressionTokens([...$left, ...$right]), 0)],
 				$this->valueEquals($right, 1) => $left,
-				default => $this->processDivision($parser, $operator_token, $left, $right)
+				default => $this->processDivision($parser, $expression, $operator_token, $left, $right)
 			},
 			"%" => match(true){
 				$this->valueEquals($right, 0) => throw ParseException::unresolvableExpressionModuloByZero($expression->getExpression(), Util::positionContainingExpressionTokens($right)),
@@ -322,12 +322,13 @@ final class OperatorStrengthReductionExpressionOptimizer implements ExpressionOp
 
 	/**
 	 * @param Parser $parser
+	 * @param Expression $expression
 	 * @param FunctionCallExpressionToken $operator_token
 	 * @param ExpressionToken[] $left
 	 * @param ExpressionToken[] $right
 	 * @return ExpressionToken[]|null
 	 */
-	private function processDivision(Parser $parser, FunctionCallExpressionToken $operator_token, array $left, array $right) : ?array{
+	private function processDivision(Parser $parser, Expression $expression, FunctionCallExpressionToken $operator_token, array $left, array $right) : ?array{
 		$filter = fn(array $array) : bool => $this->multiplication_operation_matcher->matches($array);
 
 		$left_tree = Util::expressionTokenArrayToTree($left);
@@ -351,7 +352,7 @@ final class OperatorStrengthReductionExpressionOptimizer implements ExpressionOp
 					}
 
 					$right_operand = $this->flattened($right_operand);
-					$replacement = $this->processDivisionBetween($parser, $operator_token, $left_operand, $right_operand);
+					$replacement = $this->processDivisionBetween($parser, $expression, $operator_token, $left_operand, $right_operand);
 					if($replacement === null){
 						continue;
 					}
@@ -369,26 +370,23 @@ final class OperatorStrengthReductionExpressionOptimizer implements ExpressionOp
 
 	/**
 	 * @param Parser $parser
+	 * @param Expression $expression
 	 * @param FunctionCallExpressionToken $operator_token
 	 * @param ExpressionToken[] $left_operand
 	 * @param ExpressionToken[] $right_operand
 	 * @return array{ExpressionToken[], ExpressionToken[]}|null
 	 */
-	private function processDivisionBetween(Parser $parser, FunctionCallExpressionToken $operator_token, array $left_operand, array $right_operand) : ?array{
+	private function processDivisionBetween(Parser $parser, Expression $expression, FunctionCallExpressionToken $operator_token, array $left_operand, array $right_operand) : ?array{
 		// reduce (n1 / n2) to (n / 1) where n1 and n2 are numeric, and n = n1 / n2
 		if(
 			count($left_operand) === 1 &&
 			$left_operand[0] instanceof NumericLiteralExpressionToken &&
 			count($right_operand) === 1 &&
-			$right_operand[0] instanceof NumericLiteralExpressionToken
+			$right_operand[0] instanceof NumericLiteralExpressionToken &&
+			($result = ConstantFoldingExpressionOptimizer::evaluateFunctionCallTokens($expression, $operator_token, [...$left_operand, ...$right_operand])) !== null
 		){
-			$result = new RawExpression("{$left_operand[0]} {$operator_token} {$right_operand[0]}", [
-				$left_operand[0],
-				$right_operand[0],
-				$operator_token
-			]);
 			return [
-				[new NumericLiteralExpressionToken(Util::positionContainingExpressionTokens($left_operand), $result->evaluate())],
+				[new NumericLiteralExpressionToken(Util::positionContainingExpressionTokens($left_operand), $result)],
 				[new NumericLiteralExpressionToken(Util::positionContainingExpressionTokens($right_operand), 1)]
 			];
 		}
