@@ -75,16 +75,19 @@ final class OperatorStrengthReductionExpressionOptimizer implements ExpressionOp
 	}
 
 	public function run(Parser $parser, Expression $expression) : Expression{
-		if(count(array_filter($expression->getPostfixExpressionTokens(), static fn(ExpressionToken $token) : bool => !$token->isDeterministic())) === 0){
-			return $expression;
-		}
-
 		$postfix_expression_tokens = Util::expressionTokenArrayToTree($expression->getPostfixExpressionTokens());
+		$filter = static fn(ExpressionToken $token) : bool => !$token->isDeterministic();
 
 		$changes = 0;
 		/** @var array{ExpressionToken|ExpressionToken[], ExpressionToken|ExpressionToken[], FunctionCallExpressionToken} $entry */
 		foreach(Pattern::findMatching($this->binary_operation_matcher, $postfix_expression_tokens) as &$entry){
-			$replacement = $this->processBinaryExpression($parser, $expression, $entry[2], $this->flattened($entry[0]), $this->flattened($entry[1]));
+			$left = $this->flattened($entry[0]);
+			$right = $this->flattened($entry[1]);
+			if(count(array_filter([...$left, ...$right], $filter)) === 0){
+				continue;
+			}
+
+			$replacement = $this->processBinaryExpression($parser, $expression, $entry[2], $left, $right);
 			if($replacement !== null){
 				$entry = $replacement;
 				++$changes;
@@ -94,7 +97,12 @@ final class OperatorStrengthReductionExpressionOptimizer implements ExpressionOp
 
 		/** @var array{ExpressionToken|ExpressionToken[], FunctionCallExpressionToken} $entry */
 		foreach(Pattern::findMatching($this->unary_operation_matcher, $postfix_expression_tokens) as &$entry){
-			$replacement = $this->processUnaryExpression($parser, $entry[1], $this->flattened($entry[0]));
+			$operand = $this->flattened($entry[0]);
+			if(count(array_filter($operand, $filter)) === 0){
+				continue;
+			}
+
+			$replacement = $this->processUnaryExpression($parser, $entry[1], $operand);
 			if($replacement !== null){
 				$entry = $replacement;
 				++$changes;
