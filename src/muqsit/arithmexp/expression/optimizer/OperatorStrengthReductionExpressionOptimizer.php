@@ -193,8 +193,8 @@ final class OperatorStrengthReductionExpressionOptimizer implements ExpressionOp
 				default => null
 			},
 			"/" => match(true){
-				$this->valueEquals($left, 0) => [new NumericLiteralExpressionToken(Util::positionContainingExpressionTokens([...$left, ...$right]), 0)],
 				$this->valueEquals($right, 0) => throw ParseException::unresolvableExpressionDivisionByZero($expression->getExpression(), Util::positionContainingExpressionTokens($right)),
+				$this->valueEquals($left, 0) => [new NumericLiteralExpressionToken(Util::positionContainingExpressionTokens([...$left, ...$right]), 0)],
 				$this->valueEquals($right, 1) => $left,
 				default => $this->processDivision($parser, $operator_token, $left, $right)
 			},
