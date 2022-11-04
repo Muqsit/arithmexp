@@ -24,23 +24,58 @@ final class IdempotenceFoldingExpressionOptimizer implements ExpressionOptimizer
 		do{
 			$found = false;
 			foreach(Util::traverseNestedArray($postfix_expression_token_tree) as &$entry){
-				for($i = count($entry) - 1; $i >= 0; --$i){
-					$token = $entry[$i];
-					if(!($token instanceof FunctionCallExpressionToken) || $token->argument_count !== 1 || ($token->flags & FunctionFlags::IDEMPOTENT) === 0){
+				if(!is_array($entry) || !isset($entry[$index = count($entry) - 1]) || !($entry[$index = count($entry) - 1] instanceof FunctionCallExpressionToken)){
+					continue;
+				}
+
+				$token = $entry[$index];
+				if(($token->flags & FunctionFlags::IDEMPOTENT) === 0){
+					continue;
+				}
+
+				if($token->argument_count === 0){
+					continue;
+				}
+
+				$is_commutative = ($token->flags & FunctionFlags::COMMUTATIVE) > 0;
+				if(!$is_commutative){
+					if($token->argument_count !== 1){
 						continue;
 					}
 
-					$arg = [$entry[$i - $token->argument_count]];
-					Util::flattenArray($arg);
-					$end_token = $arg[count($arg) - 1];
-					if(!($end_token instanceof FunctionCallExpressionToken) || !$end_token->equals($token)){
+					$args = $entry[$index - 1];
+					if(
+						!is_array($args) ||
+						!($args[count($args) - 1] instanceof FunctionCallExpressionToken) ||
+						!$args[count($args) - 1]->equals($token)
+					){
 						continue;
 					}
 
-					array_splice($entry, $i - $token->argument_count, 1 + $token->argument_count, $arg);
-					$i -= $token->argument_count;
+					$entry = $args;
 					$found = true;
 					++$changes;
+				}else{
+					for($i = $token->argument_count - 1; $i >= 0; --$i){
+						$args = $entry[$i];
+						if(
+							!is_array($args) ||
+							!($args[$j = count($args) - 1] instanceof FunctionCallExpressionToken) ||
+
+							// TODO: Have ExpressionToken::equals() return inequality report instead, so inequality between specific attributes can be filtered
+							// below, the attribute "argument_count" is being filtered
+							$args[$j]->name !== $token->name ||
+							$args[$j]->function !== $token->function ||
+							$args[$j]->flags !== $token->flags
+						){
+							continue;
+						}
+
+						array_splice($entry, $i, 1, array_slice($args, 0, -1));
+						$i += count($args) - 1;
+						$found = true;
+						++$changes;
+					}
 				}
 			}
 			unset($entry);
