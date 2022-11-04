@@ -474,6 +474,16 @@ final class OptimizerTest extends TestCase{
 		self::assertExpressionsEqual($expected, $actual);
 	}
 
+	public function testIdempotenceFoldingForMultiArgumentFunctionWithCommutativityAndDifferingArgumentCount() : void{
+		$actual = $this->parser->parse("min(x, min(y, min(z, w)))");
+		$expected = $this->unoptimized_parser->parse("min(w, x, y, z)");
+		self::assertExpressionsEqual($expected, $actual);
+		self::assertEquals(3, $actual->evaluate(["w" => 3, "x" => 4, "y" => 5, "z" => 6]));
+		self::assertEquals(3, $actual->evaluate(["w" => 4, "x" => 5, "y" => 6, "z" => 3]));
+		self::assertEquals(3, $actual->evaluate(["w" => 5, "x" => 6, "y" => 3, "z" => 4]));
+		self::assertEquals(3, $actual->evaluate(["w" => 6, "x" => 3, "y" => 4, "z" => 5]));
+	}
+
 	public function testIdempotenceFoldingForMultiArgumentFunctionWithoutCommutativity() : void{
 		$actual = $this->parser->parse("round(round(x, 2), 2)");
 		$expected = $this->unoptimized_parser->parse("round(round(x, 2), 2)");
