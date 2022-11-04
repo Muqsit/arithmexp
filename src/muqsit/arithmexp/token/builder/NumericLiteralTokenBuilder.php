@@ -26,7 +26,7 @@ final class NumericLiteralTokenBuilder implements TokenBuilder{
 			$char = $expression[$offset];
 
 			if($char === "."){
-				if(str_contains($value, ".")){
+				if($offset === $length - 1 || str_contains($value, ".")){
 					$trimmed = rtrim($value, ".");
 					$offset -= strlen($value) - strlen($trimmed);
 					$value = $trimmed;
