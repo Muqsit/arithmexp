@@ -36,15 +36,16 @@ final class ParserTest extends TestCase{
 	}
 
 	public function testNumericLiteralWithLeadingDot() : void{
-		$this->parser->parse("x + .1 + y");
+		$expression = $this->parser->parse("x + .1 + y");
+		self::assertEquals(0.1, $expression->evaluate(["x" => 0, "y" => 0]));
 	}
 
 	public function testMalformedDotNumericLiteral() : void{
-		TestUtil::assertParserThrows($this->parser, ". + .", ParseException::ERR_UNEXPECTED_TOKEN, 0, 1);
+		TestUtil::assertParserThrows($this->parser, ". + .", ParseException::ERR_UNEXPECTED_TOKEN, 0, 5);
 	}
 
 	public function testMalformedNumericLiteralWithTrailingDot() : void{
-		TestUtil::assertParserThrows($this->parser, "x + 1. + y", ParseException::ERR_UNEXPECTED_TOKEN, 5, 6);
+		TestUtil::assertParserThrows($this->parser, "x + 1. + y", ParseException::ERR_UNEXPECTED_TOKEN, 5, 10);
 	}
 
 	public function testSecludedNumericLiteral() : void{
