@@ -76,6 +76,8 @@ final class IdempotenceFoldingExpressionOptimizer implements ExpressionOptimizer
 						$found = true;
 						++$changes;
 					}
+
+					$token->argument_count = count($entry) - 1;
 				}
 			}
 			unset($entry);
