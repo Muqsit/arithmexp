@@ -4,10 +4,9 @@ declare(strict_types=1);
 
 namespace muqsit\arithmexp\token;
 
-use muqsit\arithmexp\expression\token\ExpressionToken;
 use muqsit\arithmexp\expression\token\NumericLiteralExpressionToken;
-use muqsit\arithmexp\Parser;
 use muqsit\arithmexp\Position;
+use muqsit\arithmexp\token\builder\ExpressionTokenBuilderState;
 
 final class NumericLiteralToken extends SimpleToken{
 
@@ -26,8 +25,8 @@ final class NumericLiteralToken extends SimpleToken{
 		return new self($position, $this->value);
 	}
 
-	public function toExpressionToken(Parser $parser, string $expression) : ExpressionToken{
-		return new NumericLiteralExpressionToken($this->position, $this->value);
+	public function writeExpressionTokens(ExpressionTokenBuilderState $state) : void{
+		$state->tokens[] = new NumericLiteralExpressionToken($this->position, $this->value);
 	}
 
 	public function __debugInfo() : array{

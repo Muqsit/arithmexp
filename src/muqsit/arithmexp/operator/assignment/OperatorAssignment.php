@@ -5,11 +5,8 @@ declare(strict_types=1);
 namespace muqsit\arithmexp\operator\assignment;
 
 use Generator;
-use muqsit\arithmexp\operator\binary\BinaryOperator;
 use muqsit\arithmexp\operator\OperatorList;
-use muqsit\arithmexp\token\BinaryOperatorToken;
 use muqsit\arithmexp\token\Token;
-use muqsit\arithmexp\token\UnaryOperatorToken;
 
 interface OperatorAssignment{
 

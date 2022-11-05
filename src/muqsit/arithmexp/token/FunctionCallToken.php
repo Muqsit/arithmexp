@@ -4,10 +4,9 @@ declare(strict_types=1);
 
 namespace muqsit\arithmexp\token;
 
-use muqsit\arithmexp\expression\token\ExpressionToken;
 use muqsit\arithmexp\expression\token\FunctionCallExpressionToken;
-use muqsit\arithmexp\Parser;
 use muqsit\arithmexp\Position;
+use muqsit\arithmexp\token\builder\ExpressionTokenBuilderState;
 
 final class FunctionCallToken extends SimpleToken{
 
@@ -31,9 +30,9 @@ final class FunctionCallToken extends SimpleToken{
 		return new self($position, $this->function, $this->argument_count);
 	}
 
-	public function toExpressionToken(Parser $parser, string $expression) : ExpressionToken{
-		$function = $parser->getFunctionRegistry()->get($this->function);
-		return new FunctionCallExpressionToken($this->position, $this->function, $this->argument_count, $function->closure, $function->flags, $this);
+	public function writeExpressionTokens(ExpressionTokenBuilderState $state) : void{
+		$function = $state->parser->getFunctionRegistry()->get($this->function);
+		$state->tokens[] = new FunctionCallExpressionToken($this->position, $this->function, $this->argument_count, $function->closure, $function->flags, $this);
 	}
 
 	public function __debugInfo() : array{

@@ -4,10 +4,9 @@ declare(strict_types=1);
 
 namespace muqsit\arithmexp\token;
 
-use muqsit\arithmexp\expression\token\ExpressionToken;
 use muqsit\arithmexp\ParseException;
-use muqsit\arithmexp\Parser;
 use muqsit\arithmexp\Position;
+use muqsit\arithmexp\token\builder\ExpressionTokenBuilderState;
 
 final class FunctionCallArgumentSeparatorToken extends SimpleToken{
 
@@ -19,8 +18,8 @@ final class FunctionCallArgumentSeparatorToken extends SimpleToken{
 		return new self($position);
 	}
 
-	public function toExpressionToken(Parser $parser, string $expression) : ExpressionToken{
-		throw ParseException::unexpectedToken($expression, $this);
+	public function writeExpressionTokens(ExpressionTokenBuilderState $state) : void{
+		throw ParseException::unexpectedToken($state->expression, $this);
 	}
 
 	public function jsonSerialize() : string{

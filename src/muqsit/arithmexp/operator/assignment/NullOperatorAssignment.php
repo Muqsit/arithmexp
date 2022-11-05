@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace muqsit\arithmexp\operator\assignment;
 
+use Generator;
 use muqsit\arithmexp\operator\OperatorList;
 use muqsit\arithmexp\token\UnaryOperatorToken;
-use Generator;
 use function count;
 
 final class NullOperatorAssignment implements OperatorAssignment{

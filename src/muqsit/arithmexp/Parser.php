@@ -9,10 +9,10 @@ use muqsit\arithmexp\expression\ConstantRegistry;
 use muqsit\arithmexp\expression\Expression;
 use muqsit\arithmexp\expression\optimizer\ExpressionOptimizerRegistry;
 use muqsit\arithmexp\expression\RawExpression;
-use muqsit\arithmexp\expression\token\FunctionCallExpressionToken;
 use muqsit\arithmexp\function\FunctionRegistry;
 use muqsit\arithmexp\operator\OperatorManager;
 use muqsit\arithmexp\token\BinaryOperatorToken;
+use muqsit\arithmexp\token\builder\ExpressionTokenBuilderState;
 use muqsit\arithmexp\token\FunctionCallArgumentSeparatorToken;
 use muqsit\arithmexp\token\FunctionCallToken;
 use muqsit\arithmexp\token\NumericLiteralToken;
@@ -23,7 +23,6 @@ use RuntimeException;
 use function array_filter;
 use function array_key_last;
 use function array_shift;
-use function array_slice;
 use function array_splice;
 use function array_unshift;
 use function assert;
@@ -95,19 +94,12 @@ final class Parser{
 		$this->processTokens($expression, $tokens);
 		$this->convertTokenTreeToPostfixTokenTree($tokens);
 
-		$postfix_expression_tokens = [];
+		$state = new ExpressionTokenBuilderState($this, $expression, []);
 		foreach($tokens as $token){
-			$replacement = $token->toExpressionToken($this, $expression);
-			if($replacement instanceof FunctionCallExpressionToken){
-				$parameters = array_slice(Util::expressionTokenArrayToTree($postfix_expression_tokens, 0, count($postfix_expression_tokens)), -$replacement->argument_count);
-				Util::flattenArray($parameters);
-				$pos = Position::containing([Util::positionContainingExpressionTokens($parameters), $token->getPos()]);
-				$replacement = new FunctionCallExpressionToken($pos, $replacement->name, $replacement->argument_count, $replacement->function, $replacement->flags, $replacement->parent);
-			}
-			$postfix_expression_tokens[] = $replacement;
+			$token->writeExpressionTokens($state);
 		}
 
-		$result = new RawExpression($expression, $postfix_expression_tokens);
+		$result = new RawExpression($expression, $state->tokens);
 		do{
 			$tokens_before = $result->getPostfixExpressionTokens();
 			foreach($this->expression_optimizer_registry->getRegistered() as $optimizer){

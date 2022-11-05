@@ -6,9 +6,9 @@ namespace muqsit\arithmexp\pattern;
 
 use Generator;
 use muqsit\arithmexp\expression\token\ExpressionToken;
+use muqsit\arithmexp\pattern\matcher\InstanceOfPatternMatcher;
 use muqsit\arithmexp\pattern\matcher\NotPatternMatcher;
 use muqsit\arithmexp\pattern\matcher\PatternMatcher;
-use muqsit\arithmexp\pattern\matcher\InstanceOfPatternMatcher;
 use muqsit\arithmexp\Util;
 
 final class Pattern{

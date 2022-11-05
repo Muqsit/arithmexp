@@ -4,10 +4,12 @@ declare(strict_types=1);
 
 namespace muqsit\arithmexp\token;
 
-use muqsit\arithmexp\expression\token\ExpressionToken;
 use muqsit\arithmexp\expression\token\FunctionCallExpressionToken;
-use muqsit\arithmexp\Parser;
 use muqsit\arithmexp\Position;
+use muqsit\arithmexp\token\builder\ExpressionTokenBuilderState;
+use muqsit\arithmexp\Util;
+use function array_slice;
+use function count;
 
 final class UnaryOperatorToken extends SimpleToken{
 
@@ -26,9 +28,14 @@ final class UnaryOperatorToken extends SimpleToken{
 		return new self($position, $this->operator);
 	}
 
-	public function toExpressionToken(Parser $parser, string $expression) : ExpressionToken{
-		$operator = $parser->getOperatorManager()->getUnaryRegistry()->get($this->operator);
-		return new FunctionCallExpressionToken($this->position, "({$operator->getSymbol()})", 1, $operator->getOperator(), $operator->getFlags(), $this);
+	public function writeExpressionTokens(ExpressionTokenBuilderState $state) : void{
+		$operator = $state->parser->getOperatorManager()->getUnaryRegistry()->get($this->operator);
+
+		$argument_count = 1;
+		$parameters = array_slice(Util::expressionTokenArrayToTree($state->tokens, 0, count($state->tokens)), -$argument_count);
+		Util::flattenArray($parameters);
+		$pos = Position::containing([Util::positionContainingExpressionTokens($parameters), $this->position]);
+		$state->tokens[] = new FunctionCallExpressionToken($pos, "({$operator->getSymbol()})", $argument_count, $operator->getOperator(), $operator->getFlags(), $this);
 	}
 
 	public function __debugInfo() : array{
