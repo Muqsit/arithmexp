@@ -290,6 +290,8 @@ final class Parser{
 					throw ParseException::unresolvableFcallGeneric($expression, $token->getPos(), $e->getMessage(), $e);
 				}
 
+				$fallback_param_values = $function->getFallbackParamValues();
+
 				$args_c = $token->getArgumentCount();
 
 				$param_tokens = $entry[$i + 1] ?? [];
@@ -322,7 +324,7 @@ final class Parser{
 					}
 				}
 
-				for($j = count($params), $max = min(count($function->fallback_param_values) - ($function->variadic ? 1 : 0), $args_c); $j < $max; ++$j){
+				for($j = count($params), $max = min(count($fallback_param_values) - ($function->isVariadic() ? 1 : 0), $args_c); $j < $max; ++$j){
 					$params[] = null;
 				}
 
@@ -330,8 +332,8 @@ final class Parser{
 				$l = 0;
 				for($j = 0; $j < $params_c; ++$j){
 					if($params[$j] === null){
-						if(isset($function->fallback_param_values[$j])){
-							$params[$j] = new NumericLiteralToken($token->getPos()->offset($l, $l), $function->fallback_param_values[$j]);
+						if(isset($fallback_param_values[$j])){
+							$params[$j] = new NumericLiteralToken($token->getPos()->offset($l, $l), $fallback_param_values[$j]);
 							++$l;
 						}else{
 							throw ParseException::unresolvableFcallNoDefaultParamValue($expression, $token, $j + 1);
@@ -343,12 +345,12 @@ final class Parser{
 					throw new RuntimeException("Failed to parse complete list of arguments ({$params_c} !== {$args_c}) in function call at \"{$token->getPos()->in($expression)}\" ({$token->getPos()->getStart()}:{$token->getPos()->getEnd()}) in \"{$expression}\"");
 				}
 
-				if(!$function->variadic){
-					$expected_c = count(array_filter($function->fallback_param_values, static fn(mixed $value) : bool => $value === null));
+				if(!$function->isVariadic()){
+					$expected_c = count(array_filter($fallback_param_values, static fn(mixed $value) : bool => $value === null));
 					if($params_c < $expected_c){
 						throw ParseException::unresolvableFcallTooLessParams($expression, $token->getPos(), $expected_c, $params_c);
 					}
-					if($params_c > count($function->fallback_param_values)){
+					if($params_c > count($fallback_param_values)){
 						throw ParseException::unresolvableFcallTooManyParams($expression, $token->getPos(), $function, $params_c);
 					}
 				}

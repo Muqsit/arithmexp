@@ -159,10 +159,11 @@ final class ParseException extends Exception{
 	}
 
 	public static function unresolvableFcallTooManyParams(string $expression, Position $position, FunctionInfo $function, int $params_c) : self{
+		$fallback_param_values_c = count($function->getFallbackParamValues());
 		return self::generateWithHighlightedSubstring(self::unresolvableFcall($expression, $position, sprintf(
 			"Too many parameters supplied to function call: Expected %d parameter%s, got %d parameter%s",
-			count($function->fallback_param_values),
-			count($function->fallback_param_values) === 1 ? "" : "s",
+			$fallback_param_values_c,
+			$fallback_param_values_c === 1 ? "" : "s",
 			$params_c,
 			$params_c === 1 ? "" : "s"
 		)));

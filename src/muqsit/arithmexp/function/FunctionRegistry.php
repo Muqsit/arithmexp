@@ -65,7 +65,7 @@ final class FunctionRegistry{
 	 * @param int-mask-of<FunctionFlags::*> $flags
 	 */
 	public function register(string $identifier, Closure $function, int $flags = 0) : void{
-		$this->registered[$identifier] = FunctionInfo::from($function, $flags);
+		$this->registered[$identifier] = SimpleFunctionInfo::from($function, $flags);
 	}
 
 	public function get(string $identifier) : FunctionInfo{
