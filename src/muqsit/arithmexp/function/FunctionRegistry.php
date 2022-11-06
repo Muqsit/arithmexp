@@ -57,62 +57,39 @@ final class FunctionRegistry{
 		$registry->register("tan", Closure::fromCallable("tan"), FunctionFlags::DETERMINISTIC);
 		$registry->register("tanh", Closure::fromCallable("tanh"), FunctionFlags::DETERMINISTIC);
 
-		$registry->registerMacro(
-			"max",
-			static function(int|float ...$nums) : int|float{
-				assert(count($nums) >= 2);
-				return max($nums);
-			},
-			static fn(Parser $parser, string $expression, FunctionCallToken $token, array $args) : ?array => match(count($args)){
-				0 => throw ParseException::unresolvableFcallTooLessParams($expression, $token->getPos(), 1, 0),
-				1 => [$args[0]],
-				default => null
-			},
-			FunctionFlags::COMMUTATIVE | FunctionFlags::DETERMINISTIC | FunctionFlags::IDEMPOTENT
-		);
+		$registry->registerMacro("max", static function(int|float ...$nums) : int|float{
+			assert(count($nums) >= 2);
+			return max($nums);
+		}, static fn(Parser $parser, string $expression, FunctionCallToken $token, array $args) : ?array => match(count($args)){
+			0 => throw ParseException::unresolvableFcallTooLessParams($expression, $token->getPos(), 1, 0),
+			1 => [$args[0]],
+			default => null
+		}, FunctionFlags::COMMUTATIVE | FunctionFlags::DETERMINISTIC | FunctionFlags::IDEMPOTENT);
 
-		$registry->registerMacro(
-			"min",
-			static function(int|float ...$nums) : int|float{
-				assert(count($nums) >= 2);
-				return min($nums);
-			},
-			static fn(Parser $parser, string $expression, FunctionCallToken $token, array $args) : ?array => match(count($args)){
-				0 => throw ParseException::unresolvableFcallTooLessParams($expression, $token->getPos(), 1, 0),
-				1 => [$args[0]],
-				default => null
-			},
-			FunctionFlags::COMMUTATIVE | FunctionFlags::DETERMINISTIC | FunctionFlags::IDEMPOTENT
-		);
+		$registry->registerMacro("min", static function(int|float ...$nums) : int|float{
+			assert(count($nums) >= 2);
+			return min($nums);
+		}, static fn(Parser $parser, string $expression, FunctionCallToken $token, array $args) : ?array => match(count($args)){
+			0 => throw ParseException::unresolvableFcallTooLessParams($expression, $token->getPos(), 1, 0),
+			1 => [$args[0]],
+			default => null
+		}, FunctionFlags::COMMUTATIVE | FunctionFlags::DETERMINISTIC | FunctionFlags::IDEMPOTENT);
 
-		$registry->registerMacro(
-			"pi",
-			static fn() : float => M_PI,
-			static fn(Parser $parser, string $expression, FunctionCallToken $token, array $args) : array => [new NumericLiteralToken($token->getPos(), M_PI)],
-			FunctionFlags::DETERMINISTIC
-		);
+		$registry->registerMacro("pi", static fn() : float => M_PI, static fn(Parser $parser, string $expression, FunctionCallToken $token, array $args) : array => [
+			new NumericLiteralToken($token->getPos(), M_PI)
+		], FunctionFlags::DETERMINISTIC);
 
-		$registry->registerMacro(
-			"pow",
-			static fn(int|float $base, int|float $exponent) : int|float => pow($base, $exponent),
-			static fn(Parser $parser, string $expression, FunctionCallToken $token, array $args) : array => [
-				$args[0],
-				$args[1],
-				new BinaryOperatorToken($token->getPos(), "**")
-			],
-			FunctionFlags::DETERMINISTIC
-		);
+		$registry->registerMacro("pow", static fn(int|float $base, int|float $exponent) : int|float => pow($base, $exponent), static fn(Parser $parser, string $expression, FunctionCallToken $token, array $args) : array => [
+			$args[0],
+			$args[1],
+			new BinaryOperatorToken($token->getPos(), "**")
+		], FunctionFlags::DETERMINISTIC);
 
-		$registry->registerMacro(
-			"sqrt",
-			Closure::fromCallable("sqrt"),
-			static fn(Parser $parser, string $expression, FunctionCallToken $token, array $args) : array => [
-				$args[0],
-				new NumericLiteralToken($token->getPos(), 0.5),
-				new BinaryOperatorToken($token->getPos(), "**")
-			],
-			FunctionFlags::DETERMINISTIC
-		);
+		$registry->registerMacro("sqrt", Closure::fromCallable("sqrt"), static fn(Parser $parser, string $expression, FunctionCallToken $token, array $args) : array => [
+			$args[0],
+			new NumericLiteralToken($token->getPos(), 0.5),
+			new BinaryOperatorToken($token->getPos(), "**")
+		], FunctionFlags::DETERMINISTIC);
 		return $registry;
 	}
 
