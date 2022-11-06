@@ -6,6 +6,7 @@ namespace muqsit\arithmexp\function;
 
 use Closure;
 use InvalidArgumentException;
+use muqsit\arithmexp\Parser;
 use muqsit\arithmexp\token\builder\ExpressionTokenBuilderState;
 use muqsit\arithmexp\token\FunctionCallToken;
 use muqsit\arithmexp\token\Token;
@@ -18,7 +19,7 @@ final class MacroFunctionInfo implements FunctionInfo{
 
 	/**
 	 * @param FunctionInfo $inner
-	 * @param Closure(FunctionCallToken $token, Token[]|Token[][] $args) : (Token[]|null) $resolver
+	 * @param Closure(Parser $parser, string $expression, FunctionCallToken $token, Token[]|Token[][] $args) : (Token[]|null) $resolver
 	 */
 	public function __construct(
 		public FunctionInfo $inner,
@@ -41,13 +42,13 @@ final class MacroFunctionInfo implements FunctionInfo{
 		return $this->inner->getFlags();
 	}
 
-	public function writeExpressionTokens(FunctionCallToken $token, ExpressionTokenBuilderState $state) : void{
+	public function writeExpressionTokens(Parser $parser, string $expression, FunctionCallToken $token, ExpressionTokenBuilderState $state) : void{
 		$args_c = $token->getArgumentCount();
 		/** @var Token[]|Token[][] $args */
 		$args = array_slice($state->current_group, $state->current_index - $args_c, $args_c);
-		$result = ($this->resolver)($token, $args);
+		$result = ($this->resolver)($parser, $expression, $token, $args);
 		if($result === null){
-			$this->inner->writeExpressionTokens($token, $state);
+			$this->inner->writeExpressionTokens($parser, $expression, $token, $state);
 		}else{
 			if(count($result) === 0){
 				throw new InvalidArgumentException("Macro must return a list of at least one element");

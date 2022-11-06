@@ -98,14 +98,10 @@ final class ParserTest extends TestCase{
 	}
 
 	public function testMacroArgumentParser() : void{
-		$last_captured = [];
 		$this->uo_parser->getFunctionRegistry()->registerMacro(
 			"fn",
 			static fn(int|float $x, int|float $y = 4, int|float $z = 16) : int|float => 0,
-			static function(FunctionCallToken $token, array $args) use(&$last_captured) : ?array{
-				$last_captured = $args;
-				return null;
-			}
+			static fn(Parser $parser, string $expression, FunctionCallToken $token, array $args) : ?array => null
 		);
 
 		$non_macro_parser = Parser::createUnoptimized();
@@ -122,7 +118,7 @@ final class ParserTest extends TestCase{
 		$this->uo_parser->getFunctionRegistry()->registerMacro(
 			"fn",
 			static fn(int|float $x = 0, int|float $y = 4, int|float $z = 16) : int|float => 0,
-			static fn(FunctionCallToken $token, array $args) : ?array => match(count($args)){
+			static fn(Parser $parser, string $expression, FunctionCallToken $token, array $args) : ?array => match(count($args)){
 				0 => [new NumericLiteralToken($token->getPos(), M_PI)],
 				1 => [
 					$args[0],

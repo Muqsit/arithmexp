@@ -7,6 +7,7 @@ namespace muqsit\arithmexp\function;
 use Closure;
 use InvalidArgumentException;
 use muqsit\arithmexp\expression\token\FunctionCallExpressionToken;
+use muqsit\arithmexp\Parser;
 use muqsit\arithmexp\token\builder\ExpressionTokenBuilderState;
 use muqsit\arithmexp\token\FunctionCallToken;
 use ReflectionFunction;
@@ -66,7 +67,7 @@ final class SimpleFunctionInfo implements FunctionInfo{
 		return $this->flags;
 	}
 
-	public function writeExpressionTokens(FunctionCallToken $token, ExpressionTokenBuilderState $state) : void{
+	public function writeExpressionTokens(Parser $parser, string $expression, FunctionCallToken $token, ExpressionTokenBuilderState $state) : void{
 		$state->current_group[$state->current_index] = new FunctionCallExpressionToken($token->getPos(), $token->getFunction(), $token->getArgumentCount(), $this->closure, $this->flags, $token);
 	}
 }

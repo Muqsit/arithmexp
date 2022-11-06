@@ -30,7 +30,7 @@ final class FunctionCallToken extends SimpleToken{
 	}
 
 	public function writeExpressionTokens(ExpressionTokenBuilderState $state) : void{
-		$state->parser->getFunctionRegistry()->get($this->function)->writeExpressionTokens($this, $state);
+		$state->parser->getFunctionRegistry()->get($this->function)->writeExpressionTokens($state->parser, $state->expression, $this, $state);
 	}
 
 	public function __debugInfo() : array{
