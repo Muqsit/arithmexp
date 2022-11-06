@@ -9,14 +9,21 @@ use muqsit\arithmexp\function\FunctionFlags;
 use muqsit\arithmexp\operator\assignment\LeftOperatorAssignment;
 use muqsit\arithmexp\operator\assignment\RightOperatorAssignment;
 use muqsit\arithmexp\operator\binary\SimpleBinaryOperator;
+use muqsit\arithmexp\token\BinaryOperatorToken;
+use muqsit\arithmexp\token\FunctionCallToken;
+use muqsit\arithmexp\token\NumericLiteralToken;
+use muqsit\arithmexp\token\UnaryOperatorToken;
 use PHPUnit\Framework\TestCase;
+use const M_PI;
 
 final class ParserTest extends TestCase{
 
 	private Parser $parser;
+	private Parser $uo_parser;
 
 	protected function setUp() : void{
 		$this->parser = Parser::createDefault();
+		$this->uo_parser = Parser::createUnoptimized();
 	}
 
 	public function testBinaryOperatorsOfSamePrecedence() : void{
@@ -88,6 +95,59 @@ final class ParserTest extends TestCase{
 		$this->parser->parse("tan(x)");
 		TestUtil::assertParserThrows($this->parser, "tan[x]", ParseException::ERR_UNEXPECTED_TOKEN, 4, 5);
 		TestUtil::assertParserThrows($this->parser, "tan{x}", ParseException::ERR_UNEXPECTED_TOKEN, 4, 5);
+	}
+
+	public function testMacroArgumentParser() : void{
+		$last_captured = [];
+		$this->uo_parser->getFunctionRegistry()->registerMacro(
+			"fn",
+			static fn(int|float $x, int|float $y = 4, int|float $z = 16) : int|float => 0,
+			static function(FunctionCallToken $token, array $args) use(&$last_captured) : ?array{
+				$last_captured = $args;
+				return null;
+			}
+		);
+
+		$non_macro_parser = Parser::createUnoptimized();
+		$non_macro_parser->getFunctionRegistry()->register("fn", static fn(int|float $x, int|float $y = 4, int|float $z = 16) : int|float => 0);
+
+		TestUtil::assertParserThrows($this->uo_parser, "fn()", ParseException::ERR_UNRESOLVABLE_FCALL, 0, 4);
+		TestUtil::assertExpressionsEqual($non_macro_parser->parse("fn(x)"), $this->uo_parser->parse("fn(x)"));
+		TestUtil::assertExpressionsEqual($non_macro_parser->parse("fn(x, 4)"), $this->uo_parser->parse("fn(x,)"));
+		TestUtil::assertExpressionsEqual($non_macro_parser->parse("fn(x, 4, 16)"), $this->uo_parser->parse("fn(x,,)"));
+		TestUtil::assertExpressionsEqual($non_macro_parser->parse("fn(x, 4, pi)"), $this->uo_parser->parse("fn(x,,pi)"));
+	}
+
+	public function testMacroArgumentReplacer() : void{
+		$this->uo_parser->getFunctionRegistry()->registerMacro(
+			"fn",
+			static fn(int|float $x = 0, int|float $y = 4, int|float $z = 16) : int|float => 0,
+			static fn(FunctionCallToken $token, array $args) : ?array => match(count($args)){
+				0 => [new NumericLiteralToken($token->getPos(), M_PI)],
+				1 => [
+					$args[0],
+					new UnaryOperatorToken($token->getPos(), "-")
+				],
+				2 => [
+					$args[0],
+					$args[1],
+					new BinaryOperatorToken($token->getPos(), "*")
+				],
+				3 => [],
+				default => null
+			}
+		);
+
+		$non_macro_parser = Parser::createUnoptimized();
+		$non_macro_parser->getFunctionRegistry()->register("fn", static fn(int|float $x = 0, int|float $y = 4, int|float $z = 16) : int|float => 0);
+
+		TestUtil::assertExpressionsEqual($non_macro_parser->parse((string) M_PI), $this->uo_parser->parse("fn()"));
+		TestUtil::assertExpressionsEqual($non_macro_parser->parse("-x"), $this->uo_parser->parse("fn(x)"));
+		TestUtil::assertExpressionsEqual($non_macro_parser->parse("x * y"), $this->uo_parser->parse("fn(x, y)"));
+
+		$this->expectException(InvalidArgumentException::class);
+		$this->expectExceptionMessage("Macro must return a list of at least one element");
+		$this->uo_parser->parse("fn(x, y, z)");
 	}
 
 	public function testNoUnaryOperand() : void{
