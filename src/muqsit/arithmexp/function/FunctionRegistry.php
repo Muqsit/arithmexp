@@ -6,12 +6,18 @@ namespace muqsit\arithmexp\function;
 
 use Closure;
 use InvalidArgumentException;
+use muqsit\arithmexp\ParseException;
 use muqsit\arithmexp\Parser;
+use muqsit\arithmexp\token\BinaryOperatorToken;
 use muqsit\arithmexp\token\FunctionCallToken;
+use muqsit\arithmexp\token\NumericLiteralToken;
 use muqsit\arithmexp\token\Token;
+use function assert;
+use function count;
 use function max;
 use function min;
 use function mt_rand;
+use function sqrt;
 
 final class FunctionRegistry{
 
@@ -41,20 +47,72 @@ final class FunctionRegistry{
 		$registry->register("log10", Closure::fromCallable("log10"), FunctionFlags::DETERMINISTIC);
 		$registry->register("log1p", Closure::fromCallable("log1p"), FunctionFlags::DETERMINISTIC);
 		$registry->register("log", Closure::fromCallable("log"), FunctionFlags::DETERMINISTIC);
-		$registry->register("max", static fn(int|float $num1, int|float ...$nums) : int|float => max([$num1, ...$nums]), FunctionFlags::COMMUTATIVE | FunctionFlags::DETERMINISTIC | FunctionFlags::IDEMPOTENT);
-		$registry->register("min", static fn(int|float $num1, int|float ...$nums) : int|float => min([$num1, ...$nums]), FunctionFlags::COMMUTATIVE | FunctionFlags::DETERMINISTIC | FunctionFlags::IDEMPOTENT);
 		$registry->register("mt_getrandmax", Closure::fromCallable("mt_getrandmax"), FunctionFlags::DETERMINISTIC);
 		$registry->register("mt_rand", static fn(int $min, int $max) : int => mt_rand($min, $max));
-		$registry->register("pi", Closure::fromCallable("pi"), FunctionFlags::DETERMINISTIC);
-		$registry->register("pow", Closure::fromCallable("pow"), FunctionFlags::DETERMINISTIC);
 		$registry->register("rad2deg", Closure::fromCallable("rad2deg"), FunctionFlags::DETERMINISTIC);
 		$registry->register("rand", Closure::fromCallable("rand"));
 		$registry->register("round", Closure::fromCallable("round"), FunctionFlags::DETERMINISTIC | FunctionFlags::IDEMPOTENT);
 		$registry->register("sin", Closure::fromCallable("sin"), FunctionFlags::DETERMINISTIC);
 		$registry->register("sinh", Closure::fromCallable("sinh"), FunctionFlags::DETERMINISTIC);
-		$registry->register("sqrt", Closure::fromCallable("sqrt"), FunctionFlags::DETERMINISTIC);
 		$registry->register("tan", Closure::fromCallable("tan"), FunctionFlags::DETERMINISTIC);
 		$registry->register("tanh", Closure::fromCallable("tanh"), FunctionFlags::DETERMINISTIC);
+
+		$registry->registerMacro(
+			"max",
+			static function(int|float ...$nums) : int|float{
+				assert(count($nums) >= 2);
+				return max($nums);
+			},
+			static fn(Parser $parser, string $expression, FunctionCallToken $token, array $args) : ?array => match(count($args)){
+				0 => throw ParseException::unresolvableFcallTooLessParams($expression, $token->getPos(), 1, 0),
+				1 => [$args[0]],
+				default => null
+			},
+			FunctionFlags::COMMUTATIVE | FunctionFlags::DETERMINISTIC | FunctionFlags::IDEMPOTENT
+		);
+
+		$registry->registerMacro(
+			"min",
+			static function(int|float ...$nums) : int|float{
+				assert(count($nums) >= 2);
+				return min($nums);
+			},
+			static fn(Parser $parser, string $expression, FunctionCallToken $token, array $args) : ?array => match(count($args)){
+				0 => throw ParseException::unresolvableFcallTooLessParams($expression, $token->getPos(), 1, 0),
+				1 => [$args[0]],
+				default => null
+			},
+			FunctionFlags::COMMUTATIVE | FunctionFlags::DETERMINISTIC | FunctionFlags::IDEMPOTENT
+		);
+
+		$registry->registerMacro(
+			"pi",
+			static fn() : float => M_PI,
+			static fn(Parser $parser, string $expression, FunctionCallToken $token, array $args) : array => [new NumericLiteralToken($token->getPos(), M_PI)],
+			FunctionFlags::DETERMINISTIC
+		);
+
+		$registry->registerMacro(
+			"pow",
+			static fn(int|float $base, int|float $exponent) : int|float => pow($base, $exponent),
+			static fn(Parser $parser, string $expression, FunctionCallToken $token, array $args) : array => [
+				$args[0],
+				$args[1],
+				new BinaryOperatorToken($token->getPos(), "**")
+			],
+			FunctionFlags::DETERMINISTIC
+		);
+
+		$registry->registerMacro(
+			"sqrt",
+			Closure::fromCallable("sqrt"),
+			static fn(Parser $parser, string $expression, FunctionCallToken $token, array $args) : array => [
+				$args[0],
+				new NumericLiteralToken($token->getPos(), 0.5),
+				new BinaryOperatorToken($token->getPos(), "**")
+			],
+			FunctionFlags::DETERMINISTIC
+		);
 		return $registry;
 	}
 
