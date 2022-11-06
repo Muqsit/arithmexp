@@ -14,8 +14,10 @@ use muqsit\arithmexp\token\NumericLiteralToken;
 use muqsit\arithmexp\token\Token;
 use function assert;
 use function count;
+use function getrandmax;
 use function max;
 use function min;
+use function mt_getrandmax;
 use function mt_rand;
 use function sqrt;
 
@@ -40,14 +42,12 @@ final class FunctionRegistry{
 		$registry->register("fdiv", Closure::fromCallable("fdiv"), FunctionFlags::DETERMINISTIC);
 		$registry->register("floor", Closure::fromCallable("floor"), FunctionFlags::DETERMINISTIC | FunctionFlags::IDEMPOTENT);
 		$registry->register("fmod", Closure::fromCallable("fmod"), FunctionFlags::DETERMINISTIC);
-		$registry->register("getrandmax", Closure::fromCallable("getrandmax"), FunctionFlags::DETERMINISTIC);
 		$registry->register("hypot", Closure::fromCallable("hypot"), FunctionFlags::DETERMINISTIC);
 		$registry->register("intdiv", Closure::fromCallable("intdiv"), FunctionFlags::DETERMINISTIC);
 		$registry->register("lcg_value", Closure::fromCallable("lcg_value"));
 		$registry->register("log10", Closure::fromCallable("log10"), FunctionFlags::DETERMINISTIC);
 		$registry->register("log1p", Closure::fromCallable("log1p"), FunctionFlags::DETERMINISTIC);
 		$registry->register("log", Closure::fromCallable("log"), FunctionFlags::DETERMINISTIC);
-		$registry->register("mt_getrandmax", Closure::fromCallable("mt_getrandmax"), FunctionFlags::DETERMINISTIC);
 		$registry->register("mt_rand", static fn(int $min, int $max) : int => mt_rand($min, $max));
 		$registry->register("rad2deg", Closure::fromCallable("rad2deg"), FunctionFlags::DETERMINISTIC);
 		$registry->register("rand", Closure::fromCallable("rand"));
@@ -56,6 +56,14 @@ final class FunctionRegistry{
 		$registry->register("sinh", Closure::fromCallable("sinh"), FunctionFlags::DETERMINISTIC);
 		$registry->register("tan", Closure::fromCallable("tan"), FunctionFlags::DETERMINISTIC);
 		$registry->register("tanh", Closure::fromCallable("tanh"), FunctionFlags::DETERMINISTIC);
+
+		$registry->registerMacro("getrandmax", Closure::fromCallable("getrandmax"), static fn(Parser $parser, string $expression, FunctionCallToken $token, array $args) : ?array => [
+			new NumericLiteralToken($token->getPos(), getrandmax())
+		], FunctionFlags::DETERMINISTIC);
+
+		$registry->registerMacro("mt_getrandmax", Closure::fromCallable("mt_getrandmax"), static fn(Parser $parser, string $expression, FunctionCallToken $token, array $args) : ?array => [
+			new NumericLiteralToken($token->getPos(), mt_getrandmax())
+		], FunctionFlags::DETERMINISTIC);
 
 		$registry->registerMacro("max", static function(int|float ...$nums) : int|float{
 			assert(count($nums) >= 2);
