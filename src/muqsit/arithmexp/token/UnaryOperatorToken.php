@@ -9,7 +9,6 @@ use muqsit\arithmexp\Position;
 use muqsit\arithmexp\token\builder\ExpressionTokenBuilderState;
 use muqsit\arithmexp\Util;
 use function array_slice;
-use function count;
 
 final class UnaryOperatorToken extends SimpleToken{
 
@@ -32,10 +31,10 @@ final class UnaryOperatorToken extends SimpleToken{
 		$operator = $state->parser->getOperatorManager()->getUnaryRegistry()->get($this->operator);
 
 		$argument_count = 1;
-		$parameters = array_slice(Util::expressionTokenArrayToTree($state->tokens, 0, count($state->tokens)), -$argument_count);
-		Util::flattenArray($parameters);
-		$pos = Position::containing([Util::positionContainingExpressionTokens($parameters), $this->position]);
-		$state->tokens[] = new FunctionCallExpressionToken($pos, "({$operator->getSymbol()})", $argument_count, $operator->getOperator(), $operator->getFlags(), $this);
+		$group = array_slice($state->current_group, $state->current_index - $argument_count, $argument_count);
+		Util::flattenArray($group);
+		$pos = Util::positionContainingTokens($group);
+		$state->current_group[$state->current_index] = new FunctionCallExpressionToken($pos, "({$operator->getSymbol()})", $argument_count, $operator->getOperator(), $operator->getFlags(), $this);
 	}
 
 	public function __debugInfo() : array{

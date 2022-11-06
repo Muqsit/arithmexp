@@ -6,6 +6,9 @@ namespace muqsit\arithmexp\function;
 
 use Closure;
 use InvalidArgumentException;
+use muqsit\arithmexp\token\FunctionCallToken;
+use muqsit\arithmexp\token\Token;
+use function min;
 use function mt_rand;
 
 final class FunctionRegistry{
@@ -66,6 +69,16 @@ final class FunctionRegistry{
 	 */
 	public function register(string $identifier, Closure $function, int $flags = 0) : void{
 		$this->registered[$identifier] = SimpleFunctionInfo::from($function, $flags);
+	}
+
+	/**
+	 * @param string $identifier
+	 * @param Closure $base
+	 * @param Closure(FunctionCallToken $token, Token[]|Token[][] $args) : (Token[]|null) $resolver
+	 * @param int-mask-of<FunctionFlags::*> $flags
+	 */
+	public function registerMacro(string $identifier, Closure $base, Closure $resolver, int $flags = 0) : void{
+		$this->registered[$identifier] = new MacroFunctionInfo(SimpleFunctionInfo::from($base, $flags), $resolver);
 	}
 
 	public function get(string $identifier) : FunctionInfo{

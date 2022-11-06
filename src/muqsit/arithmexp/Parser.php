@@ -28,6 +28,7 @@ use function array_unshift;
 use function assert;
 use function count;
 use function is_array;
+use function iterator_to_array;
 use function min;
 
 final class Parser{
@@ -94,12 +95,28 @@ final class Parser{
 		$this->processTokens($expression, $tokens);
 		$this->convertTokenTreeToPostfixTokenTree($tokens);
 
-		$state = new ExpressionTokenBuilderState($this, $expression, []);
-		foreach($tokens as $token){
-			$token->writeExpressionTokens($state);
+		$state = new ExpressionTokenBuilderState($this, $expression, $tokens);
+
+		$queue = [];
+		$queue[] = &$state->tokens;
+		$index = 0;
+		while(isset($queue[$index])){
+			$state->current_group = &$queue[$index++];
+			for($state->current_index = count($state->current_group) - 1; $state->current_index >= 0; --$state->current_index){
+				$entry = $state->current_group[$state->current_index];
+				if($entry instanceof Token){
+					$entry->writeExpressionTokens($state);
+				}
+			}
+			foreach($state->current_group as &$value){
+				if(is_array($value)){
+					$queue[] = &$value;
+				}
+			}
+			unset($value);
 		}
 
-		$result = new RawExpression($expression, $state->tokens);
+		$result = new RawExpression($expression, iterator_to_array($state->toExpressionTokens()));
 		do{
 			$tokens_before = $result->getPostfixExpressionTokens();
 			foreach($this->expression_optimizer_registry->getRegistered() as $optimizer){
@@ -361,7 +378,7 @@ final class Parser{
 	}
 
 	/**
-	 * Transforms a given token tree in-place to a flattened postfix representation.
+	 * Transforms a given token tree in-place to a postfix representation.
 	 *
 	 * @param Token[]|Token[][] $postfix_token_tree
 	 */
@@ -389,7 +406,5 @@ final class Parser{
 				}
 			}
 		}
-
-		Util::flattenArray($postfix_token_tree);
 	}
 }

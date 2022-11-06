@@ -26,7 +26,7 @@ final class NumericLiteralToken extends SimpleToken{
 	}
 
 	public function writeExpressionTokens(ExpressionTokenBuilderState $state) : void{
-		$state->tokens[] = new NumericLiteralExpressionToken($this->position, $this->value);
+		$state->current_group[$state->current_index] = new NumericLiteralExpressionToken($this->position, $this->value);
 	}
 
 	public function __debugInfo() : array{

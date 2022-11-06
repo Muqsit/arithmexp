@@ -28,7 +28,7 @@ final class IdentifierToken extends SimpleToken{
 
 	public function writeExpressionTokens(ExpressionTokenBuilderState $state) : void{
 		$constant_value = $state->parser->getConstantRegistry()->registered[$this->label] ?? null;
-		$state->tokens[] = $constant_value !== null ? new NumericLiteralExpressionToken($this->position, $constant_value) : new VariableExpressionToken($this->position, $this->label);
+		$state->current_group[$state->current_index] = $constant_value !== null ? new NumericLiteralExpressionToken($this->position, $constant_value) : new VariableExpressionToken($this->position, $this->label);
 	}
 
 	public function __debugInfo() : array{
