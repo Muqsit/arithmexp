@@ -114,6 +114,19 @@ final class ParserTest extends TestCase{
 		TestUtil::assertExpressionsEqual($non_macro_parser->parse("fn(x, 4, pi)"), $this->uo_parser->parse("fn(x,,pi)"));
 	}
 
+	public function testBuiltInMacros() : void{
+		TestUtil::assertParserThrows($this->uo_parser, "max()", ParseException::ERR_UNRESOLVABLE_FCALL, 0, 5);
+		TestUtil::assertExpressionsEqual($this->uo_parser->parse("max(x)"), $this->uo_parser->parse("x"));
+		TestUtil::assertExpressionsEqual($this->uo_parser->parse("max(x, y)"), $this->uo_parser->parse("max(x, y)"));
+
+		TestUtil::assertParserThrows($this->uo_parser, "min()", ParseException::ERR_UNRESOLVABLE_FCALL, 0, 5);
+		TestUtil::assertExpressionsEqual($this->uo_parser->parse("min(x)"), $this->uo_parser->parse("x"));
+		TestUtil::assertExpressionsEqual($this->uo_parser->parse("min(x, y)"), $this->uo_parser->parse("min(x, y)"));
+
+		TestUtil::assertExpressionsEqual($this->uo_parser->parse("x ** y"), $this->uo_parser->parse("pow(x, y)"));
+		TestUtil::assertExpressionsEqual($this->uo_parser->parse("x ** 0.5"), $this->uo_parser->parse("sqrt(x)"));
+	}
+
 	public function testMacroArgumentReplacer() : void{
 		$this->uo_parser->getFunctionRegistry()->registerMacro(
 			"fn",
