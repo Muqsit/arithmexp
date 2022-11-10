@@ -6,6 +6,7 @@ namespace muqsit\arithmexp\operator\binary;
 
 use InvalidArgumentException;
 use muqsit\arithmexp\function\FunctionFlags;
+use muqsit\arithmexp\function\SimpleFunctionInfo;
 use muqsit\arithmexp\operator\assignment\LeftOperatorAssignment;
 use muqsit\arithmexp\operator\assignment\RightOperatorAssignment;
 use muqsit\arithmexp\operator\ChangeListenableTrait;
@@ -16,12 +17,12 @@ final class BinaryOperatorRegistry{
 
 	public static function createDefault() : self{
 		$registry = new self();
-		$registry->register(new SimpleBinaryOperator("+", "Addition", OperatorPrecedence::ADDITION_SUBTRACTION, LeftOperatorAssignment::instance(), static fn(int|float $x, int|float $y) : int|float => $x + $y, FunctionFlags::DETERMINISTIC | FunctionFlags::COMMUTATIVE));
-		$registry->register(new SimpleBinaryOperator("/", "Division", OperatorPrecedence::MULTIPLICATION_DIVISION_MODULO, LeftOperatorAssignment::instance(), static fn(int|float $x, int|float $y) : int|float => $x / $y, FunctionFlags::DETERMINISTIC));
-		$registry->register(new SimpleBinaryOperator("**", "Exponential", OperatorPrecedence::EXPONENTIAL, RightOperatorAssignment::instance(), static fn(int|float $x, int|float $y) : int|float => $x ** $y, FunctionFlags::DETERMINISTIC));
-		$registry->register(new SimpleBinaryOperator("%", "Modulo", OperatorPrecedence::MULTIPLICATION_DIVISION_MODULO, LeftOperatorAssignment::instance(), static fn(int|float $x, int|float $y) : int => $x % $y, FunctionFlags::DETERMINISTIC));
-		$registry->register(new SimpleBinaryOperator("*", "Multiplication", OperatorPrecedence::MULTIPLICATION_DIVISION_MODULO, LeftOperatorAssignment::instance(), static fn(int|float $x, int|float $y) : int|float => $x * $y, FunctionFlags::DETERMINISTIC | FunctionFlags::COMMUTATIVE));
-		$registry->register(new SimpleBinaryOperator("-", "Subtraction", OperatorPrecedence::ADDITION_SUBTRACTION, LeftOperatorAssignment::instance(), static fn(int|float $x, int|float $y) : int|float => $x - $y, FunctionFlags::DETERMINISTIC));
+		$registry->register(new SimpleBinaryOperator("+", "Addition", OperatorPrecedence::ADDITION_SUBTRACTION, LeftOperatorAssignment::instance(), SimpleFunctionInfo::from(static fn(int|float $x, int|float $y) : int|float => $x + $y, FunctionFlags::DETERMINISTIC | FunctionFlags::COMMUTATIVE)));
+		$registry->register(new SimpleBinaryOperator("/", "Division", OperatorPrecedence::MULTIPLICATION_DIVISION_MODULO, LeftOperatorAssignment::instance(), SimpleFunctionInfo::from(static fn(int|float $x, int|float $y) : int|float => $x / $y, FunctionFlags::DETERMINISTIC)));
+		$registry->register(new SimpleBinaryOperator("**", "Exponential", OperatorPrecedence::EXPONENTIAL, RightOperatorAssignment::instance(), SimpleFunctionInfo::from(static fn(int|float $x, int|float $y) : int|float => $x ** $y, FunctionFlags::DETERMINISTIC)));
+		$registry->register(new SimpleBinaryOperator("%", "Modulo", OperatorPrecedence::MULTIPLICATION_DIVISION_MODULO, LeftOperatorAssignment::instance(), SimpleFunctionInfo::from(static fn(int|float $x, int|float $y) : int => $x % $y, FunctionFlags::DETERMINISTIC)));
+		$registry->register(new SimpleBinaryOperator("*", "Multiplication", OperatorPrecedence::MULTIPLICATION_DIVISION_MODULO, LeftOperatorAssignment::instance(), SimpleFunctionInfo::from(static fn(int|float $x, int|float $y) : int|float => $x * $y, FunctionFlags::DETERMINISTIC | FunctionFlags::COMMUTATIVE)));
+		$registry->register(new SimpleBinaryOperator("-", "Subtraction", OperatorPrecedence::ADDITION_SUBTRACTION, LeftOperatorAssignment::instance(), SimpleFunctionInfo::from(static fn(int|float $x, int|float $y) : int|float => $x - $y, FunctionFlags::DETERMINISTIC)));
 		return $registry;
 	}
 

@@ -6,12 +6,14 @@ namespace muqsit\arithmexp;
 
 use InvalidArgumentException;
 use muqsit\arithmexp\function\FunctionFlags;
+use muqsit\arithmexp\function\SimpleFunctionInfo;
 use muqsit\arithmexp\operator\assignment\LeftOperatorAssignment;
 use muqsit\arithmexp\operator\assignment\RightOperatorAssignment;
 use muqsit\arithmexp\operator\binary\SimpleBinaryOperator;
 use muqsit\arithmexp\token\BinaryOperatorToken;
 use muqsit\arithmexp\token\FunctionCallToken;
 use muqsit\arithmexp\token\NumericLiteralToken;
+use muqsit\arithmexp\token\Token;
 use muqsit\arithmexp\token\UnaryOperatorToken;
 use PHPUnit\Framework\TestCase;
 use const M_PI;
@@ -30,8 +32,8 @@ final class ParserTest extends TestCase{
 		$this->expectException(InvalidArgumentException::class);
 		$this->expectExceptionMessage("Cannot process operators with same precedence (3) but different assignment types (0, 1)");
 		$registry = $this->parser->getOperatorManager()->getBinaryRegistry();
-		$registry->register(new SimpleBinaryOperator("~", "BO1", 128, LeftOperatorAssignment::instance(), static fn(int|float $x, int|float $y) : int|float => $x + $y, FunctionFlags::DETERMINISTIC));
-		$registry->register(new SimpleBinaryOperator("\$", "BO2", 128, RightOperatorAssignment::instance(), static fn(int|float $x, int|float $y) : int|float => $x + $y, FunctionFlags::DETERMINISTIC));
+		$registry->register(new SimpleBinaryOperator("~", "BO1", 128, LeftOperatorAssignment::instance(), SimpleFunctionInfo::from(static fn(int|float $x, int|float $y) : int|float => $x + $y, FunctionFlags::DETERMINISTIC)));
+		$registry->register(new SimpleBinaryOperator("\$", "BO2", 128, RightOperatorAssignment::instance(), SimpleFunctionInfo::from(static fn(int|float $x, int|float $y) : int|float => $x + $y, FunctionFlags::DETERMINISTIC)));
 	}
 
 	public function testEmptyString() : void{
@@ -101,7 +103,7 @@ final class ParserTest extends TestCase{
 		$this->uo_parser->getFunctionRegistry()->registerMacro(
 			"fn",
 			static fn(int|float $x, int|float $y = 4, int|float $z = 16) : int|float => 0,
-			static fn(Parser $parser, string $expression, FunctionCallToken $token, array $args) : ?array => null
+			static fn(Parser $parser, string $expression, Token $token, string $function_name, int $argument_count, array $args) : ?array => null
 		);
 
 		$non_macro_parser = Parser::createUnoptimized();
@@ -131,7 +133,7 @@ final class ParserTest extends TestCase{
 		$this->uo_parser->getFunctionRegistry()->registerMacro(
 			"fn",
 			static fn(int|float $x = 0, int|float $y = 4, int|float $z = 16) : int|float => 0,
-			static fn(Parser $parser, string $expression, FunctionCallToken $token, array $args) : ?array => match(count($args)){
+			static fn(Parser $parser, string $expression, Token $token, string $function_name, int $argument_count, array $args) : ?array => match(count($args)){
 				0 => [new NumericLiteralToken($token->getPos(), M_PI)],
 				1 => [
 					$args[0],

@@ -7,7 +7,7 @@ namespace muqsit\arithmexp\function;
 use Closure;
 use muqsit\arithmexp\Parser;
 use muqsit\arithmexp\token\builder\ExpressionTokenBuilderState;
-use muqsit\arithmexp\token\FunctionCallToken;
+use muqsit\arithmexp\token\Token;
 
 interface FunctionInfo{
 
@@ -25,5 +25,5 @@ interface FunctionInfo{
 	 */
 	public function getFlags() : int;
 
-	public function writeExpressionTokens(Parser $parser, string $expression, FunctionCallToken $token, ExpressionTokenBuilderState $state) : void;
+	public function writeExpressionTokens(Parser $parser, string $expression, Token $token, string $function_name, int $argument_count, ExpressionTokenBuilderState $state) : void;
 }

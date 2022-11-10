@@ -10,6 +10,7 @@ use muqsit\arithmexp\expression\token\FunctionCallExpressionToken;
 use muqsit\arithmexp\Parser;
 use muqsit\arithmexp\token\builder\ExpressionTokenBuilderState;
 use muqsit\arithmexp\token\FunctionCallToken;
+use muqsit\arithmexp\token\Token;
 use ReflectionFunction;
 use ReflectionParameter;
 use function array_map;
@@ -67,7 +68,7 @@ final class SimpleFunctionInfo implements FunctionInfo{
 		return $this->flags;
 	}
 
-	public function writeExpressionTokens(Parser $parser, string $expression, FunctionCallToken $token, ExpressionTokenBuilderState $state) : void{
-		$state->current_group[$state->current_index] = new FunctionCallExpressionToken($token->getPos(), $token->getFunction(), $token->getArgumentCount(), $this->closure, $this->flags, $token);
+	public function writeExpressionTokens(Parser $parser, string $expression, Token $token, string $function_name, int $argument_count, ExpressionTokenBuilderState $state) : void{
+		$state->current_group[$state->current_index] = new FunctionCallExpressionToken($token->getPos(), $function_name, $argument_count, $this->closure, $this->flags, $token);
 	}
 }

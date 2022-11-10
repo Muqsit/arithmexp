@@ -7,6 +7,7 @@ namespace muqsit\arithmexp;
 use Closure;
 use InvalidArgumentException;
 use muqsit\arithmexp\function\FunctionFlags;
+use muqsit\arithmexp\function\SimpleFunctionInfo;
 use muqsit\arithmexp\operator\assignment\LeftOperatorAssignment;
 use muqsit\arithmexp\operator\assignment\RightOperatorAssignment;
 use muqsit\arithmexp\operator\binary\SimpleBinaryOperator;
@@ -159,7 +160,7 @@ final class ExpressionTest extends TestCase{
 			"Random Range",
 			0,
 			RightOperatorAssignment::instance(),
-			Closure::fromCallable("mt_rand")
+			SimpleFunctionInfo::from(Closure::fromCallable("mt_rand"), 0)
 		));
 
 		$result = $this->parser->parse("27 / -(36..89 / 4.7) + 57")->evaluate();
@@ -174,7 +175,7 @@ final class ExpressionTest extends TestCase{
 			"Integer Division",
 			OperatorPrecedence::MULTIPLICATION_DIVISION_MODULO,
 			LeftOperatorAssignment::instance(),
-			Closure::fromCallable("intdiv")
+			SimpleFunctionInfo::from(Closure::fromCallable("intdiv"), 0)
 		));
 
 		$expression = $this->parser->parse("7 // 3");
@@ -186,7 +187,7 @@ final class ExpressionTest extends TestCase{
 			"±",
 			"Modulus",
 			OperatorPrecedence::UNARY_NEGATIVE_POSITIVE,
-			Closure::fromCallable("abs")
+			SimpleFunctionInfo::from(Closure::fromCallable("abs"), 0)
 		));
 
 		$expression = $this->parser->parse("3 * ±(4 - 7) / 3.7");
@@ -198,7 +199,7 @@ final class ExpressionTest extends TestCase{
 			"--",
 			"Decrement",
 			OperatorPrecedence::UNARY_NEGATIVE_POSITIVE,
-			static fn(int|float $x) : int|float => $x - 1
+			SimpleFunctionInfo::from(static fn(int|float $x) : int|float => $x - 1, 0)
 		));
 
 		$expression = $this->parser->parse("7 * --3");

@@ -19,7 +19,7 @@ final class MacroFunctionInfo implements FunctionInfo{
 
 	/**
 	 * @param FunctionInfo $inner
-	 * @param Closure(Parser $parser, string $expression, FunctionCallToken $token, Token[]|Token[][] $args) : (Token[]|null) $resolver
+	 * @param Closure(Parser $parser, string $expression, Token $token, string $function_name, int $argument_count, Token[]|Token[][] $args) : (Token[]|null) $resolver
 	 */
 	public function __construct(
 		public FunctionInfo $inner,
@@ -42,13 +42,13 @@ final class MacroFunctionInfo implements FunctionInfo{
 		return $this->inner->getFlags();
 	}
 
-	public function writeExpressionTokens(Parser $parser, string $expression, FunctionCallToken $token, ExpressionTokenBuilderState $state) : void{
+	public function writeExpressionTokens(Parser $parser, string $expression, Token $token, string $function_name, int $argument_count, ExpressionTokenBuilderState $state) : void{
 		$args_c = $token->getArgumentCount();
 		/** @var Token[]|Token[][] $args */
 		$args = array_slice($state->current_group, $state->current_index - $args_c, $args_c);
-		$result = ($this->resolver)($parser, $expression, $token, $args);
+		$result = ($this->resolver)($parser, $expression, $token, $function_name, $argument_count, $args);
 		if($result === null){
-			$this->inner->writeExpressionTokens($parser, $expression, $token, $state);
+			$this->inner->writeExpressionTokens($parser, $expression, $token, $function_name, $argument_count, $state);
 		}else{
 			if(count($result) === 0){
 				throw new InvalidArgumentException("Macro must return a list of at least one element");

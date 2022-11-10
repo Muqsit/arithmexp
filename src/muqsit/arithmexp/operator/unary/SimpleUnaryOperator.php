@@ -4,24 +4,15 @@ declare(strict_types=1);
 
 namespace muqsit\arithmexp\operator\unary;
 
-use Closure;
-use muqsit\arithmexp\function\FunctionFlags;
+use muqsit\arithmexp\function\FunctionInfo;
 
 final class SimpleUnaryOperator implements UnaryOperator{
 
-	/**
-	 * @param string $symbol
-	 * @param string $name
-	 * @param int $precedence
-	 * @param Closure(int|float) : (int|float) $operator
-	 * @param int-mask-of<FunctionFlags::*> $flags
-	 */
 	public function __construct(
 		private string $symbol,
 		private string $name,
 		private int $precedence,
-		private Closure $operator,
-		private int $flags = 0
+		private FunctionInfo $function
 	){}
 
 	public function getSymbol() : string{
@@ -36,11 +27,7 @@ final class SimpleUnaryOperator implements UnaryOperator{
 		return $this->name;
 	}
 
-	public function getOperator() : Closure{
-		return $this->operator;
-	}
-
-	public function getFlags() : int{
-		return $this->flags;
+	public function getFunction() : FunctionInfo{
+		return $this->function;
 	}
 }

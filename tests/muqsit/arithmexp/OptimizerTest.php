@@ -9,6 +9,7 @@ use muqsit\arithmexp\expression\ConstantExpression;
 use muqsit\arithmexp\expression\RawExpression;
 use muqsit\arithmexp\expression\token\ExpressionToken;
 use muqsit\arithmexp\expression\token\NumericLiteralExpressionToken;
+use muqsit\arithmexp\function\SimpleFunctionInfo;
 use muqsit\arithmexp\operator\assignment\RightOperatorAssignment;
 use muqsit\arithmexp\operator\binary\SimpleBinaryOperator;
 use muqsit\arithmexp\operator\OperatorPrecedence;
@@ -92,7 +93,7 @@ final class OptimizerTest extends TestCase{
 	}
 
 	public function testNonDeterminsticOperatorExclusionFromOptimization() : void{
-		$operator = new SimpleBinaryOperator(":", "Random", OperatorPrecedence::EXPONENTIAL, RightOperatorAssignment::instance(), Closure::fromCallable("mt_rand"));
+		$operator = new SimpleBinaryOperator(":", "Random", OperatorPrecedence::EXPONENTIAL, RightOperatorAssignment::instance(), SimpleFunctionInfo::from(Closure::fromCallable("mt_rand"), 0));
 
 		$this->parser->getOperatorManager()->getBinaryRegistry()->register($operator);
 		$actual = $this->parser->parse("1:4 / 1:4");

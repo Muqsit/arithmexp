@@ -4,8 +4,7 @@ declare(strict_types=1);
 
 namespace muqsit\arithmexp\operator\unary;
 
-use Closure;
-use muqsit\arithmexp\function\FunctionFlags;
+use muqsit\arithmexp\function\FunctionInfo;
 
 interface UnaryOperator{
 
@@ -15,13 +14,5 @@ interface UnaryOperator{
 
 	public function getName() : string;
 
-	/**
-	 * @return Closure(int|float) : (int|float)
-	 */
-	public function getOperator() : Closure;
-
-	/**
-	 * @return int-mask-of<FunctionFlags::*>
-	 */
-	public function getFlags() : int;
+	public function getFunction() : FunctionInfo;
 }

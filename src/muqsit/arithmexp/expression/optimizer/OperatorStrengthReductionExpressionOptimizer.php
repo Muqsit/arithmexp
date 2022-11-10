@@ -177,7 +177,7 @@ final class OperatorStrengthReductionExpressionOptimizer implements ExpressionOp
 			"-" => [
 				new NumericLiteralExpressionToken($token->getPos(), -1),
 				...$operand,
-				new FunctionCallExpressionToken(Util::positionContainingExpressionTokens([...$operand, $operator_token]), $m_op->getSymbol(), 2, $m_op->getOperator(), $m_op->getFlags(), new BinaryOperatorToken($token->getPos(), $m_op->getSymbol()))
+				new FunctionCallExpressionToken(Util::positionContainingExpressionTokens([...$operand, $operator_token]), $m_op->getSymbol(), 2, $m_op->getFunction()->getClosure(), $m_op->getFunction()->getFlags(), new BinaryOperatorToken($token->getPos(), $m_op->getSymbol()))
 			],
 			default => null
 		};
@@ -203,7 +203,7 @@ final class OperatorStrengthReductionExpressionOptimizer implements ExpressionOp
 				$this->valueEquals($right, 2) && !$this->valueEquals($left, 2) => [
 					...$left,
 					...$left,
-					new FunctionCallExpressionToken(Util::positionContainingExpressionTokens($right), $m_op->getSymbol(), 2, $m_op->getOperator(), $m_op->getFlags(), new BinaryOperatorToken($token->getPos(), $m_op->getSymbol()))
+					new FunctionCallExpressionToken(Util::positionContainingExpressionTokens($right), $m_op->getSymbol(), 2, $m_op->getFunction()->getClosure(), $m_op->getFunction()->getFlags(), new BinaryOperatorToken($token->getPos(), $m_op->getSymbol()))
 				],
 				$this->valueEquals($right, 1) => $left,
 				$this->valueEquals($right, 0) => [new NumericLiteralExpressionToken(Util::positionContainingExpressionTokens([...$left, ...$right]), 1)],
@@ -239,7 +239,7 @@ final class OperatorStrengthReductionExpressionOptimizer implements ExpressionOp
 				$this->valueEquals($left, 0) => [
 					new NumericLiteralEXpressionToken(Util::positionContainingExpressionTokens($right), -1),
 					...$right,
-					new FunctionCallExpressionToken(Util::positionContainingExpressionTokens($right), $m_op->getSymbol(), 2, $m_op->getOperator(), $m_op->getFlags(), new BinaryOperatorToken($token->getPos(), $m_op->getSymbol()))
+					new FunctionCallExpressionToken(Util::positionContainingExpressionTokens($right), $m_op->getSymbol(), 2, $m_op->getFunction()->getClosure(), $m_op->getFunction()->getFlags(), new BinaryOperatorToken($token->getPos(), $m_op->getSymbol()))
 				],
 				$this->valueEquals($right, 0) => $left,
 				$this->valueIsNan($left), $this->valueIsNan($right) => [new NumericLiteralExpressionToken(Util::positionContainingExpressionTokens([...$left, ...$right]), NAN)],
@@ -269,7 +269,7 @@ final class OperatorStrengthReductionExpressionOptimizer implements ExpressionOp
 				return [
 					...$right,
 					...$this->flattened($left_tree),
-					new FunctionCallExpressionToken($operator_token->getPos(), $s_op->getSymbol(), 2, $s_op->getOperator(), $s_op->getFlags(), new BinaryOperatorToken($operator_token->getPos(), $s_op->getSymbol()))
+					new FunctionCallExpressionToken($operator_token->getPos(), $s_op->getSymbol(), 2, $s_op->getFunction()->getClosure(), $s_op->getFunction()->getFlags(), new BinaryOperatorToken($operator_token->getPos(), $s_op->getSymbol()))
 				];
 			}
 		}
@@ -283,7 +283,7 @@ final class OperatorStrengthReductionExpressionOptimizer implements ExpressionOp
 				return [
 					...$left,
 					...$this->flattened($right_tree),
-					new FunctionCallExpressionToken($operator_token->getPos(), $s_op->getSymbol(), 2, $s_op->getOperator(), $s_op->getFlags(), new BinaryOperatorToken($operator_token->getPos(), $s_op->getSymbol()))
+					new FunctionCallExpressionToken($operator_token->getPos(), $s_op->getSymbol(), 2, $s_op->getFunction()->getClosure(), $s_op->getFunction()->getFlags(), new BinaryOperatorToken($operator_token->getPos(), $s_op->getSymbol()))
 				];
 			}
 		}
@@ -316,9 +316,9 @@ final class OperatorStrengthReductionExpressionOptimizer implements ExpressionOp
 					...$this->flattened([
 						$left_tree,
 						$right,
-						new FunctionCallExpressionToken($operator_token->getPos(), $a_op->getSymbol(), 2, $a_op->getOperator(), $a_op->getFlags(), new BinaryOperatorToken($operator_token->getPos(), $a_op->getSymbol()))
+						new FunctionCallExpressionToken($operator_token->getPos(), $a_op->getSymbol(), 2, $a_op->getFunction()->getClosure(), $a_op->getFunction()->getFlags(), new BinaryOperatorToken($operator_token->getPos(), $a_op->getSymbol()))
 					]),
-					new FunctionCallExpressionToken($operator_token->getPos(), $m_op->getSymbol(), 2, $m_op->getOperator(), $m_op->getFlags(), new BinaryOperatorToken($operator_token->getPos(), $m_op->getSymbol()))
+					new FunctionCallExpressionToken($operator_token->getPos(), $m_op->getSymbol(), 2, $m_op->getFunction()->getClosure(), $m_op->getFunction()->getFlags(), new BinaryOperatorToken($operator_token->getPos(), $m_op->getSymbol()))
 				];
 			}
 		}
@@ -333,7 +333,7 @@ final class OperatorStrengthReductionExpressionOptimizer implements ExpressionOp
 				return [
 					...$left,
 					...$this->flattened($right_tree),
-					new FunctionCallExpressionToken($operator_token->getPos(), $a_op->getSymbol(), 2, $a_op->getOperator(), $a_op->getFlags(), new BinaryOperatorToken($operator_token->getPos(), $a_op->getSymbol()))
+					new FunctionCallExpressionToken($operator_token->getPos(), $a_op->getSymbol(), 2, $a_op->getFunction()->getClosure(), $a_op->getFunction()->getFlags(), new BinaryOperatorToken($operator_token->getPos(), $a_op->getSymbol()))
 				];
 			}
 		}
@@ -441,9 +441,9 @@ final class OperatorStrengthReductionExpressionOptimizer implements ExpressionOp
 						[
 							$left_tree[1],
 							$right_tree[1],
-							new FunctionCallExpressionToken(Util::positionContainingExpressionTokens([...$lvalue, ...$rvalue]), $s_op->getSymbol(), 2, $s_op->getOperator(), $s_op->getFlags(), new BinaryOperatorToken($operator_token->getPos(), $s_op->getSymbol()))
+							new FunctionCallExpressionToken(Util::positionContainingExpressionTokens([...$lvalue, ...$rvalue]), $s_op->getSymbol(), 2, $s_op->getFunction()->getClosure(), $s_op->getFunction()->getFlags(), new BinaryOperatorToken($operator_token->getPos(), $s_op->getSymbol()))
 						],
-						new FunctionCallExpressionToken($operator_token->getPos(), $e_op->getSymbol(), 2, $e_op->getOperator(), $e_op->getFlags(), new BinaryOperatorToken($operator_token->getPos(), $e_op->getSymbol()))
+						new FunctionCallExpressionToken($operator_token->getPos(), $e_op->getSymbol(), 2, $e_op->getFunction()->getClosure(), $e_op->getFunction()->getFlags(), new BinaryOperatorToken($operator_token->getPos(), $e_op->getSymbol()))
 					]),
 					[new NumericLiteralExpressionToken(Util::positionContainingExpressionTokens($right_operand), 1)]
 				];

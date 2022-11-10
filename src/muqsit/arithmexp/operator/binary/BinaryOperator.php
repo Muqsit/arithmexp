@@ -4,8 +4,7 @@ declare(strict_types=1);
 
 namespace muqsit\arithmexp\operator\binary;
 
-use Closure;
-use muqsit\arithmexp\function\FunctionFlags;
+use muqsit\arithmexp\function\FunctionInfo;
 use muqsit\arithmexp\operator\assignment\OperatorAssignment;
 
 interface BinaryOperator{
@@ -18,13 +17,5 @@ interface BinaryOperator{
 
 	public function getAssignment() : OperatorAssignment;
 
-	/**
-	 * @return Closure(int|float, int|float) : (int|float)
-	 */
-	public function getOperator() : Closure;
-
-	/**
-	 * @return int-mask-of<FunctionFlags::*>
-	 */
-	public function getFlags() : int;
+	public function getFunction() : FunctionInfo;
 }
