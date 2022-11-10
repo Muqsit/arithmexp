@@ -26,30 +26,35 @@ final class ReorderExpressionOptimizer implements ExpressionOptimizer{
 
 	public function run(Parser $parser, Expression $expression) : Expression{
 		$postfix_expression_tokens = $expression->getPostfixExpressionTokens();
-		$tree = Util::expressionTokenArrayToTree($postfix_expression_tokens);
+		$tree = Util::expressionTokenArrayToTree($parser, $postfix_expression_tokens);
 		$changed = false;
 		foreach(Util::traverseNestedArray($tree) as &$entry){
 			$index = array_key_last($entry);
-			if($index === null){
+			if($index === null || !($entry[$index] instanceof ExpressionToken)){
 				continue;
 			}
 
-			$token = $entry[$index];
-			if(!($token instanceof FunctionCallExpressionToken) || ($token->flags & FunctionFlags::COMMUTATIVE) === 0){
+			$token = Util::asFunctionCallExpressionToken($parser, $entry[$index]);
+			if($token === null){
+				continue;
+			}
+
+			if(($token->flags & FunctionFlags::COMMUTATIVE) === 0){
 				continue;
 			}
 
 			$updated = array_values($entry); // copy &array
-			Util::flattenArray($updated, static fn(array $e) : bool => count($e) > 2 && (
+			Util::flattenArray($updated, static fn(array $e) : bool => count($e) > 2 &&
 				($index = array_key_last($e)) !== null &&
-				$e[$index] instanceof FunctionCallExpressionToken &&
-				($e[$index]->flags & FunctionFlags::COMMUTATIVE) > 0 &&
-				$e[$index]->function === $token->function
-			));
+				$e[$index] instanceof ExpressionToken &&
+				($other_token = Util::asFunctionCallExpressionToken($parser, $e[$index])) !== null &&
+				($other_token->flags & FunctionFlags::COMMUTATIVE) > 0 &&
+				$other_token->function === $token->function
+			);
 			usort($updated, fn(ExpressionToken|array $a, ExpressionToken|array $b) : int => match(true){
 				is_array($a) => is_array($b) ? 0 : -1,
 				is_array($b) => 1,
-				default => $this->compare($a, $b)
+				default => $this->compare(Util::asFunctionCallExpressionToken($parser, $a) ?? $a, Util::asFunctionCallExpressionToken($parser, $b) ?? $b)
 			});
 			if($updated !== $entry){
 				$entry = $updated;

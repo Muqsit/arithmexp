@@ -37,10 +37,12 @@ final class OpcodeToken extends SimpleToken{
 	/**
 	 * @param Position $position
 	 * @param self::OP_* $code
+	 * @param Token|null $parent
 	 */
 	public function __construct(
 		Position $position,
-		private int $code
+		private int $code,
+		private ?Token $parent = null
 	){
 		parent::__construct(TokenType::OPCODE(), $position);
 	}
@@ -53,11 +55,11 @@ final class OpcodeToken extends SimpleToken{
 	}
 
 	public function repositioned(Position $position) : self{
-		return new self($position, $this->code);
+		return new self($position, $this->code, $this->parent);
 	}
 
 	public function writeExpressionTokens(ExpressionTokenBuilderState $state) : void{
-		$state->current_group[$state->current_index] = new OpcodeExpressionToken($this->position, $this->code);
+		$state->current_group[$state->current_index] = new OpcodeExpressionToken($this->position, $this->code, $this->parent);
 	}
 
 	public function __debugInfo() : array{

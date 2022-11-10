@@ -9,7 +9,6 @@ use InvalidArgumentException;
 use muqsit\arithmexp\expression\token\FunctionCallExpressionToken;
 use muqsit\arithmexp\Parser;
 use muqsit\arithmexp\token\builder\ExpressionTokenBuilderState;
-use muqsit\arithmexp\token\FunctionCallToken;
 use muqsit\arithmexp\token\Token;
 use ReflectionFunction;
 use ReflectionParameter;

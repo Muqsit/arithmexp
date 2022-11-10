@@ -8,7 +8,10 @@ use Closure;
 use Generator;
 use muqsit\arithmexp\expression\token\ExpressionToken;
 use muqsit\arithmexp\expression\token\FunctionCallExpressionToken;
+use muqsit\arithmexp\expression\token\OpcodeExpressionToken;
+use muqsit\arithmexp\token\BinaryOperatorToken;
 use muqsit\arithmexp\token\Token;
+use muqsit\arithmexp\token\UnaryOperatorToken;
 use function array_map;
 use function array_slice;
 use function array_splice;
@@ -66,20 +69,40 @@ final class Util{
 		}
 	}
 
+	public static function asFunctionCallExpressionToken(Parser $parser, ExpressionToken $token) : ?FunctionCallExpressionToken{
+		if($token instanceof FunctionCallExpressionToken){
+			return $token;
+		}
+		if($token instanceof OpcodeExpressionToken){
+			$previous = $token->parent;
+			if($previous instanceof BinaryOperatorToken){
+				$function_info = $parser->getOperatorManager()->getBinaryRegistry()->get($previous->getOperator())->getFunction();
+				return new FunctionCallExpressionToken($token->getPos(), $previous->getOperator(), 2, $function_info->getClosure(), $function_info->getFlags(), $token->parent);
+			}
+			if($previous instanceof UnaryOperatorToken){
+				$function_info = $parser->getOperatorManager()->getUnaryRegistry()->get($previous->getOperator())->getFunction();
+				return new FunctionCallExpressionToken($token->getPos(), $previous->getOperator(), 1, $function_info->getClosure(), $function_info->getFlags(), $token->parent);
+			}
+		}
+		return null;
+	}
+
 	/**
+	 * @param Parser $parser
 	 * @param ExpressionToken[] $postfix_expression_tokens
 	 * @param int $offset
 	 * @param int|null $length
 	 * @return ExpressionToken[]|ExpressionToken[][]|ExpressionToken[][][]|ExpressionToken[][][][]
 	 */
-	public static function expressionTokenArrayToTree(array $postfix_expression_tokens, int $offset = 0, ?int $length = null) : array{
+	public static function expressionTokenArrayToTree(Parser $parser, array $postfix_expression_tokens, int $offset = 0, ?int $length = null) : array{
 		$length ??= count($postfix_expression_tokens);
 		$tree = [];
 		for($i = $offset; $i < $length; ++$i){
 			$operand = $postfix_expression_tokens[$i];
 			$tree[] = $operand;
-			if($operand instanceof FunctionCallExpressionToken){
-				$replace = $operand->argument_count + 1;
+			$token = self::asFunctionCallExpressionToken($parser, $operand);
+			if($token !== null){
+				$replace = $token->argument_count + 1;
 				$args = array_slice($tree, -$replace, $replace);
 				array_splice($tree, -$replace, $replace, count($args) === 1 ? $args : [$args]);
 			}

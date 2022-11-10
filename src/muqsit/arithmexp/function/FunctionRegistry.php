@@ -9,7 +9,6 @@ use InvalidArgumentException;
 use muqsit\arithmexp\ParseException;
 use muqsit\arithmexp\Parser;
 use muqsit\arithmexp\token\BinaryOperatorToken;
-use muqsit\arithmexp\token\FunctionCallToken;
 use muqsit\arithmexp\token\NumericLiteralToken;
 use muqsit\arithmexp\token\Token;
 use function assert;
