@@ -67,7 +67,10 @@ final class ConstantFoldingExpressionOptimizer implements ExpressionOptimizer{
 	public function run(Parser $parser, Expression $expression) : Expression{
 		$postfix_expression_tokens = $expression->getPostfixExpressionTokens();
 		if(count($postfix_expression_tokens) === 1 && $postfix_expression_tokens[0]->isDeterministic()){
-			return $expression instanceof ConstantExpression ? $expression : new ConstantExpression($expression->getExpression(), $postfix_expression_tokens[0]->retrieveValue($expression, []));
+			return $expression instanceof ConstantExpression ? $expression : new ConstantExpression(
+				$expression->getExpression(),
+				self::evaluateDeterministicTokens($parser, $expression, $postfix_expression_tokens[0], []) ?? throw new RuntimeException("Expected deterministic expression to return a non-null value")
+			);
 		}
 
 		$postfix_expression_token_tree = Util::expressionTokenArrayToTree($parser, $postfix_expression_tokens);
