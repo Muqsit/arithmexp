@@ -6,17 +6,27 @@ namespace muqsit\arithmexp\operator\unary;
 
 use InvalidArgumentException;
 use muqsit\arithmexp\function\FunctionFlags;
+use muqsit\arithmexp\function\MacroFunctionInfo;
 use muqsit\arithmexp\function\SimpleFunctionInfo;
 use muqsit\arithmexp\operator\ChangeListenableTrait;
 use muqsit\arithmexp\operator\OperatorPrecedence;
+use muqsit\arithmexp\Parser;
+use muqsit\arithmexp\token\OpcodeToken;
+use muqsit\arithmexp\token\Token;
 
 final class UnaryOperatorRegistry{
 	use ChangeListenableTrait;
 
 	public static function createDefault() : self{
 		$registry = new self();
-		$registry->register(new SimpleUnaryOperator("+", "Positive", OperatorPrecedence::UNARY_NEGATIVE_POSITIVE, SimpleFunctionInfo::from(static fn(int|float $x) : int|float => +$x, FunctionFlags::DETERMINISTIC | FunctionFlags::IDEMPOTENT)));
-		$registry->register(new SimpleUnaryOperator("-", "Negative", OperatorPrecedence::UNARY_NEGATIVE_POSITIVE, SimpleFunctionInfo::from(static fn(int|float $x) : int|float => -$x, FunctionFlags::DETERMINISTIC)));
+		$registry->register(new SimpleUnaryOperator("+", "Positive", OperatorPrecedence::UNARY_NEGATIVE_POSITIVE, new MacroFunctionInfo(
+			SimpleFunctionInfo::from(static fn(int|float $x) : int|float => +$x, FunctionFlags::DETERMINISTIC | FunctionFlags::IDEMPOTENT),
+			static fn(Parser $parser, string $expression, Token $token, string $function_name, int $argument_count, array $args) : array => [...$args, new OpcodeToken($token->getPos(), OpcodeToken::OP_UNARY_PVE, $token)]
+		)));
+		$registry->register(new SimpleUnaryOperator("-", "Negative", OperatorPrecedence::UNARY_NEGATIVE_POSITIVE, new MacroFunctionInfo(
+			SimpleFunctionInfo::from(static fn(int|float $x) : int|float => -$x, FunctionFlags::DETERMINISTIC | FunctionFlags::IDEMPOTENT),
+			static fn(Parser $parser, string $expression, Token $token, string $function_name, int $argument_count, array $args) : array => [...$args, new OpcodeToken($token->getPos(), OpcodeToken::OP_UNARY_NVE, $token)]
+		)));
 		return $registry;
 	}
 
