@@ -8,7 +8,6 @@ use Closure;
 use InvalidArgumentException;
 use muqsit\arithmexp\Parser;
 use muqsit\arithmexp\token\builder\ExpressionTokenBuilderState;
-use muqsit\arithmexp\token\FunctionCallToken;
 use muqsit\arithmexp\token\Token;
 use muqsit\arithmexp\Util;
 use function array_slice;
@@ -43,9 +42,8 @@ final class MacroFunctionInfo implements FunctionInfo{
 	}
 
 	public function writeExpressionTokens(Parser $parser, string $expression, Token $token, string $function_name, int $argument_count, ExpressionTokenBuilderState $state) : void{
-		$args_c = $token->getArgumentCount();
 		/** @var Token[]|Token[][] $args */
-		$args = array_slice($state->current_group, $state->current_index - $args_c, $args_c);
+		$args = array_slice($state->current_group, $state->current_index - $argument_count, $argument_count);
 		$result = ($this->resolver)($parser, $expression, $token, $function_name, $argument_count, $args);
 		if($result === null){
 			$this->inner->writeExpressionTokens($parser, $expression, $token, $function_name, $argument_count, $state);
@@ -56,8 +54,8 @@ final class MacroFunctionInfo implements FunctionInfo{
 
 			Util::flattenArray($args);
 			Util::flattenArray($result);
-			array_splice($state->current_group, $state->current_index - $args_c, $args_c + 1, $result);
-			$state->current_index += count($result) - $args_c;
+			array_splice($state->current_group, $state->current_index - $argument_count, $argument_count + 1, $result);
+			$state->current_index += count($result) - $argument_count;
 		}
 	}
 }
