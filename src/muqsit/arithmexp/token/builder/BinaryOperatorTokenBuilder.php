@@ -30,7 +30,7 @@ final class BinaryOperatorTokenBuilder implements TokenBuilder{
 	}
 
 	/**
-	 * @param string[] $operators
+	 * @param list<string> $operators
 	 */
 	public function __construct(
 		private array $operators

@@ -11,7 +11,7 @@ use function is_array;
 final class ArrayPatternMatcher implements PatternMatcher{
 
 	/**
-	 * @param PatternMatcher[] $patterns
+	 * @param list<PatternMatcher> $patterns
 	 */
 	public function __construct(
 		private array $patterns

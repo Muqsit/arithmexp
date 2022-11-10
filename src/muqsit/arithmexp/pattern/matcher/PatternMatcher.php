@@ -9,7 +9,7 @@ use muqsit\arithmexp\expression\token\ExpressionToken;
 interface PatternMatcher{
 
 	/**
-	 * @param ExpressionToken|ExpressionToken[] $entry
+	 * @param ExpressionToken|list<ExpressionToken> $entry
 	 * @return bool
 	 */
 	public function matches(array|ExpressionToken $entry) : bool;

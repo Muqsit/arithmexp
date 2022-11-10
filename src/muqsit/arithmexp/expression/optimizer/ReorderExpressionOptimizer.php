@@ -68,8 +68,6 @@ final class ReorderExpressionOptimizer implements ExpressionOptimizer{
 		}
 
 		Util::flattenArray($tree);
-		/** @var ExpressionToken[] $tree */
-
 		return new RawExpression($expression->getExpression(), $tree);
 	}
 

@@ -16,7 +16,7 @@ final class TokenBuilderState{
 
 	/**
 	 * @param string $expression
-	 * @param Token[] $captured_tokens
+	 * @param list<Token> $captured_tokens
 	 * @param int $offset
 	 * @param int $length
 	 * @param int $unknown_token_seq

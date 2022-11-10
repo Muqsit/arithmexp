@@ -131,7 +131,7 @@ final class Parser{
 	 * token tree.
 	 *
 	 * @param string $expression
-	 * @param Token[] $tokens
+	 * @param list<Token> $tokens
 	 * @throws ParseException
 	 */
 	public function processTokens(string $expression, array &$tokens) : void{
@@ -161,7 +161,7 @@ final class Parser{
 	 * This transforms [LP, NUM, OP, NUM, RP, OP, NUM] to [[NUM, OP, NUM], OP, NUM].
 	 *
 	 * @param string $expression
-	 * @param Token[] $tokens
+	 * @param list<Token> $tokens
 	 * @throws ParseException
 	 */
 	private function deparenthesizeTokens(string $expression, array &$tokens) : void{
@@ -212,7 +212,7 @@ final class Parser{
 	 * together with their operand(s).
 	 *
 	 * @param string $expression
-	 * @param Token[]|Token[][] $tokens
+	 * @param list<Token|list<Token>> $tokens
 	 * @throws ParseException
 	 */
 	private function groupOperatorTokens(string $expression, array &$tokens) : void{
@@ -268,7 +268,7 @@ final class Parser{
 	 * Transforms a given token tree in-place by grouping all function calls with
 	 * their argument list.
 	 *
-	 * @param Token[]|Token[][] $token_tree
+	 * @param list<Token|list<Token>> $token_tree
 	 */
 	private function groupFunctionCallTokens(array &$token_tree) : void{
 		foreach(Util::traverseNestedArray($token_tree) as &$entry){
@@ -290,7 +290,7 @@ final class Parser{
 	 * by their default values.
 	 *
 	 * @param string $expression
-	 * @param Token[]|Token[][] $token_tree
+	 * @param list<Token|list<Token>> $token_tree
 	 * @throws ParseException
 	 */
 	private function transformFunctionCallTokens(string $expression, array &$token_tree) : void{
@@ -380,7 +380,7 @@ final class Parser{
 	/**
 	 * Transforms a given token tree in-place to a postfix representation.
 	 *
-	 * @param Token[]|Token[][] $postfix_token_tree
+	 * @param list<Token|list<Token>> $postfix_token_tree
 	 */
 	public function convertTokenTreeToPostfixTokenTree(array &$postfix_token_tree) : void{
 		$stack = [&$postfix_token_tree];

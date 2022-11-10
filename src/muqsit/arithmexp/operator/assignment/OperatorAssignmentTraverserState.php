@@ -15,7 +15,7 @@ final class OperatorAssignmentTraverserState{
 	public bool $changed = false;
 
 	/**
-	 * @param Token[] $tokens
+	 * @param list<Token> $tokens
 	 */
 	public function __construct(
 		private array &$tokens
@@ -24,7 +24,7 @@ final class OperatorAssignmentTraverserState{
 	/**
 	 * @param int $offset
 	 * @param int $length
-	 * @param Token[]|Token[][] $replacement
+	 * @param list<Token|list<Token>> $replacement
 	 */
 	public function splice(int $offset, int $length, array $replacement) : void{
 		array_splice($this->tokens, $offset, $length, $replacement);

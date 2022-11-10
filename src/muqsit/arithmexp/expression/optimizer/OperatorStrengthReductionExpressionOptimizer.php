@@ -71,8 +71,8 @@ final class OperatorStrengthReductionExpressionOptimizer implements ExpressionOp
 	}
 
 	/**
-	 * @param ExpressionToken|ExpressionToken[]|ExpressionToken[][] $entry
-	 * @return ExpressionToken[]
+	 * @param ExpressionToken|list<ExpressionToken|list<ExpressionToken>> $entry
+	 * @return list<ExpressionToken>
 	 */
 	private function flattened(array|ExpressionToken $entry) : array{
 		if(is_array($entry)){
@@ -88,7 +88,7 @@ final class OperatorStrengthReductionExpressionOptimizer implements ExpressionOp
 		$filter = static fn(ExpressionToken $token) : bool => !$token->isDeterministic();
 
 		$changes = 0;
-		/** @var array{ExpressionToken|ExpressionToken[], ExpressionToken|ExpressionToken[], OpcodeExpressionToken} $entry */
+		/** @var array{ExpressionToken|list<ExpressionToken>, ExpressionToken|list<ExpressionToken>, OpcodeExpressionToken} $entry */
 		foreach(Pattern::findMatching($this->binary_operation_matcher, $postfix_expression_tokens) as &$entry){
 			$left = $this->flattened($entry[0]);
 			$right = $this->flattened($entry[1]);
@@ -104,7 +104,7 @@ final class OperatorStrengthReductionExpressionOptimizer implements ExpressionOp
 		}
 		unset($entry);
 
-		/** @var array{ExpressionToken|ExpressionToken[], OpcodeExpressionToken} $entry */
+		/** @var array{ExpressionToken|list<ExpressionToken>, OpcodeExpressionToken} $entry */
 		foreach(Pattern::findMatching($this->unary_operation_matcher, $postfix_expression_tokens) as &$entry){
 			$operand = $this->flattened($entry[0]);
 			if(count(array_filter($operand, $filter)) === 0){
@@ -127,7 +127,7 @@ final class OperatorStrengthReductionExpressionOptimizer implements ExpressionOp
 	}
 
 	/**
-	 * @param ExpressionToken[] $tokens
+	 * @param list<ExpressionToken> $tokens
 	 * @param int $value
 	 * @return bool
 	 */
@@ -140,7 +140,7 @@ final class OperatorStrengthReductionExpressionOptimizer implements ExpressionOp
 	}
 
 	/**
-	 * @param ExpressionToken[] $tokens
+	 * @param list<ExpressionToken> $tokens
 	 * @return bool
 	 */
 	private function valueIsNan(array $tokens) : bool{
@@ -148,8 +148,8 @@ final class OperatorStrengthReductionExpressionOptimizer implements ExpressionOp
 	}
 
 	/**
-	 * @param ExpressionToken[] $x
-	 * @param ExpressionToken[] $y
+	 * @param list<ExpressionToken> $x
+	 * @param list<ExpressionToken> $y
 	 * @return bool
 	 */
 	private function tokensEqualByReturnValue(array $x, array $y) : bool{
@@ -187,8 +187,8 @@ final class OperatorStrengthReductionExpressionOptimizer implements ExpressionOp
 	/**
 	 * @param Parser $parser
 	 * @param OpcodeExpressionToken $operator_token
-	 * @param ExpressionToken[] $operand
-	 * @return ExpressionToken[]|null
+	 * @param list<ExpressionToken> $operand
+	 * @return list<ExpressionToken>|null
 	 */
 	private function processUnaryExpression(Parser $parser, OpcodeExpressionToken $operator_token, array $operand) : ?array{
 		return match($operator_token->code){
@@ -206,9 +206,9 @@ final class OperatorStrengthReductionExpressionOptimizer implements ExpressionOp
 	 * @param Parser $parser
 	 * @param Expression $expression
 	 * @param OpcodeExpressionToken $operator_token
-	 * @param ExpressionToken[] $left
-	 * @param ExpressionToken[] $right
-	 * @return ExpressionToken[]|null
+	 * @param list<ExpressionToken> $left
+	 * @param list<ExpressionToken> $right
+	 * @return list<ExpressionToken>|null
 	 * @throws ParseException
 	 */
 	private function processBinaryExpression(Parser $parser, Expression $expression, OpcodeExpressionToken $operator_token, array $left, array $right) : ?array{
@@ -268,9 +268,9 @@ final class OperatorStrengthReductionExpressionOptimizer implements ExpressionOp
 	/**
 	 * @param Parser $parser
 	 * @param OpcodeExpressionToken $operator_token
-	 * @param ExpressionToken[] $left
-	 * @param ExpressionToken[] $right
-	 * @return ExpressionToken[]|null
+	 * @param list<ExpressionToken> $left
+	 * @param list<ExpressionToken> $right
+	 * @return list<ExpressionToken>|null
 	 */
 	private function processAddition(Parser $parser, OpcodeExpressionToken $operator_token, array $left, array $right) : ?array{
 		$filter = fn(array $array) : bool => $this->multiplication_operation_matcher->matches($array);
@@ -308,9 +308,9 @@ final class OperatorStrengthReductionExpressionOptimizer implements ExpressionOp
 	/**
 	 * @param Parser $parser
 	 * @param OpcodeExpressionToken $operator_token
-	 * @param ExpressionToken[] $left
-	 * @param ExpressionToken[] $right
-	 * @return ExpressionToken[]|null
+	 * @param list<ExpressionToken> $left
+	 * @param list<ExpressionToken> $right
+	 * @return list<ExpressionToken>|null
 	 */
 	private function processSubtraction(Parser $parser, OpcodeExpressionToken $operator_token, array $left, array $right) : ?array{
 		$filter = fn(array $array) : bool => $this->multiplication_operation_matcher->matches($array);
@@ -355,9 +355,9 @@ final class OperatorStrengthReductionExpressionOptimizer implements ExpressionOp
 	 * @param Parser $parser
 	 * @param Expression $expression
 	 * @param OpcodeExpressionToken $operator_token
-	 * @param ExpressionToken[] $left
-	 * @param ExpressionToken[] $right
-	 * @return ExpressionToken[]|null
+	 * @param list<ExpressionToken> $left
+	 * @param list<ExpressionToken> $right
+	 * @return list<ExpressionToken>|null
 	 */
 	private function processDivision(Parser $parser, Expression $expression, OpcodeExpressionToken $operator_token, array $left, array $right) : ?array{
 		$filter = fn(array $array) : bool => $this->multiplication_operation_matcher->matches($array);
@@ -403,9 +403,9 @@ final class OperatorStrengthReductionExpressionOptimizer implements ExpressionOp
 	 * @param Parser $parser
 	 * @param Expression $expression
 	 * @param OpcodeExpressionToken $operator_token
-	 * @param ExpressionToken[] $left_operand
-	 * @param ExpressionToken[] $right_operand
-	 * @return array{ExpressionToken[], ExpressionToken[]}|null
+	 * @param list<ExpressionToken> $left_operand
+	 * @param list<ExpressionToken> $right_operand
+	 * @return array{list<ExpressionToken>, list<ExpressionToken>}|null
 	 */
 	private function processDivisionBetween(Parser $parser, Expression $expression, OpcodeExpressionToken $operator_token, array $left_operand, array $right_operand) : ?array{
 		// reduce (n1 / n2) to (n / 1) where n1 and n2 are numeric, and n = n1 / n2
@@ -433,8 +433,8 @@ final class OperatorStrengthReductionExpressionOptimizer implements ExpressionOp
 
 		// reduce (x ** y / x ** z) to {[x ** (y - z)] / 1}
 		/**
-		 * @var ExpressionToken[] $left_tree
-		 * @var ExpressionToken[] $right_tree
+		 * @var list<ExpressionToken> $left_tree
+		 * @var list<ExpressionToken> $right_tree
 		 */
 		[$left_tree, $right_tree] = Util::expressionTokenArrayToTree($parser, [...$left_operand, ...$right_operand]);
 		if($this->exponentiation_operation_matcher->matches($left_tree) && $this->exponentiation_operation_matcher->matches($right_tree)){

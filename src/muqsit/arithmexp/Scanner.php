@@ -30,7 +30,7 @@ final class Scanner{
 	}
 
 	/**
-	 * @param TokenBuilder[] $token_scanners
+	 * @param list<TokenBuilder> $token_scanners
 	 */
 	public function __construct(
 		private array $token_scanners
@@ -40,7 +40,7 @@ final class Scanner{
 	 * Scans a given expression and interprets it as a series of tokens.
 	 *
 	 * @param string $expression
-	 * @return Token[]
+	 * @return list<Token>
 	 * @throws ParseException
 	 */
 	public function scan(string $expression) : array{

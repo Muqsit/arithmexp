@@ -12,7 +12,7 @@ use function array_fill_keys;
 final class OpcodePatternMatcher implements PatternMatcher{
 
 	/**
-	 * @param array<OpcodeToken::OP_*> $codes
+	 * @param list<OpcodeToken::OP_*> $codes
 	 * @return self
 	 */
 	public static function setOf(array $codes) : self{

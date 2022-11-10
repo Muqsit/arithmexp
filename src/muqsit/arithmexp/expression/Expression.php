@@ -12,7 +12,7 @@ interface Expression{
 	public function getExpression() : string;
 
 	/**
-	 * @return ExpressionToken[]
+	 * @return list<ExpressionToken>
 	 */
 	public function getPostfixExpressionTokens() : array;
 

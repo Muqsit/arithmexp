@@ -15,13 +15,13 @@ final class ExpressionTokenBuilderState{
 
 	public int $current_index;
 
-	/** @var array<Token|ExpressionToken>|array<array<Token|ExpressionToken>> */
+	/** @var list<Token|ExpressionToken|list<Token|ExpressionToken>> */
 	public array $current_group;
 
 	/**
 	 * @param Parser $parser
 	 * @param string $expression
-	 * @param array<Token|ExpressionToken>|array<array<Token|ExpressionToken>> $tokens
+	 * @param list<Token|ExpressionToken|list<Token|ExpressionToken>> $tokens
 	 */
 	public function __construct(
 		public Parser $parser,

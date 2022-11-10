@@ -22,8 +22,8 @@ final class Util{
 
 	/**
 	 * @template T
-	 * @param T[]|T[][] $array
-	 * @return Generator<T[]>
+	 * @param list<T|list<T>> $array
+	 * @return Generator<list<T>>
 	 */
 	public static function &traverseNestedArray(array &$array) : Generator{
 		$stack = [];
@@ -49,8 +49,9 @@ final class Util{
 
 	/**
 	 * @template T
-	 * @param T[]|T[][] $array
-	 * @param (Closure(T[]) : bool)|null $filter
+	 * @param list<T|list<T>> $array
+	 * @param-out list<T> $array
+	 * @param (Closure(list<T>) : bool)|null $filter
 	 */
 	public static function flattenArray(array &$array, ?Closure $filter = null) : void{
 		$stack = [&$array];
@@ -89,13 +90,14 @@ final class Util{
 
 	/**
 	 * @param Parser $parser
-	 * @param ExpressionToken[] $postfix_expression_tokens
+	 * @param list<ExpressionToken> $postfix_expression_tokens
 	 * @param int $offset
 	 * @param int|null $length
-	 * @return ExpressionToken[]|ExpressionToken[][]|ExpressionToken[][][]|ExpressionToken[][][][]
+	 * @return list<ExpressionToken|list<ExpressionToken>>
 	 */
 	public static function expressionTokenArrayToTree(Parser $parser, array $postfix_expression_tokens, int $offset = 0, ?int $length = null) : array{
 		$length ??= count($postfix_expression_tokens);
+		/** @var list<ExpressionToken|list<ExpressionToken>> $tree */
 		$tree = [];
 		for($i = $offset; $i < $length; ++$i){
 			$operand = $postfix_expression_tokens[$i];
@@ -111,7 +113,7 @@ final class Util{
 	}
 
 	/**
-	 * @param Token[] $tokens
+	 * @param list<Token> $tokens
 	 * @return Position
 	 */
 	public static function positionContainingTokens(array $tokens) : Position{
@@ -119,7 +121,7 @@ final class Util{
 	}
 
 	/**
-	 * @param ExpressionToken[] $tokens
+	 * @param list<ExpressionToken> $tokens
 	 * @return Position
 	 */
 	public static function positionContainingExpressionTokens(array $tokens) : Position{

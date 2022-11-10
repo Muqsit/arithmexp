@@ -23,7 +23,7 @@ final class OperatorManager{
 		);
 	}
 
-	/** @var OperatorList[]|null */
+	/** @var list<OperatorList>|null */
 	private ?array $by_precedence_cached = null;
 
 	public function __construct(
@@ -54,14 +54,14 @@ final class OperatorManager{
 	}
 
 	/**
-	 * @return OperatorList[]
+	 * @return list<OperatorList>
 	 */
 	public function getByPrecedence() : array{
 		return $this->by_precedence_cached ??= $this->sortedByPrecedence();
 	}
 
 	/**
-	 * @return OperatorList[]
+	 * @return list<OperatorList>
 	 */
 	private function sortedByPrecedence() : array{
 		$sorted = [];

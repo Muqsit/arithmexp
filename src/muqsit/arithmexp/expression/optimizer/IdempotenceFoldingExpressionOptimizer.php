@@ -23,6 +23,7 @@ final class IdempotenceFoldingExpressionOptimizer implements ExpressionOptimizer
 		$postfix_expression_token_tree = Util::expressionTokenArrayToTree($parser, $expression->getPostfixExpressionTokens());
 		$changes = 0;
 		do{
+			/** @var list<ExpressionToken|list<ExpressionToken>> $postfix_expression_token_tree */
 			$found = false;
 			foreach(Util::traverseNestedArray($postfix_expression_token_tree) as &$entry){
 				if(!is_array($entry) || !isset($entry[$index = count($entry) - 1]) || !($entry[$index] instanceof ExpressionToken)){

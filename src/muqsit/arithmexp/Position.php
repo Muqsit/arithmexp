@@ -11,7 +11,7 @@ use const PHP_INT_MIN;
 final class Position{
 
 	/**
-	 * @param Position[] $positions
+	 * @param list<Position> $positions
 	 * @return self
 	 */
 	public static function containing(array $positions) : self{

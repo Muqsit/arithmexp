@@ -21,7 +21,7 @@ interface OperatorAssignment{
 
 	/**
 	 * @param OperatorList $list
-	 * @param Token[]|Token[][] $tokens
+	 * @param list<Token|list<Token>> $tokens
 	 * @return Generator<OperatorAssignmentTraverserState>
 	 */
 	public function traverse(OperatorList $list, array &$tokens) : Generator;

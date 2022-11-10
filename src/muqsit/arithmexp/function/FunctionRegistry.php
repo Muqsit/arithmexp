@@ -117,7 +117,7 @@ final class FunctionRegistry{
 	/**
 	 * @param string $identifier
 	 * @param Closure $base
-	 * @param Closure(Parser $parser, string $expression, Token $token, string $function_name, int $argument_count, Token[]|Token[][] $args) : (Token[]|null) $resolver
+	 * @param Closure(Parser $parser, string $expression, Token $token, string $function_name, int $argument_count, list<Token|list<Token>> $args) : (list<Token>|null) $resolver
 	 * @param int-mask-of<FunctionFlags::*> $flags
 	 */
 	public function registerMacro(string $identifier, Closure $base, Closure $resolver, int $flags = 0) : void{

@@ -28,7 +28,7 @@ final class ConstantFoldingExpressionOptimizer implements ExpressionOptimizer{
 	 * @param Parser $parser
 	 * @param Expression $expression
 	 * @param ExpressionToken $token
-	 * @param ExpressionToken[] $arguments
+	 * @param list<ExpressionToken> $arguments
 	 * @return int|float|null
 	 * @throws ParseException
 	 */
