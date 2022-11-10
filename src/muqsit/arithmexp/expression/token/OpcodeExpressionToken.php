@@ -4,11 +4,9 @@ declare(strict_types=1);
 
 namespace muqsit\arithmexp\expression\token;
 
-use muqsit\arithmexp\expression\Expression;
 use muqsit\arithmexp\Position;
 use muqsit\arithmexp\token\OpcodeToken;
 use muqsit\arithmexp\token\Token;
-use RuntimeException;
 
 final class OpcodeExpressionToken implements ExpressionToken{
 
@@ -29,10 +27,6 @@ final class OpcodeExpressionToken implements ExpressionToken{
 
 	public function isDeterministic() : bool{
 		return true;
-	}
-
-	public function retrieveValue(Expression $expression, array $variables) : int|float{
-		throw new RuntimeException("Don't know how to retrieve value of " . self::class);
 	}
 
 	public function equals(ExpressionToken $other) : bool{

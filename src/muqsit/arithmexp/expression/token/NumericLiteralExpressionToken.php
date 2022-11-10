@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace muqsit\arithmexp\expression\token;
 
-use muqsit\arithmexp\expression\Expression;
 use muqsit\arithmexp\Position;
 
 final class NumericLiteralExpressionToken implements ExpressionToken{
@@ -20,10 +19,6 @@ final class NumericLiteralExpressionToken implements ExpressionToken{
 
 	public function isDeterministic() : bool{
 		return true;
-	}
-
-	public function retrieveValue(Expression $expression, array $variables) : int|float{
-		return $this->value;
 	}
 
 	public function equals(ExpressionToken $other) : bool{
