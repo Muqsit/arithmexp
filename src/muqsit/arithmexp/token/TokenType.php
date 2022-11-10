@@ -11,8 +11,9 @@ final class TokenType{
 	public const FUNCTION_CALL_ARGUMENT_SEPARATOR = 2;
 	public const IDENTIFIER = 3;
 	public const NUMERIC_LITERAL = 4;
-	public const PARENTHESIS = 5;
-	public const UNARY_OPERATOR = 6;
+	public const OPCODE = 5;
+	public const PARENTHESIS = 6;
+	public const UNARY_OPERATOR = 7;
 
 	public static function BINARY_OPERATOR() : self{
 		static $instance = null;
@@ -37,6 +38,11 @@ final class TokenType{
 	public static function NUMERIC_LITERAL() : self{
 		static $instance = null;
 		return $instance ??= new self(self::NUMERIC_LITERAL, "Numeric Literal");
+	}
+
+	public static function OPCODE() : self{
+		static $instance = null;
+		return $instance ??= new self(self::NUMERIC_LITERAL, "Opcode");
 	}
 
 	public static function PARENTHESIS() : self{
