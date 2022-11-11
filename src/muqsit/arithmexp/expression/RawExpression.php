@@ -12,48 +12,106 @@ use muqsit\arithmexp\expression\token\VariableExpressionToken;
 use muqsit\arithmexp\token\OpcodeToken;
 use RuntimeException;
 use function array_slice;
+use function assert;
 
 final class RawExpression implements Expression{
-	use GenericExpressionTrait;
+	use GenericExpressionTrait{
+		__construct as __parentConstruct;
+	}
+
+	/** @var list<int> */
+	private array $kind = [];
+
+	public function __construct(string $expression, array $postfix_expression_tokens){
+		$this->__parentConstruct($expression, $postfix_expression_tokens);
+		foreach($postfix_expression_tokens as $token){
+			$this->kind[] = match(true){
+				$token instanceof OpcodeExpressionToken => match($token->code){
+					OpcodeToken::OP_BINARY_ADD => 0,
+					OpcodeToken::OP_BINARY_DIV => 1,
+					OpcodeToken::OP_BINARY_EXP => 2,
+					OpcodeToken::OP_BINARY_MOD => 3,
+					OpcodeToken::OP_BINARY_MUL => 4,
+					OpcodeToken::OP_BINARY_SUB => 5,
+					OpcodeToken::OP_UNARY_NVE => 6,
+					OpcodeToken::OP_UNARY_PVE => 7
+				},
+				$token instanceof NumericLiteralExpressionToken => 8,
+				$token instanceof VariableExpressionToken => 9,
+				$token instanceof FunctionCallExpressionToken => 10,
+				default => -1
+			};
+		}
+	}
 
 	public function evaluate(array $variable_values = []) : int|float{
 		$stack = [];
 		$ptr = -1;
-		foreach($this->postfix_expression_tokens as $token){
-			if($token instanceof OpcodeExpressionToken){
-				$code = $token->code;
-				$rvalue = $stack[$ptr];
-				if($code === OpcodeToken::OP_BINARY_ADD){
+		foreach($this->postfix_expression_tokens as $index => $token){
+			switch($this->kind[$index]){
+				case 0:
+					assert($token instanceof OpcodeExpressionToken);
+					assert($token->code === OpcodeToken::OP_BINARY_ADD);
+					$rvalue = $stack[$ptr];
 					$stack[--$ptr] += $rvalue;
-				}elseif($code === OpcodeToken::OP_BINARY_DIV){
+					break;
+				case 1:
+					assert($token instanceof OpcodeExpressionToken);
+					assert($token->code === OpcodeToken::OP_BINARY_DIV);
+					$rvalue = $stack[$ptr];
 					$stack[--$ptr] /= $rvalue;
-				}elseif($code === OpcodeToken::OP_BINARY_EXP){
+					break;
+				case 2:
+					assert($token instanceof OpcodeExpressionToken);
+					assert($token->code === OpcodeToken::OP_BINARY_EXP);
+					$rvalue = $stack[$ptr];
 					$stack[--$ptr] **= $rvalue;
-				}elseif($code === OpcodeToken::OP_BINARY_MOD){
+					break;
+				case 3:
+					assert($token instanceof OpcodeExpressionToken);
+					assert($token->code === OpcodeToken::OP_BINARY_MOD);
+					$rvalue = $stack[$ptr];
 					$stack[--$ptr] %= $rvalue;
-				}elseif($code === OpcodeToken::OP_BINARY_MUL){
+					break;
+				case 4:
+					assert($token instanceof OpcodeExpressionToken);
+					assert($token->code === OpcodeToken::OP_BINARY_MUL);
+					$rvalue = $stack[$ptr];
 					$stack[--$ptr] *= $rvalue;
-				}elseif($code === OpcodeToken::OP_BINARY_SUB){
+					break;
+				case 5:
+					assert($token instanceof OpcodeExpressionToken);
+					assert($token->code === OpcodeToken::OP_BINARY_SUB);
+					$rvalue = $stack[$ptr];
 					$stack[--$ptr] -= $rvalue;
-				}elseif($code === OpcodeToken::OP_UNARY_NVE){
-					$stack[$ptr] = -$rvalue;
-				}elseif($code === OpcodeToken::OP_UNARY_PVE){
-					$stack[$ptr] = +$rvalue;
-				}else{
-					throw new RuntimeException("Don't know how to evaluate opcode: {$code}");
-				}
-			}elseif($token instanceof NumericLiteralExpressionToken){
-				$stack[++$ptr] = $token->value;
-			}elseif($token instanceof VariableExpressionToken){
-				$stack[++$ptr] = $variable_values[$token->label] ?? throw new InvalidArgumentException("No value supplied for variable \"{$token->label}\" in \"{$this->expression}\"");;
-			}elseif($token instanceof FunctionCallExpressionToken){
-				$ptr -= $token->argument_count - 1;
-				$stack[$ptr] = ($token->function)(...array_slice($stack, $ptr, $token->argument_count));
-			}else{
-				throw new RuntimeException("Don't know how to evaluate " . $token::class);
+					break;
+				case 6:
+					assert($token instanceof OpcodeExpressionToken);
+					assert($token->code === OpcodeToken::OP_UNARY_NVE);
+					$stack[$ptr] = -$stack[$ptr];
+					break;
+				case 7:
+					assert($token instanceof OpcodeExpressionToken);
+					assert($token->code === OpcodeToken::OP_UNARY_PVE);
+					$stack[$ptr] = -$stack[$ptr];
+					break;
+				case 8:
+					assert($token instanceof NumericLiteralExpressionToken);
+					$stack[++$ptr] = $token->value;
+					break;
+				case 9:
+					assert($token instanceof VariableExpressionToken);
+					$stack[++$ptr] = $variable_values[$token->label] ?? throw new InvalidArgumentException("No value supplied for variable \"{$token->label}\" in \"{$this->expression}\"");;
+					break;
+				case 10:
+					assert($token instanceof FunctionCallExpressionToken);
+					$ptr -= $token->argument_count - 1;
+					$stack[$ptr] = ($token->function)(...array_slice($stack, $ptr, $token->argument_count));
+					break;
+				default:
+					throw new RuntimeException("Don't know how to evaluate " . $token::class);
 			}
 		}
-
 		return $stack[$ptr] ?? throw new RuntimeException("Could not evaluate \"{$this->expression}\"");
 	}
 }
