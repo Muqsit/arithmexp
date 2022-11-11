@@ -14,6 +14,11 @@ use RuntimeException;
 use function array_slice;
 use function assert;
 
+/**
+ * Although implementing a postfix expression evaluator is less demanding than what
+ * is done here, this class intends to implement it in a way where evaluation has
+ * the least overhead in PHP.
+ */
 final class RawExpression implements Expression{
 	use GenericExpressionTrait{
 		__construct as __parentConstruct;
