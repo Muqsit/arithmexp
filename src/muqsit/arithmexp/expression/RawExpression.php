@@ -23,19 +23,18 @@ final class RawExpression implements Expression{
 			if($token instanceof OpcodeExpressionToken){
 				$code = $token->code;
 				$rvalue = $stack[$ptr];
-				--$ptr;
 				if($code === OpcodeToken::OP_BINARY_ADD){
-					$stack[$ptr] += $rvalue;
+					$stack[--$ptr] += $rvalue;
 				}elseif($code === OpcodeToken::OP_BINARY_DIV){
-					$stack[$ptr] /= $rvalue;
+					$stack[--$ptr] /= $rvalue;
 				}elseif($code === OpcodeToken::OP_BINARY_EXP){
-					$stack[$ptr] **= $rvalue;
+					$stack[--$ptr] **= $rvalue;
 				}elseif($code === OpcodeToken::OP_BINARY_MOD){
-					$stack[$ptr] %= $rvalue;
+					$stack[--$ptr] %= $rvalue;
 				}elseif($code === OpcodeToken::OP_BINARY_MUL){
-					$stack[$ptr] *= $rvalue;
+					$stack[--$ptr] *= $rvalue;
 				}elseif($code === OpcodeToken::OP_BINARY_SUB){
-					$stack[$ptr] -= $rvalue;
+					$stack[--$ptr] -= $rvalue;
 				}elseif($code === OpcodeToken::OP_UNARY_NVE){
 					$stack[$ptr] = -$rvalue;
 				}elseif($code === OpcodeToken::OP_UNARY_PVE){
