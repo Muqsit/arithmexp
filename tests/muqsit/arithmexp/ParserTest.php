@@ -11,7 +11,6 @@ use muqsit\arithmexp\operator\assignment\LeftOperatorAssignment;
 use muqsit\arithmexp\operator\assignment\RightOperatorAssignment;
 use muqsit\arithmexp\operator\binary\SimpleBinaryOperator;
 use muqsit\arithmexp\token\BinaryOperatorToken;
-use muqsit\arithmexp\token\FunctionCallToken;
 use muqsit\arithmexp\token\NumericLiteralToken;
 use muqsit\arithmexp\token\Token;
 use muqsit\arithmexp\token\UnaryOperatorToken;
@@ -26,6 +25,12 @@ final class ParserTest extends TestCase{
 	protected function setUp() : void{
 		$this->parser = Parser::createDefault();
 		$this->uo_parser = Parser::createUnoptimized();
+	}
+
+	public function testBinaryOperatorsAlongsideUnaryOperators() : void{
+		$vars = ["y" => 6, "x" => 5, "c" => 4, "w" => 3];
+		$expression = $this->uo_parser->parse("y + x + (c * -w) / 2");
+		self::assertEquals($vars["y"] + $vars["x"] + ($vars["c"] * -$vars["w"]) / 2, $expression->evaluate($vars));
 	}
 
 	public function testBinaryOperatorsOfSamePrecedence() : void{
