@@ -433,6 +433,16 @@ final class OptimizerTest extends TestCase{
 		TestUtil::assertExpressionsEqual($expected, $actual);
 	}
 
+	public function testModuloOperatorStrengthReductionForEqualRvalues() : void{
+		$actual = $this->parser->parse("x % y % y");
+		$expected = $this->unoptimized_parser->parse("x % y");
+		TestUtil::assertExpressionsEqual($expected, $actual);
+
+		$actual = $this->parser->parse("x % y % x");
+		$expected = $this->unoptimized_parser->parse("x % y % x");
+		TestUtil::assertExpressionsEqual($expected, $actual);
+	}
+
 	public function testPositiveOperatorStrengthReductionForCommutativeFunctions() : void{
 		$actual = $this->parser->parse("+x");
 		$expected = $this->unoptimized_parser->parse("x");
