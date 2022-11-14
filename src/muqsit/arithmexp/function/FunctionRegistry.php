@@ -68,7 +68,7 @@ final class FunctionRegistry{
 		$registry->registerMacro("max", static function(int|float ...$nums) : int|float{
 			assert(count($nums) >= 2);
 			return max($nums);
-		}, static fn(Parser $parser, string $expression, Token $token, string $function_name, int $argument_count, array $args) : ?array => match(count($args)){
+		}, static fn(Parser $parser, string $expression, Token $token, string $function_name, int $argument_count, array $args) : ?array => match($argument_count){
 			0 => throw ParseException::unresolvableFcallTooLessParams($expression, $token->getPos(), 1, 0),
 			1 => [$args[0]],
 			default => null
@@ -77,7 +77,7 @@ final class FunctionRegistry{
 		$registry->registerMacro("min", static function(int|float ...$nums) : int|float{
 			assert(count($nums) >= 2);
 			return min($nums);
-		}, static fn(Parser $parser, string $expression, Token $token, string $function_name, int $argument_count, array $args) : ?array => match(count($args)){
+		}, static fn(Parser $parser, string $expression, Token $token, string $function_name, int $argument_count, array $args) : ?array => match($argument_count){
 			0 => throw ParseException::unresolvableFcallTooLessParams($expression, $token->getPos(), 1, 0),
 			1 => [$args[0]],
 			default => null
