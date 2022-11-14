@@ -9,6 +9,7 @@ use InvalidArgumentException;
 use muqsit\arithmexp\ParseException;
 use muqsit\arithmexp\Parser;
 use muqsit\arithmexp\token\BinaryOperatorToken;
+use muqsit\arithmexp\token\IdentifierToken;
 use muqsit\arithmexp\token\NumericLiteralToken;
 use muqsit\arithmexp\token\Token;
 use function assert;
@@ -18,6 +19,10 @@ use function max;
 use function min;
 use function mt_getrandmax;
 use function mt_rand;
+use const PHP_ROUND_HALF_DOWN;
+use const PHP_ROUND_HALF_EVEN;
+use const PHP_ROUND_HALF_ODD;
+use const PHP_ROUND_HALF_UP;
 
 final class FunctionRegistry{
 
@@ -47,7 +52,6 @@ final class FunctionRegistry{
 		$registry->register("log1p", Closure::fromCallable("log1p"), FunctionFlags::DETERMINISTIC);
 		$registry->register("log", Closure::fromCallable("log"), FunctionFlags::DETERMINISTIC);
 		$registry->register("rad2deg", Closure::fromCallable("rad2deg"), FunctionFlags::DETERMINISTIC);
-		$registry->register("round", Closure::fromCallable("round"), FunctionFlags::DETERMINISTIC | FunctionFlags::IDEMPOTENT);
 		$registry->register("sin", Closure::fromCallable("sin"), FunctionFlags::DETERMINISTIC);
 		$registry->register("sinh", Closure::fromCallable("sinh"), FunctionFlags::DETERMINISTIC);
 		$registry->register("tan", Closure::fromCallable("tan"), FunctionFlags::DETERMINISTIC);
@@ -92,6 +96,27 @@ final class FunctionRegistry{
 			$args[1],
 			new BinaryOperatorToken($token->getPos(), "**")
 		], FunctionFlags::DETERMINISTIC);
+
+		$registry->registerMacro("round", Closure::fromCallable("round"), static function(Parser $parser, string $expression, Token $token, string $function_name, int $argument_count, array $args) : ?array{
+			if($argument_count !== 3){
+				return null;
+			}
+			$argument = $args[2];
+			if(!($argument instanceof IdentifierToken)){
+				return null;
+			}
+			$replacement = match($argument->getLabel()){
+				"HALF_UP" => PHP_ROUND_HALF_UP,
+				"HALF_DOWN" => PHP_ROUND_HALF_DOWN,
+				"HALF_EVEN" => PHP_ROUND_HALF_EVEN,
+				"HALF_ODD" => PHP_ROUND_HALF_ODD,
+				default => null
+			};
+			if($replacement === null){
+				return null;
+			}
+			return [$args[0], $args[1], new NumericLiteralToken($argument->getPos(), $replacement), $token];
+		}, FunctionFlags::DETERMINISTIC | FunctionFlags::IDEMPOTENT);
 
 		$registry->registerMacro("sqrt", Closure::fromCallable("sqrt"), static fn(Parser $parser, string $expression, Token $token, string $function_name, int $argument_count, array $args) : array => [
 			$args[0],
