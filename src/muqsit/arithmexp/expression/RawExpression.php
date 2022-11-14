@@ -98,7 +98,7 @@ final class RawExpression implements Expression{
 				case 7:
 					assert($token instanceof OpcodeExpressionToken);
 					assert($token->code === OpcodeToken::OP_UNARY_PVE);
-					$stack[$ptr] = -$stack[$ptr];
+					$stack[$ptr] = +$stack[$ptr];
 					break;
 				case 8:
 					assert($token instanceof NumericLiteralExpressionToken);
