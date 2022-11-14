@@ -37,6 +37,7 @@ final class OperatorStrengthReductionExpressionOptimizer implements ExpressionOp
 	private PatternMatcher $any_non_numeric_matcher;
 	private PatternMatcher $binary_operation_matcher;
 	private PatternMatcher $unary_operation_matcher;
+	private PatternMatcher $modulo_operation_matcher;
 	private PatternMatcher $multiplication_operation_matcher;
 	private PatternMatcher $exponentiation_operation_matcher;
 
@@ -57,6 +58,11 @@ final class OperatorStrengthReductionExpressionOptimizer implements ExpressionOp
 		$this->unary_operation_matcher = new ArrayPatternMatcher([
 			AnyPatternMatcher::instance(),
 			OpcodePatternMatcher::setOf([OpcodeToken::OP_UNARY_NVE, OpcodeToken::OP_UNARY_PVE])
+		]);
+		$this->modulo_operation_matcher = new ArrayPatternMatcher([
+			AnyPatternMatcher::instance(),
+			AnyPatternMatcher::instance(),
+			OpcodePatternMatcher::setOf([OpcodeToken::OP_BINARY_MOD])
 		]);
 		$this->multiplication_operation_matcher = new ArrayPatternMatcher([
 			AnyPatternMatcher::instance(),
@@ -242,7 +248,7 @@ final class OperatorStrengthReductionExpressionOptimizer implements ExpressionOp
 			OpcodeToken::OP_BINARY_MOD => match(true){
 				$this->valueEquals($right, 0) => throw ParseException::unresolvableExpressionModuloByZero($expression->getExpression(), Util::positionContainingExpressionTokens($right)),
 				$this->valueEquals($right, 1) => [new NumericLiteralExpressionToken(Util::positionContainingExpressionTokens([...$left, ...$right]), 0)],
-				default => null
+				default => $this->processModulo($parser, $expression, $operator_token, $left, $right)
 			},
 			OpcodeToken::OP_BINARY_ADD => match(true){
 				$this->valueEquals($left, 0) => $right,
@@ -345,6 +351,27 @@ final class OperatorStrengthReductionExpressionOptimizer implements ExpressionOp
 					...$this->flattened($right_tree),
 					$this->buildOpcodeToken($parser, $operator_token->getPos(), OpcodeToken::OP_BINARY_ADD)
 				];
+			}
+		}
+
+		return null;
+	}
+
+	/**
+	 * @param Parser $parser
+	 * @param Expression $expression
+	 * @param OpcodeExpressionToken $operator_token
+	 * @param list<ExpressionToken> $left
+	 * @param list<ExpressionToken> $right
+	 * @return list<ExpressionToken>|null
+	 */
+	private function processModulo(Parser $parser, Expression $expression, OpcodeExpressionToken $operator_token, array $left, array $right) : ?array{
+		// reduce (x % y) % y to (x % y)
+		[$left_tree] = Util::expressionTokenArrayToTree($parser, $left);
+		if($this->modulo_operation_matcher->matches($left_tree)){
+			$left_rvalue = $this->flattened($left_tree[1]);
+			if($this->tokensEqualByReturnValue($left_rvalue, $right)){
+				return $left;
 			}
 		}
 
