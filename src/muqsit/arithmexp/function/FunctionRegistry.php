@@ -48,16 +48,11 @@ final class FunctionRegistry{
 		$registry->register("log", Closure::fromCallable("log"), FunctionFlags::DETERMINISTIC);
 		$registry->register("mt_rand", static fn(int $min, int $max) : int => mt_rand($min, $max));
 		$registry->register("rad2deg", Closure::fromCallable("rad2deg"), FunctionFlags::DETERMINISTIC);
-		$registry->register("rand", Closure::fromCallable("rand"));
 		$registry->register("round", Closure::fromCallable("round"), FunctionFlags::DETERMINISTIC | FunctionFlags::IDEMPOTENT);
 		$registry->register("sin", Closure::fromCallable("sin"), FunctionFlags::DETERMINISTIC);
 		$registry->register("sinh", Closure::fromCallable("sinh"), FunctionFlags::DETERMINISTIC);
 		$registry->register("tan", Closure::fromCallable("tan"), FunctionFlags::DETERMINISTIC);
 		$registry->register("tanh", Closure::fromCallable("tanh"), FunctionFlags::DETERMINISTIC);
-
-		$registry->registerMacro("getrandmax", Closure::fromCallable("getrandmax"), static fn(Parser $parser, string $expression, Token $token, string $function_name, int $argument_count, array $args) : array => [
-			new NumericLiteralToken($token->getPos(), getrandmax())
-		], FunctionFlags::DETERMINISTIC);
 
 		$registry->registerMacro("mt_getrandmax", Closure::fromCallable("mt_getrandmax"), static fn(Parser $parser, string $expression, Token $token, string $function_name, int $argument_count, array $args) : array => [
 			new NumericLiteralToken($token->getPos(), mt_getrandmax())
