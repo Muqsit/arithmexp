@@ -213,6 +213,20 @@ final class ParserTest extends TestCase{
 		TestUtil::assertParserThrows($this->parser, "mt_rand(x, y, z)", ParseException::ERR_UNRESOLVABLE_FCALL, 0, 16);
 	}
 
+	public function testRoundFunctionCallModeConstants() : void{
+		self::assertEquals(["HALF_UP", "HALF_DOWN", "HALF_ODD", "HALF_EVEN"], [
+			...$this->parser->parse("round(HALF_UP)")->findVariables(),
+			...$this->parser->parse("round(HALF_DOWN)")->findVariables(),
+			...$this->parser->parse("round(HALF_ODD)")->findVariables(),
+			...$this->parser->parse("round(HALF_EVEN)")->findVariables()
+		]);
+
+		self::assertEquals(4.0, $this->parser->parse("round(3.5, 0, HALF_UP)")->evaluate());
+		self::assertEquals(3.0, $this->parser->parse("round(3.5, 0, HALF_DOWN)")->evaluate());
+		self::assertEquals(3.0, $this->parser->parse("round(3.5, 0, HALF_ODD)")->evaluate());
+		self::assertEquals(4.0, $this->parser->parse("round(3.5, 0, HALF_EVEN)")->evaluate());
+	}
+
 	public function testArgumentSeparatorOutsideFunctionCall() : void{
 		TestUtil::assertParserThrows($this->parser, "2 + 3 * (4, 5) / 6", ParseException::ERR_UNEXPECTED_TOKEN, 10, 11);
 	}
