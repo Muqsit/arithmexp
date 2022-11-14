@@ -206,6 +206,13 @@ final class ParserTest extends TestCase{
 		TestUtil::assertParserThrows($this->parser, "x + fn(3, 2, 1) * y", ParseException::ERR_UNRESOLVABLE_FCALL, 4, 15);
 	}
 
+	public function testMtRandFunctionCall() : void{
+		self::assertIsInt($this->parser->parse("mt_rand()")->evaluate());
+		TestUtil::assertParserThrows($this->parser, "mt_rand(x)", ParseException::ERR_UNRESOLVABLE_FCALL, 0, 10);
+		self::assertIsInt($this->parser->parse("mt_rand(1, 2)")->evaluate());
+		TestUtil::assertParserThrows($this->parser, "mt_rand(x, y, z)", ParseException::ERR_UNRESOLVABLE_FCALL, 0, 16);
+	}
+
 	public function testArgumentSeparatorOutsideFunctionCall() : void{
 		TestUtil::assertParserThrows($this->parser, "2 + 3 * (4, 5) / 6", ParseException::ERR_UNEXPECTED_TOKEN, 10, 11);
 	}
