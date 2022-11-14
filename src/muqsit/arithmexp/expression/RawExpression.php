@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace muqsit\arithmexp\expression;
 
 use InvalidArgumentException;
+use muqsit\arithmexp\expression\token\ExpressionToken;
 use muqsit\arithmexp\expression\token\FunctionCallExpressionToken;
 use muqsit\arithmexp\expression\token\NumericLiteralExpressionToken;
 use muqsit\arithmexp\expression\token\OpcodeExpressionToken;
@@ -24,13 +25,19 @@ final class RawExpression implements Expression{
 		__construct as __parentConstruct;
 	}
 
-	/** @var list<int> */
-	private array $kind = [];
+	/** @var array<int, ExpressionToken> */
+	private array $by_kind = [];
 
+	/**
+	 * @param string $expression
+	 * @param list<ExpressionToken> $postfix_expression_tokens
+	 */
 	public function __construct(string $expression, array $postfix_expression_tokens){
 		$this->__parentConstruct($expression, $postfix_expression_tokens);
+
+		$i = 0;
 		foreach($postfix_expression_tokens as $token){
-			$this->kind[] = match(true){
+			$this->by_kind[($i++ << 4) | match(true){
 				$token instanceof OpcodeExpressionToken => match($token->code){
 					OpcodeToken::OP_BINARY_ADD => 0,
 					OpcodeToken::OP_BINARY_DIV => 1,
@@ -44,16 +51,16 @@ final class RawExpression implements Expression{
 				$token instanceof NumericLiteralExpressionToken => 8,
 				$token instanceof VariableExpressionToken => 9,
 				$token instanceof FunctionCallExpressionToken => 10,
-				default => -1
-			};
+				default => 15
+			}] = $token;
 		}
 	}
 
 	public function evaluate(array $variable_values = []) : int|float{
 		$stack = [];
 		$ptr = -1;
-		foreach($this->postfix_expression_tokens as $index => $token){
-			switch($this->kind[$index]){
+		foreach($this->by_kind  as $index => $token){
+			switch($index & 15){
 				case 0:
 					assert($token instanceof OpcodeExpressionToken);
 					assert($token->code === OpcodeToken::OP_BINARY_ADD);
