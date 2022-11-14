@@ -24,9 +24,11 @@ use function sort;
 final class ExpressionTest extends TestCase{
 
 	private Parser $parser;
+	private Parser $uo_parser;
 
 	protected function setUp() : void{
 		$this->parser = Parser::createDefault();
+		$this->uo_parser = Parser::createDefault();
 	}
 
 	public function testUndefinedVariable() : void{
@@ -86,6 +88,11 @@ final class ExpressionTest extends TestCase{
 	}
 
 	public function testUnaryOperatorsInSequence() : void{
+		self::assertEquals(1, $this->uo_parser->parse("--1")->evaluate());
+		self::assertEquals(-1, $this->uo_parser->parse("-+1")->evaluate());
+		self::assertEquals(1, $this->uo_parser->parse("-+-1")->evaluate());
+		self::assertEquals(-1, $this->uo_parser->parse("---1")->evaluate());
+
 		self::assertEquals(1, $this->parser->parse("--1")->evaluate());
 		self::assertEquals(-1, $this->parser->parse("-+1")->evaluate());
 		self::assertEquals(1, $this->parser->parse("-+-1")->evaluate());
