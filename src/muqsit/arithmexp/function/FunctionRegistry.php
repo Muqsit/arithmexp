@@ -46,13 +46,20 @@ final class FunctionRegistry{
 		$registry->register("log10", Closure::fromCallable("log10"), FunctionFlags::DETERMINISTIC);
 		$registry->register("log1p", Closure::fromCallable("log1p"), FunctionFlags::DETERMINISTIC);
 		$registry->register("log", Closure::fromCallable("log"), FunctionFlags::DETERMINISTIC);
-		$registry->register("mt_rand", static fn(int $min, int $max) : int => mt_rand($min, $max));
 		$registry->register("rad2deg", Closure::fromCallable("rad2deg"), FunctionFlags::DETERMINISTIC);
 		$registry->register("round", Closure::fromCallable("round"), FunctionFlags::DETERMINISTIC | FunctionFlags::IDEMPOTENT);
 		$registry->register("sin", Closure::fromCallable("sin"), FunctionFlags::DETERMINISTIC);
 		$registry->register("sinh", Closure::fromCallable("sinh"), FunctionFlags::DETERMINISTIC);
 		$registry->register("tan", Closure::fromCallable("tan"), FunctionFlags::DETERMINISTIC);
 		$registry->register("tanh", Closure::fromCallable("tanh"), FunctionFlags::DETERMINISTIC);
+
+		$registry->registerMacro("mt_rand", static function(int ...$args) : int{
+			assert(count($args) === 0 || count($args) === 2);
+			return mt_rand(...$args);
+		}, static fn(Parser $parser, string $expression, Token $token, string $function_name, int $argument_count, array $args) : ?array => $argument_count === 0 || $argument_count === 2 ? null : throw ($argument_count > 2 ?
+			ParseException::unresolvableFcallTooManyParams($expression, $token->getPos(), $parser->getFunctionRegistry()->get($function_name), $argument_count) :
+			ParseException::unresolvableFcallTooLessParams($expression, $token->getPos(), 2, $argument_count)
+		));
 
 		$registry->registerMacro("mt_getrandmax", Closure::fromCallable("mt_getrandmax"), static fn(Parser $parser, string $expression, Token $token, string $function_name, int $argument_count, array $args) : array => [
 			new NumericLiteralToken($token->getPos(), mt_getrandmax())
