@@ -215,7 +215,7 @@ final class ExpressionTest extends TestCase{
 
 	public function testNonstandardConstant() : void{
 		$c = 299_792_458;
-		$this->parser->getConstantRegistry()->register("c", $c);
+		$this->parser->getConstantRegistry()->registerLabel("c", $c);
 		$expression = $this->parser->parse("5.57 * c / -12.3 + 3 / c");
 		self::assertEquals(5.57 * $c / -12.3 + 3 / $c, $expression->evaluate());
 	}
