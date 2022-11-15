@@ -14,7 +14,6 @@ use muqsit\arithmexp\token\NumericLiteralToken;
 use muqsit\arithmexp\token\Token;
 use function assert;
 use function count;
-use function getrandmax;
 use function max;
 use function min;
 use function mt_getrandmax;
