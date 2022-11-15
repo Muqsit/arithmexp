@@ -2,10 +2,11 @@
 
 declare(strict_types=1);
 
-namespace muqsit\arithmexp\constant;
+namespace muqsit\arithmexp\macro;
 
 use Closure;
 use InvalidArgumentException;
+use muqsit\arithmexp\constant\ConstantInfo;
 use muqsit\arithmexp\Parser;
 use muqsit\arithmexp\token\builder\ExpressionTokenBuilderState;
 use muqsit\arithmexp\token\IdentifierToken;

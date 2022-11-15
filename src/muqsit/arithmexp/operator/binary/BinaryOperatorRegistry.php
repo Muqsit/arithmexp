@@ -6,8 +6,8 @@ namespace muqsit\arithmexp\operator\binary;
 
 use InvalidArgumentException;
 use muqsit\arithmexp\function\FunctionFlags;
-use muqsit\arithmexp\function\MacroFunctionInfo;
 use muqsit\arithmexp\function\SimpleFunctionInfo;
+use muqsit\arithmexp\macro\MacroFunctionInfo;
 use muqsit\arithmexp\operator\assignment\LeftOperatorAssignment;
 use muqsit\arithmexp\operator\assignment\RightOperatorAssignment;
 use muqsit\arithmexp\operator\ChangeListenableTrait;

@@ -107,7 +107,7 @@ final class ParserTest extends TestCase{
 	}
 
 	public function testFunctionLikeMacroArgumentParser() : void{
-		$this->uo_parser->getFunctionRegistry()->registerMacro(
+		$this->uo_parser->getMacroRegistry()->registerFunction(
 			"fn",
 			static fn(int|float $x, int|float $y = 4, int|float $z = 16) : int|float => 0,
 			static fn(Parser $parser, string $expression, Token $token, string $function_name, int $argument_count, array $args) : ?array => null
@@ -137,7 +137,7 @@ final class ParserTest extends TestCase{
 	}
 
 	public function testFunctionLikeMacroArgumentReplacer() : void{
-		$this->uo_parser->getFunctionRegistry()->registerMacro(
+		$this->uo_parser->getMacroRegistry()->registerFunction(
 			"fn",
 			static fn(int|float $x = 0, int|float $y = 4, int|float $z = 16) : int|float => 0,
 			static fn(Parser $parser, string $expression, Token $token, string $function_name, int $argument_count, array $args) : ?array => match(count($args)){
@@ -169,17 +169,17 @@ final class ParserTest extends TestCase{
 	}
 
 	public function testObjectLikeMacroReplacer() : void{
-		$this->uo_parser->getConstantRegistry()->registerMacro("macro_pi", static fn(Parser $parser, string $expression, IdentifierToken $token) : array => [
+		$this->uo_parser->getMacroRegistry()->registerObject("macro_pi", static fn(Parser $parser, string $expression, IdentifierToken $token) : array => [
 			new FunctionCallToken($token->getPos(), "pi", 0)
 		]);
 
-		$this->uo_parser->getConstantRegistry()->registerMacro("macro_2p5", static fn(Parser $parser, string $expression, IdentifierToken $token) : array => [
+		$this->uo_parser->getMacroRegistry()->registerObject("macro_2p5", static fn(Parser $parser, string $expression, IdentifierToken $token) : array => [
 			new NumericLiteralToken($token->getPos(), 2),
 			new NumericLiteralToken($token->getPos(), 5),
 			new BinaryOperatorToken($token->getPos(), "+")
 		]);
 
-		$this->uo_parser->getConstantRegistry()->registerMacro("macro_empty_list", static fn(Parser $parser, string $expression, IdentifierToken $token) : array => []);
+		$this->uo_parser->getMacroRegistry()->registerObject("macro_empty_list", static fn(Parser $parser, string $expression, IdentifierToken $token) : array => []);
 
 		$non_macro_parser = Parser::createUnoptimized();
 		TestUtil::assertExpressionsEqual($non_macro_parser->parse("pi"), $this->uo_parser->parse("macro_pi"));

@@ -2,10 +2,11 @@
 
 declare(strict_types=1);
 
-namespace muqsit\arithmexp\function;
+namespace muqsit\arithmexp\macro;
 
 use Closure;
 use InvalidArgumentException;
+use muqsit\arithmexp\function\FunctionInfo;
 use muqsit\arithmexp\Parser;
 use muqsit\arithmexp\token\builder\ExpressionTokenBuilderState;
 use muqsit\arithmexp\token\Token;
@@ -42,7 +43,7 @@ final class MacroFunctionInfo implements FunctionInfo{
 	}
 
 	public function writeExpressionTokens(Parser $parser, string $expression, Token $token, string $function_name, int $argument_count, ExpressionTokenBuilderState $state) : void{
-		/** @var list<Token|list<Token>> $args */
+		/** @var Token $args */
 		$args = array_slice($state->current_group, $state->current_index - $argument_count, $argument_count);
 		$result = ($this->resolver)($parser, $expression, $token, $function_name, $argument_count, $args);
 		if($result === null){

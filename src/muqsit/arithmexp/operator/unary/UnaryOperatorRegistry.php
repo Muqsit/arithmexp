@@ -6,8 +6,8 @@ namespace muqsit\arithmexp\operator\unary;
 
 use InvalidArgumentException;
 use muqsit\arithmexp\function\FunctionFlags;
-use muqsit\arithmexp\function\MacroFunctionInfo;
 use muqsit\arithmexp\function\SimpleFunctionInfo;
+use muqsit\arithmexp\macro\MacroFunctionInfo;
 use muqsit\arithmexp\operator\ChangeListenableTrait;
 use muqsit\arithmexp\operator\OperatorPrecedence;
 use muqsit\arithmexp\Parser;

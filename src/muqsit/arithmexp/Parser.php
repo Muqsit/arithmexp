@@ -10,6 +10,7 @@ use muqsit\arithmexp\expression\Expression;
 use muqsit\arithmexp\expression\optimizer\ExpressionOptimizerRegistry;
 use muqsit\arithmexp\expression\RawExpression;
 use muqsit\arithmexp\function\FunctionRegistry;
+use muqsit\arithmexp\macro\MacroRegistry;
 use muqsit\arithmexp\operator\OperatorManager;
 use muqsit\arithmexp\token\BinaryOperatorToken;
 use muqsit\arithmexp\token\builder\ExpressionTokenBuilderState;
@@ -35,10 +36,13 @@ final class Parser{
 
 	public static function createDefault() : self{
 		$operator_manager = OperatorManager::createDefault();
+		$constant_registry = ConstantRegistry::createDefault();
+		$function_registry = FunctionRegistry::createDefault();
 		return new self(
 			$operator_manager,
-			ConstantRegistry::createDefault(),
-			FunctionRegistry::createDefault(),
+			$constant_registry,
+			$function_registry,
+			MacroRegistry::createDefault($constant_registry, $function_registry),
 			ExpressionOptimizerRegistry::createDefault(),
 			Scanner::createDefault($operator_manager)
 		);
@@ -50,6 +54,7 @@ final class Parser{
 			$default->operator_manager,
 			$default->constant_registry,
 			$default->function_registry,
+			$default->macro_registry,
 			new ExpressionOptimizerRegistry(),
 			$default->scanner
 		);
@@ -59,6 +64,7 @@ final class Parser{
 		private OperatorManager $operator_manager,
 		private ConstantRegistry $constant_registry,
 		private FunctionRegistry $function_registry,
+		private MacroRegistry $macro_registry,
 		private ExpressionOptimizerRegistry $expression_optimizer_registry,
 		private Scanner $scanner
 	){}
@@ -73,6 +79,10 @@ final class Parser{
 
 	public function getFunctionRegistry() : FunctionRegistry{
 		return $this->function_registry;
+	}
+
+	public function getMacroRegistry() : MacroRegistry{
+		return $this->macro_registry;
 	}
 
 	public function getExpressionOptimizerRegistry() : ExpressionOptimizerRegistry{
