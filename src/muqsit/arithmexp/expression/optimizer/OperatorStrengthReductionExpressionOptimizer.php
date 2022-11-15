@@ -368,7 +368,7 @@ final class OperatorStrengthReductionExpressionOptimizer implements ExpressionOp
 	private function processModulo(Parser $parser, Expression $expression, OpcodeExpressionToken $operator_token, array $left, array $right) : ?array{
 		// reduce (x % y) % y to (x % y)
 		[$left_tree] = Util::expressionTokenArrayToTree($parser, $left);
-		if($this->modulo_operation_matcher->matches($left_tree)){
+		if(is_array($left_tree) && $this->modulo_operation_matcher->matches($left_tree)){
 			$left_rvalue = $this->flattened($left_tree[1]);
 			if($this->tokensEqualByReturnValue($left_rvalue, $right)){
 				return $left;
