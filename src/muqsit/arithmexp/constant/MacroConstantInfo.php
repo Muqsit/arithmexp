@@ -10,6 +10,7 @@ use muqsit\arithmexp\token\builder\ExpressionTokenBuilderState;
 use muqsit\arithmexp\token\IdentifierToken;
 use muqsit\arithmexp\token\Token;
 use function array_splice;
+use function count;
 
 final class MacroConstantInfo implements ConstantInfo{
 
@@ -21,6 +22,8 @@ final class MacroConstantInfo implements ConstantInfo{
 	){}
 
 	public function writeExpressionTokens(Parser $parser, string $expression, IdentifierToken $token, ExpressionTokenBuilderState $state) : void{
-		array_splice($state->current_group, $state->current_index, 1, ($this->resolver)($parser, $expression, $token));
+		$result = ($this->resolver)($parser, $expression, $token);
+		array_splice($state->current_group, $state->current_index, 1, $result);
+		$state->current_index += count($result);
 	}
 }
