@@ -112,7 +112,7 @@ final class ParserTest extends TestCase{
 		);
 
 		$non_macro_parser = Parser::createUnoptimized();
-		$non_macro_parser->getFunctionRegistry()->register("fn", static fn(int|float $x, int|float $y = 4, int|float $z = 16) : int|float => 0);
+		$non_macro_parser->getFunctionRegistry()->registerFunction("fn", static fn(int|float $x, int|float $y = 4, int|float $z = 16) : int|float => 0);
 
 		TestUtil::assertParserThrows($this->uo_parser, "fn()", ParseException::ERR_UNRESOLVABLE_FCALL, 0, 4);
 		TestUtil::assertExpressionsEqual($non_macro_parser->parse("fn(x)"), $this->uo_parser->parse("fn(x)"));
@@ -155,7 +155,7 @@ final class ParserTest extends TestCase{
 		);
 
 		$non_macro_parser = Parser::createUnoptimized();
-		$non_macro_parser->getFunctionRegistry()->register("fn", static fn(int|float $x = 0, int|float $y = 4, int|float $z = 16) : int|float => 0);
+		$non_macro_parser->getFunctionRegistry()->registerFunction("fn", static fn(int|float $x = 0, int|float $y = 4, int|float $z = 16) : int|float => 0);
 
 		TestUtil::assertExpressionsEqual($non_macro_parser->parse((string) M_PI), $this->uo_parser->parse("fn()"));
 		TestUtil::assertExpressionsEqual($non_macro_parser->parse("-x"), $this->uo_parser->parse("fn(x)"));
@@ -183,17 +183,17 @@ final class ParserTest extends TestCase{
 	}
 
 	public function testBadFunctionCallWithMalformedArgumentList() : void{
-		$this->parser->getFunctionRegistry()->register("fn", static fn(int $x, int $y) : int => $x + $y);
+		$this->parser->getFunctionRegistry()->registerFunction("fn", static fn(int $x, int $y) : int => $x + $y);
 		TestUtil::assertParserThrows($this->parser, "x + fn(2 3) * y", ParseException::ERR_UNEXPECTED_TOKEN, 9, 10);
 	}
 
 	public function testBadFunctionCallWithMissingRequiredTrailingArguments() : void{
-		$this->parser->getFunctionRegistry()->register("fn", static fn(int $x, int $y) : int => $x + $y);
+		$this->parser->getFunctionRegistry()->registerFunction("fn", static fn(int $x, int $y) : int => $x + $y);
 		TestUtil::assertParserThrows($this->parser, "x + fn(2, ) * y", ParseException::ERR_UNRESOLVABLE_FCALL, 4, 11);
 	}
 
 	public function testBadFunctionCallWithMissingRequiredLeadingArguments() : void{
-		$this->parser->getFunctionRegistry()->register("fn", static fn(int $x, int $y) : int => $x + $y);
+		$this->parser->getFunctionRegistry()->registerFunction("fn", static fn(int $x, int $y) : int => $x + $y);
 		TestUtil::assertParserThrows($this->parser, "x + fn(, 2) * y", ParseException::ERR_UNRESOLVABLE_FCALL, 4, 11);
 	}
 
@@ -202,7 +202,7 @@ final class ParserTest extends TestCase{
 	}
 
 	public function testBadFunctionCallWithArgumentOverflow() : void{
-		$this->parser->getFunctionRegistry()->register("fn", static fn(int $x, int $y) : int => $x + $y);
+		$this->parser->getFunctionRegistry()->registerFunction("fn", static fn(int $x, int $y) : int => $x + $y);
 		TestUtil::assertParserThrows($this->parser, "x + fn(3, 2, 1) * y", ParseException::ERR_UNRESOLVABLE_FCALL, 4, 15);
 	}
 

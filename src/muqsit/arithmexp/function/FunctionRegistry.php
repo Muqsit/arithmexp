@@ -27,34 +27,34 @@ final class FunctionRegistry{
 
 	public static function createDefault() : self{
 		$registry = new self();
-		$registry->register("abs", Closure::fromCallable("abs"), FunctionFlags::DETERMINISTIC | FunctionFlags::IDEMPOTENT);
-		$registry->register("acos", Closure::fromCallable("acos"), FunctionFlags::DETERMINISTIC);
-		$registry->register("acosh", Closure::fromCallable("acosh"), FunctionFlags::DETERMINISTIC);
-		$registry->register("asin", Closure::fromCallable("asin"), FunctionFlags::DETERMINISTIC);
-		$registry->register("asinh", Closure::fromCallable("asinh"), FunctionFlags::DETERMINISTIC);
-		$registry->register("atan2", Closure::fromCallable("atan2"), FunctionFlags::DETERMINISTIC);
-		$registry->register("atan", Closure::fromCallable("atan"), FunctionFlags::DETERMINISTIC);
-		$registry->register("atanh", Closure::fromCallable("atanh"), FunctionFlags::DETERMINISTIC);
-		$registry->register("ceil", Closure::fromCallable("ceil"), FunctionFlags::DETERMINISTIC | FunctionFlags::IDEMPOTENT);
-		$registry->register("cos", Closure::fromCallable("cos"), FunctionFlags::DETERMINISTIC);
-		$registry->register("cosh", Closure::fromCallable("cosh"), FunctionFlags::DETERMINISTIC);
-		$registry->register("deg2rad", Closure::fromCallable("deg2rad"), FunctionFlags::DETERMINISTIC);
-		$registry->register("exp", Closure::fromCallable("exp"), FunctionFlags::DETERMINISTIC);
-		$registry->register("expm1", Closure::fromCallable("expm1"), FunctionFlags::DETERMINISTIC);
-		$registry->register("fdiv", Closure::fromCallable("fdiv"), FunctionFlags::DETERMINISTIC);
-		$registry->register("floor", Closure::fromCallable("floor"), FunctionFlags::DETERMINISTIC | FunctionFlags::IDEMPOTENT);
-		$registry->register("fmod", Closure::fromCallable("fmod"), FunctionFlags::DETERMINISTIC);
-		$registry->register("hypot", Closure::fromCallable("hypot"), FunctionFlags::DETERMINISTIC);
-		$registry->register("intdiv", Closure::fromCallable("intdiv"), FunctionFlags::DETERMINISTIC);
-		$registry->register("lcg_value", Closure::fromCallable("lcg_value"));
-		$registry->register("log10", Closure::fromCallable("log10"), FunctionFlags::DETERMINISTIC);
-		$registry->register("log1p", Closure::fromCallable("log1p"), FunctionFlags::DETERMINISTIC);
-		$registry->register("log", Closure::fromCallable("log"), FunctionFlags::DETERMINISTIC);
-		$registry->register("rad2deg", Closure::fromCallable("rad2deg"), FunctionFlags::DETERMINISTIC);
-		$registry->register("sin", Closure::fromCallable("sin"), FunctionFlags::DETERMINISTIC);
-		$registry->register("sinh", Closure::fromCallable("sinh"), FunctionFlags::DETERMINISTIC);
-		$registry->register("tan", Closure::fromCallable("tan"), FunctionFlags::DETERMINISTIC);
-		$registry->register("tanh", Closure::fromCallable("tanh"), FunctionFlags::DETERMINISTIC);
+		$registry->registerFunction("abs", Closure::fromCallable("abs"), FunctionFlags::DETERMINISTIC | FunctionFlags::IDEMPOTENT);
+		$registry->registerFunction("acos", Closure::fromCallable("acos"), FunctionFlags::DETERMINISTIC);
+		$registry->registerFunction("acosh", Closure::fromCallable("acosh"), FunctionFlags::DETERMINISTIC);
+		$registry->registerFunction("asin", Closure::fromCallable("asin"), FunctionFlags::DETERMINISTIC);
+		$registry->registerFunction("asinh", Closure::fromCallable("asinh"), FunctionFlags::DETERMINISTIC);
+		$registry->registerFunction("atan2", Closure::fromCallable("atan2"), FunctionFlags::DETERMINISTIC);
+		$registry->registerFunction("atan", Closure::fromCallable("atan"), FunctionFlags::DETERMINISTIC);
+		$registry->registerFunction("atanh", Closure::fromCallable("atanh"), FunctionFlags::DETERMINISTIC);
+		$registry->registerFunction("ceil", Closure::fromCallable("ceil"), FunctionFlags::DETERMINISTIC | FunctionFlags::IDEMPOTENT);
+		$registry->registerFunction("cos", Closure::fromCallable("cos"), FunctionFlags::DETERMINISTIC);
+		$registry->registerFunction("cosh", Closure::fromCallable("cosh"), FunctionFlags::DETERMINISTIC);
+		$registry->registerFunction("deg2rad", Closure::fromCallable("deg2rad"), FunctionFlags::DETERMINISTIC);
+		$registry->registerFunction("exp", Closure::fromCallable("exp"), FunctionFlags::DETERMINISTIC);
+		$registry->registerFunction("expm1", Closure::fromCallable("expm1"), FunctionFlags::DETERMINISTIC);
+		$registry->registerFunction("fdiv", Closure::fromCallable("fdiv"), FunctionFlags::DETERMINISTIC);
+		$registry->registerFunction("floor", Closure::fromCallable("floor"), FunctionFlags::DETERMINISTIC | FunctionFlags::IDEMPOTENT);
+		$registry->registerFunction("fmod", Closure::fromCallable("fmod"), FunctionFlags::DETERMINISTIC);
+		$registry->registerFunction("hypot", Closure::fromCallable("hypot"), FunctionFlags::DETERMINISTIC);
+		$registry->registerFunction("intdiv", Closure::fromCallable("intdiv"), FunctionFlags::DETERMINISTIC);
+		$registry->registerFunction("lcg_value", Closure::fromCallable("lcg_value"));
+		$registry->registerFunction("log10", Closure::fromCallable("log10"), FunctionFlags::DETERMINISTIC);
+		$registry->registerFunction("log1p", Closure::fromCallable("log1p"), FunctionFlags::DETERMINISTIC);
+		$registry->registerFunction("log", Closure::fromCallable("log"), FunctionFlags::DETERMINISTIC);
+		$registry->registerFunction("rad2deg", Closure::fromCallable("rad2deg"), FunctionFlags::DETERMINISTIC);
+		$registry->registerFunction("sin", Closure::fromCallable("sin"), FunctionFlags::DETERMINISTIC);
+		$registry->registerFunction("sinh", Closure::fromCallable("sinh"), FunctionFlags::DETERMINISTIC);
+		$registry->registerFunction("tan", Closure::fromCallable("tan"), FunctionFlags::DETERMINISTIC);
+		$registry->registerFunction("tanh", Closure::fromCallable("tanh"), FunctionFlags::DETERMINISTIC);
 
 		$registry->registerMacro("mt_rand", static function(int ...$args) : int{
 			assert(count($args) === 0 || count($args) === 2);
@@ -131,13 +131,17 @@ final class FunctionRegistry{
 	public function __construct(){
 	}
 
+	public function register(string $identifier, FunctionInfo $info) : void{
+		$this->registered[$identifier] = $info;
+	}
+
 	/**
 	 * @param string $identifier
 	 * @param Closure $function
 	 * @param int-mask-of<FunctionFlags::*> $flags
 	 */
-	public function register(string $identifier, Closure $function, int $flags = 0) : void{
-		$this->registered[$identifier] = SimpleFunctionInfo::from($function, $flags);
+	public function registerFunction(string $identifier, Closure $function, int $flags = 0) : void{
+		$this->register($identifier, SimpleFunctionInfo::from($function, $flags));
 	}
 
 	/**
@@ -147,7 +151,7 @@ final class FunctionRegistry{
 	 * @param int-mask-of<FunctionFlags::*> $flags
 	 */
 	public function registerMacro(string $identifier, Closure $base, Closure $resolver, int $flags = 0) : void{
-		$this->registered[$identifier] = new MacroFunctionInfo(SimpleFunctionInfo::from($base, $flags), $resolver);
+		$this->register($identifier, new MacroFunctionInfo(SimpleFunctionInfo::from($base, $flags), $resolver));
 	}
 
 	public function get(string $identifier) : FunctionInfo{
