@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace muqsit\arithmexp\expression;
 
-use Closure;
 use const INF;
 use const M_1_PI;
 use const M_2_PI;
@@ -62,7 +61,7 @@ final class ConstantRegistry{
 	}
 
 	/**
-	 * @return array<string, Closure(int|float, int|float) : int|float>
+	 * @return array<string, int|float>
 	 */
 	public function getRegistered() : array{
 		return $this->registered;
