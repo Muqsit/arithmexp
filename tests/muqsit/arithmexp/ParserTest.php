@@ -104,7 +104,7 @@ final class ParserTest extends TestCase{
 		TestUtil::assertParserThrows($this->parser, "tan{x}", ParseException::ERR_UNEXPECTED_TOKEN, 4, 5);
 	}
 
-	public function testMacroArgumentParser() : void{
+	public function testFunctionLikeMacroArgumentParser() : void{
 		$this->uo_parser->getFunctionRegistry()->registerMacro(
 			"fn",
 			static fn(int|float $x, int|float $y = 4, int|float $z = 16) : int|float => 0,
@@ -121,7 +121,7 @@ final class ParserTest extends TestCase{
 		TestUtil::assertExpressionsEqual($non_macro_parser->parse("fn(x, 4, pi)"), $this->uo_parser->parse("fn(x,,pi)"));
 	}
 
-	public function testBuiltInMacros() : void{
+	public function testBuiltInFunctionLikeMacros() : void{
 		TestUtil::assertParserThrows($this->uo_parser, "max()", ParseException::ERR_UNRESOLVABLE_FCALL, 0, 5);
 		TestUtil::assertExpressionsEqual($this->uo_parser->parse("max(x)"), $this->uo_parser->parse("x"));
 		TestUtil::assertExpressionsEqual($this->uo_parser->parse("max(x, y)"), $this->uo_parser->parse("max(x, y)"));
@@ -134,7 +134,7 @@ final class ParserTest extends TestCase{
 		TestUtil::assertExpressionsEqual($this->uo_parser->parse("x ** 0.5"), $this->uo_parser->parse("sqrt(x)"));
 	}
 
-	public function testMacroArgumentReplacer() : void{
+	public function testFunctionLikeMacroArgumentReplacer() : void{
 		$this->uo_parser->getFunctionRegistry()->registerMacro(
 			"fn",
 			static fn(int|float $x = 0, int|float $y = 4, int|float $z = 16) : int|float => 0,
