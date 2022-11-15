@@ -59,7 +59,7 @@ final class RawExpression implements Expression{
 	public function evaluate(array $variable_values = []) : int|float{
 		$stack = [];
 		$ptr = -1;
-		foreach($this->by_kind  as $index => $token){
+		foreach($this->by_kind as $index => $token){
 			switch($index & 15){
 				case 0:
 					assert($token instanceof OpcodeExpressionToken);
