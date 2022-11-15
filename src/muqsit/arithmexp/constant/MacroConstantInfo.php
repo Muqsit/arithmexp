@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace muqsit\arithmexp\constant;
 
 use Closure;
+use InvalidArgumentException;
 use muqsit\arithmexp\Parser;
 use muqsit\arithmexp\token\builder\ExpressionTokenBuilderState;
 use muqsit\arithmexp\token\IdentifierToken;
@@ -23,6 +24,10 @@ final class MacroConstantInfo implements ConstantInfo{
 
 	public function writeExpressionTokens(Parser $parser, string $expression, IdentifierToken $token, ExpressionTokenBuilderState $state) : void{
 		$result = ($this->resolver)($parser, $expression, $token);
+		if(count($result) === 0){
+			throw new InvalidArgumentException("Macro must return a list of at least one element");
+		}
+
 		array_splice($state->current_group, $state->current_index, 1, $result);
 		$state->current_index += count($result);
 	}
