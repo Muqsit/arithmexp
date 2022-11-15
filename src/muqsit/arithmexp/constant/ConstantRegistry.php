@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace muqsit\arithmexp\expression;
+namespace muqsit\arithmexp\constant;
 
 use const INF;
 use const M_1_PI;

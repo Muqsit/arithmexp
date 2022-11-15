@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace muqsit\arithmexp;
 
 use InvalidArgumentException;
-use muqsit\arithmexp\expression\ConstantRegistry;
+use muqsit\arithmexp\constant\ConstantRegistry;
 use muqsit\arithmexp\expression\Expression;
 use muqsit\arithmexp\expression\optimizer\ExpressionOptimizerRegistry;
 use muqsit\arithmexp\expression\RawExpression;
