@@ -11,6 +11,8 @@ use muqsit\arithmexp\operator\assignment\LeftOperatorAssignment;
 use muqsit\arithmexp\operator\assignment\RightOperatorAssignment;
 use muqsit\arithmexp\operator\binary\SimpleBinaryOperator;
 use muqsit\arithmexp\token\BinaryOperatorToken;
+use muqsit\arithmexp\token\FunctionCallToken;
+use muqsit\arithmexp\token\IdentifierToken;
 use muqsit\arithmexp\token\NumericLiteralToken;
 use muqsit\arithmexp\token\Token;
 use muqsit\arithmexp\token\UnaryOperatorToken;
@@ -164,6 +166,28 @@ final class ParserTest extends TestCase{
 		$this->expectException(InvalidArgumentException::class);
 		$this->expectExceptionMessage("Macro must return a list of at least one element");
 		$this->uo_parser->parse("fn(x, y, z)");
+	}
+
+	public function testObjectLikeMacroReplacer() : void{
+		$this->uo_parser->getConstantRegistry()->registerMacro("macro_pi", static fn(Parser $parser, string $expression, IdentifierToken $token) : array => [
+			new FunctionCallToken($token->getPos(), "pi", 0)
+		]);
+
+		$this->uo_parser->getConstantRegistry()->registerMacro("macro_2p5", static fn(Parser $parser, string $expression, IdentifierToken $token) : array => [
+			new NumericLiteralToken($token->getPos(), 2),
+			new NumericLiteralToken($token->getPos(), 5),
+			new BinaryOperatorToken($token->getPos(), "+")
+		]);
+
+		$this->uo_parser->getConstantRegistry()->registerMacro("macro_empty_list", static fn(Parser $parser, string $expression, IdentifierToken $token) : array => []);
+
+		$non_macro_parser = Parser::createUnoptimized();
+		TestUtil::assertExpressionsEqual($non_macro_parser->parse("pi"), $this->uo_parser->parse("macro_pi"));
+		TestUtil::assertExpressionsEqual($non_macro_parser->parse("(2 + 5) * 2"), $this->uo_parser->parse("macro_2p5 * 2"));
+
+		$this->expectException(InvalidArgumentException::class);
+		$this->expectExceptionMessage("Macro must return a list of at least one element");
+		$this->uo_parser->parse("macro_empty_list");
 	}
 
 	public function testNoUnaryOperand() : void{
