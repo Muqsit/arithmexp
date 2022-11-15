@@ -4,7 +4,11 @@ declare(strict_types=1);
 
 namespace muqsit\arithmexp\constant;
 
+use Closure;
 use InvalidArgumentException;
+use muqsit\arithmexp\Parser;
+use muqsit\arithmexp\token\IdentifierToken;
+use muqsit\arithmexp\token\Token;
 use const INF;
 use const M_1_PI;
 use const M_2_PI;
@@ -63,6 +67,14 @@ final class ConstantRegistry{
 
 	public function registerLabel(string $identifier, int|float $value) : void{
 		$this->register($identifier, new SimpleConstantInfo($value));
+	}
+
+	/**
+	 * @param string $identifier
+	 * @param Closure(Parser $parser, string $expression, IdentifierToken $token) : list<Token> $resolver
+	 */
+	public function registerMacro(string $identifier, Closure $resolver) : void{
+		$this->register($identifier, new MacroConstantInfo($resolver));
 	}
 
 	public function get(string $identifier) : ConstantInfo{
