@@ -43,7 +43,7 @@ final class MacroFunctionInfo implements FunctionInfo{
 	}
 
 	public function writeExpressionTokens(Parser $parser, string $expression, Token $token, string $function_name, int $argument_count, ExpressionTokenBuilderState $state) : void{
-		/** @var Token $args */
+		/** @var list<Token> $args */
 		$args = array_slice($state->current_group, $state->current_index - $argument_count, $argument_count);
 		$result = ($this->resolver)($parser, $expression, $token, $function_name, $argument_count, $args);
 		if($result === null){
