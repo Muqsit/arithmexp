@@ -5,8 +5,10 @@ declare(strict_types=1);
 namespace muqsit\arithmexp\macro;
 
 use Closure;
+use muqsit\arithmexp\constant\ConstantInfo;
 use muqsit\arithmexp\constant\ConstantRegistry;
 use muqsit\arithmexp\function\FunctionFlags;
+use muqsit\arithmexp\function\FunctionInfo;
 use muqsit\arithmexp\function\FunctionRegistry;
 use muqsit\arithmexp\function\SimpleFunctionInfo;
 use muqsit\arithmexp\ParseException;
@@ -123,5 +125,13 @@ final class MacroRegistry{
 	 */
 	public function registerObject(string $identifier, Closure $resolver) : void{
 		$this->constant_registry->register($identifier, new MacroConstantInfo($resolver));
+	}
+
+	public function unregisterFunction(string $identifier) : FunctionInfo{
+		return $this->function_registry->unregister($identifier);
+	}
+
+	public function unregisterObject(string $identifier) : ConstantInfo{
+		return $this->constant_registry->unregister($identifier);
 	}
 }

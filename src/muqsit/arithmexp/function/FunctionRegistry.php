@@ -49,7 +49,17 @@ final class FunctionRegistry{
 	}
 
 	public function register(string $identifier, FunctionInfo $info) : void{
+		if(isset($this->registered[$identifier])){
+			throw new InvalidArgumentException("Function with the identifier \"{$identifier}\" is already registered");
+		}
+
 		$this->registered[$identifier] = $info;
+	}
+
+	public function unregister(string $identifier) : FunctionInfo{
+		$info = $this->registered[$identifier] ?? throw new InvalidArgumentException("Function with the identifier \"{$identifier}\" is not registered");
+		unset($this->registered[$identifier]);
+		return $info;
 	}
 
 	/**

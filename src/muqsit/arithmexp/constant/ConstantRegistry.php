@@ -58,7 +58,17 @@ final class ConstantRegistry{
 	}
 
 	public function register(string $identifier, ConstantInfo $info) : void{
+		if(isset($this->registered[$identifier])){
+			throw new InvalidArgumentException("Constant with the identifier \"{$identifier}\" is already registered");
+		}
+
 		$this->registered[$identifier] = $info;
+	}
+
+	public function unregister(string $identifier) : ConstantInfo{
+		$info = $this->registered[$identifier] ?? throw new InvalidArgumentException("Constant with the identifier \"{$identifier}\" is not registered");
+		unset($this->registered[$identifier]);
+		return $info;
 	}
 
 	public function registerLabel(string $identifier, int|float $value) : void{
