@@ -30,10 +30,10 @@ final class Scanner{
 	}
 
 	/**
-	 * @param list<TokenBuilder> $token_scanners
+	 * @param list<TokenBuilder> $token_builders
 	 */
 	public function __construct(
-		private array $token_scanners
+		private array $token_builders
 	){}
 
 	/**
@@ -44,7 +44,7 @@ final class Scanner{
 	 * @throws ParseException
 	 */
 	public function scan(string $expression) : array{
-		reset($this->token_scanners);
+		reset($this->token_builders);
 		$state = TokenBuilderState::fromExpression($expression);
 		while($state->offset < $state->length){
 			if($state->expression[$state->offset] === " "){ // ignore space
@@ -52,9 +52,9 @@ final class Scanner{
 				continue;
 			}
 
-			$scanner = current($this->token_scanners);
+			$scanner = current($this->token_builders);
 			if($scanner === false){
-				$scanner = reset($this->token_scanners);
+				$scanner = reset($this->token_builders);
 				if($scanner === false){
 					throw new RuntimeException("No token scanner could be found");
 				}
@@ -66,9 +66,9 @@ final class Scanner{
 				$state->captured_tokens[] = $token;
 			}
 
-			next($this->token_scanners);
+			next($this->token_builders);
 			if($last_token_end === null){
-				if(++$state->unknown_token_seq === count($this->token_scanners)){
+				if(++$state->unknown_token_seq === count($this->token_builders)){
 					throw ParseException::unexpectedTokenWhenParsing($state);
 				}
 				continue;
@@ -78,7 +78,7 @@ final class Scanner{
 			$state->unknown_token_seq = 0;
 		}
 
-		foreach($this->token_scanners as $scanner){
+		foreach($this->token_builders as $scanner){
 			$scanner->transform($state);
 		}
 
