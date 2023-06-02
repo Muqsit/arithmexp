@@ -61,37 +61,13 @@ final class Parser{
 	}
 
 	public function __construct(
-		readonly private OperatorManager $operator_manager,
-		readonly private ConstantRegistry $constant_registry,
-		readonly private FunctionRegistry $function_registry,
-		readonly private MacroRegistry $macro_registry,
-		readonly private ExpressionOptimizerRegistry $expression_optimizer_registry,
-		readonly private Scanner $scanner
+		readonly public OperatorManager $operator_manager,
+		readonly public ConstantRegistry $constant_registry,
+		readonly public FunctionRegistry $function_registry,
+		readonly public MacroRegistry $macro_registry,
+		readonly public ExpressionOptimizerRegistry $expression_optimizer_registry,
+		readonly public Scanner $scanner
 	){}
-
-	public function getOperatorManager() : OperatorManager{
-		return $this->operator_manager;
-	}
-
-	public function getConstantRegistry() : ConstantRegistry{
-		return $this->constant_registry;
-	}
-
-	public function getFunctionRegistry() : FunctionRegistry{
-		return $this->function_registry;
-	}
-
-	public function getMacroRegistry() : MacroRegistry{
-		return $this->macro_registry;
-	}
-
-	public function getExpressionOptimizerRegistry() : ExpressionOptimizerRegistry{
-		return $this->expression_optimizer_registry;
-	}
-
-	public function getScanner() : Scanner{
-		return $this->scanner;
-	}
 
 	/**
 	 * Parses a given mathematical expression for runtime evaluation.

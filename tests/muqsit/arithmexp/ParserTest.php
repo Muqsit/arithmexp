@@ -38,7 +38,7 @@ final class ParserTest extends TestCase{
 	public function testBinaryOperatorsOfSamePrecedence() : void{
 		$this->expectException(InvalidArgumentException::class);
 		$this->expectExceptionMessage("Cannot process operators with same precedence (3) but different assignment types (0, 1)");
-		$registry = $this->parser->getOperatorManager()->getBinaryRegistry();
+		$registry = $this->parser->operator_manager->getBinaryRegistry();
 		$registry->register(new SimpleBinaryOperator("~", "BO1", 128, LeftOperatorAssignment::instance(), SimpleFunctionInfo::from(static fn(int|float $x, int|float $y) : int|float => $x + $y, FunctionFlags::DETERMINISTIC)));
 		$registry->register(new SimpleBinaryOperator("\$", "BO2", 128, RightOperatorAssignment::instance(), SimpleFunctionInfo::from(static fn(int|float $x, int|float $y) : int|float => $x + $y, FunctionFlags::DETERMINISTIC)));
 	}
@@ -107,14 +107,14 @@ final class ParserTest extends TestCase{
 	}
 
 	public function testFunctionLikeMacroArgumentParser() : void{
-		$this->uo_parser->getMacroRegistry()->registerFunction(
+		$this->uo_parser->macro_registry->registerFunction(
 			"fn",
 			static fn(int|float $x, int|float $y = 4, int|float $z = 16) : int|float => 0,
 			static fn(Parser $parser, string $expression, Token $token, string $function_name, int $argument_count, array $args) : ?array => null
 		);
 
 		$non_macro_parser = Parser::createUnoptimized();
-		$non_macro_parser->getFunctionRegistry()->registerFunction("fn", static fn(int|float $x, int|float $y = 4, int|float $z = 16) : int|float => 0);
+		$non_macro_parser->function_registry->registerFunction("fn", static fn(int|float $x, int|float $y = 4, int|float $z = 16) : int|float => 0);
 
 		TestUtil::assertParserThrows($this->uo_parser, "fn()", ParseException::ERR_UNRESOLVABLE_FCALL, 0, 4);
 		TestUtil::assertExpressionsEqual($non_macro_parser->parse("fn(x)"), $this->uo_parser->parse("fn(x)"));
@@ -137,7 +137,7 @@ final class ParserTest extends TestCase{
 	}
 
 	public function testFunctionLikeMacroArgumentReplacer() : void{
-		$this->uo_parser->getMacroRegistry()->registerFunction(
+		$this->uo_parser->macro_registry->registerFunction(
 			"fn",
 			static fn(int|float $x = 0, int|float $y = 4, int|float $z = 16) : int|float => 0,
 			static fn(Parser $parser, string $expression, Token $token, string $function_name, int $argument_count, array $args) : ?array => match(count($args)){
@@ -157,7 +157,7 @@ final class ParserTest extends TestCase{
 		);
 
 		$non_macro_parser = Parser::createUnoptimized();
-		$non_macro_parser->getFunctionRegistry()->registerFunction("fn", static fn(int|float $x = 0, int|float $y = 4, int|float $z = 16) : int|float => 0);
+		$non_macro_parser->function_registry->registerFunction("fn", static fn(int|float $x = 0, int|float $y = 4, int|float $z = 16) : int|float => 0);
 
 		TestUtil::assertExpressionsEqual($non_macro_parser->parse((string) M_PI), $this->uo_parser->parse("fn()"));
 		TestUtil::assertExpressionsEqual($non_macro_parser->parse("-x"), $this->uo_parser->parse("fn(x)"));
@@ -169,17 +169,17 @@ final class ParserTest extends TestCase{
 	}
 
 	public function testObjectLikeMacroReplacer() : void{
-		$this->uo_parser->getMacroRegistry()->registerObject("macro_pi", static fn(Parser $parser, string $expression, IdentifierToken $token) : array => [
+		$this->uo_parser->macro_registry->registerObject("macro_pi", static fn(Parser $parser, string $expression, IdentifierToken $token) : array => [
 			new FunctionCallToken($token->getPos(), "pi", 0)
 		]);
 
-		$this->uo_parser->getMacroRegistry()->registerObject("macro_2p5", static fn(Parser $parser, string $expression, IdentifierToken $token) : array => [
+		$this->uo_parser->macro_registry->registerObject("macro_2p5", static fn(Parser $parser, string $expression, IdentifierToken $token) : array => [
 			new NumericLiteralToken($token->getPos(), 2),
 			new NumericLiteralToken($token->getPos(), 5),
 			new BinaryOperatorToken($token->getPos(), "+")
 		]);
 
-		$this->uo_parser->getMacroRegistry()->registerObject("macro_empty_list", static fn(Parser $parser, string $expression, IdentifierToken $token) : array => []);
+		$this->uo_parser->macro_registry->registerObject("macro_empty_list", static fn(Parser $parser, string $expression, IdentifierToken $token) : array => []);
 
 		$non_macro_parser = Parser::createUnoptimized();
 		TestUtil::assertExpressionsEqual($non_macro_parser->parse("pi"), $this->uo_parser->parse("macro_pi"));
@@ -207,17 +207,17 @@ final class ParserTest extends TestCase{
 	}
 
 	public function testBadFunctionCallWithMalformedArgumentList() : void{
-		$this->parser->getFunctionRegistry()->registerFunction("fn", static fn(int $x, int $y) : int => $x + $y);
+		$this->parser->function_registry->registerFunction("fn", static fn(int $x, int $y) : int => $x + $y);
 		TestUtil::assertParserThrows($this->parser, "x + fn(2 3) * y", ParseException::ERR_UNEXPECTED_TOKEN, 9, 10);
 	}
 
 	public function testBadFunctionCallWithMissingRequiredTrailingArguments() : void{
-		$this->parser->getFunctionRegistry()->registerFunction("fn", static fn(int $x, int $y) : int => $x + $y);
+		$this->parser->function_registry->registerFunction("fn", static fn(int $x, int $y) : int => $x + $y);
 		TestUtil::assertParserThrows($this->parser, "x + fn(2, ) * y", ParseException::ERR_UNRESOLVABLE_FCALL, 4, 11);
 	}
 
 	public function testBadFunctionCallWithMissingRequiredLeadingArguments() : void{
-		$this->parser->getFunctionRegistry()->registerFunction("fn", static fn(int $x, int $y) : int => $x + $y);
+		$this->parser->function_registry->registerFunction("fn", static fn(int $x, int $y) : int => $x + $y);
 		TestUtil::assertParserThrows($this->parser, "x + fn(, 2) * y", ParseException::ERR_UNRESOLVABLE_FCALL, 4, 11);
 	}
 
@@ -226,7 +226,7 @@ final class ParserTest extends TestCase{
 	}
 
 	public function testBadFunctionCallWithArgumentOverflow() : void{
-		$this->parser->getFunctionRegistry()->registerFunction("fn", static fn(int $x, int $y) : int => $x + $y);
+		$this->parser->function_registry->registerFunction("fn", static fn(int $x, int $y) : int => $x + $y);
 		TestUtil::assertParserThrows($this->parser, "x + fn(3, 2, 1) * y", ParseException::ERR_UNRESOLVABLE_FCALL, 4, 15);
 	}
 

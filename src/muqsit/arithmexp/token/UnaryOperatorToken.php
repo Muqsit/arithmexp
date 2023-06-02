@@ -27,7 +27,7 @@ final class UnaryOperatorToken extends SimpleToken{
 	}
 
 	public function writeExpressionTokens(ExpressionTokenBuilderState $state) : void{
-		$operator = $state->parser->getOperatorManager()->getUnaryRegistry()->get($this->operator);
+		$operator = $state->parser->operator_manager->getUnaryRegistry()->get($this->operator);
 		$function = $operator->getFunction();
 
 		$argument_count = 1;

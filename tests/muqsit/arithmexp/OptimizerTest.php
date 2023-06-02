@@ -95,10 +95,10 @@ final class OptimizerTest extends TestCase{
 	public function testNonDeterminsticOperatorExclusionFromOptimization() : void{
 		$operator = new SimpleBinaryOperator(":", "Random", OperatorPrecedence::EXPONENTIAL, RightOperatorAssignment::instance(), SimpleFunctionInfo::from(Closure::fromCallable("mt_rand"), 0));
 
-		$this->parser->getOperatorManager()->getBinaryRegistry()->register($operator);
+		$this->parser->operator_manager->getBinaryRegistry()->register($operator);
 		$actual = $this->parser->parse("1:4 / 1:4");
 
-		$this->unoptimized_parser->getOperatorManager()->getBinaryRegistry()->register($operator);
+		$this->unoptimized_parser->operator_manager->getBinaryRegistry()->register($operator);
 		$expected = $this->unoptimized_parser->parse("1:4 / 1:4");
 		TestUtil::assertExpressionsEqual($expected, $actual);
 	}

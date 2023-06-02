@@ -39,7 +39,7 @@ final class MacroRegistry{
 			assert(count($args) === 0 || count($args) === 2);
 			return mt_rand(...$args);
 		}, static fn(Parser $parser, string $expression, Token $token, string $function_name, int $argument_count, array $args) : ?array => $argument_count === 0 || $argument_count === 2 ? null : throw ($argument_count > 2 ?
-			ParseException::unresolvableFcallTooManyParams($expression, $token->getPos(), $parser->getFunctionRegistry()->get($function_name), $argument_count) :
+			ParseException::unresolvableFcallTooManyParams($expression, $token->getPos(), $parser->function_registry->get($function_name), $argument_count) :
 			ParseException::unresolvableFcallTooLessParams($expression, $token->getPos(), 2, $argument_count)
 		));
 

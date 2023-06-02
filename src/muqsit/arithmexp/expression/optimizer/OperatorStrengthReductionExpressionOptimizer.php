@@ -182,7 +182,7 @@ final class OperatorStrengthReductionExpressionOptimizer implements ExpressionOp
 	 * @return OpcodeExpressionToken
 	 */
 	private function buildOpcodeToken(Parser $parser, Position $position, int $code) : OpcodeExpressionToken{
-		$manager = $parser->getOperatorManager();
+		$manager = $parser->operator_manager;
 		$symbol = OpcodeToken::opcodeToString($code);
 		return match($code){
 			OpcodeToken::OP_BINARY_ADD, OpcodeToken::OP_BINARY_DIV, OpcodeToken::OP_BINARY_EXP, OpcodeToken::OP_BINARY_MOD, OpcodeToken::OP_BINARY_MUL, OpcodeToken::OP_BINARY_SUB => new OpcodeExpressionToken($position, $code, new BinaryOperatorToken($position, $manager->getBinaryRegistry()->get($symbol)->getSymbol())),

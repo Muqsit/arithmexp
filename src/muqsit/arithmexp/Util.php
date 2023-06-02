@@ -77,11 +77,11 @@ final class Util{
 		if($token instanceof OpcodeExpressionToken){
 			$previous = $token->parent;
 			if($previous instanceof BinaryOperatorToken){
-				$function_info = $parser->getOperatorManager()->getBinaryRegistry()->get($previous->getOperator())->getFunction();
+				$function_info = $parser->operator_manager->getBinaryRegistry()->get($previous->getOperator())->getFunction();
 				return new FunctionCallExpressionToken($token->getPos(), $previous->getOperator(), 2, $function_info->getClosure(), $function_info->getFlags(), $token->parent);
 			}
 			if($previous instanceof UnaryOperatorToken){
-				$function_info = $parser->getOperatorManager()->getUnaryRegistry()->get($previous->getOperator())->getFunction();
+				$function_info = $parser->operator_manager->getUnaryRegistry()->get($previous->getOperator())->getFunction();
 				return new FunctionCallExpressionToken($token->getPos(), $previous->getOperator(), 1, $function_info->getClosure(), $function_info->getFlags(), $token->parent);
 			}
 		}
