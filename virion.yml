@@ -1,5 +1,5 @@
 name: arithmexp
 antigen: muqsit\arithmexp
-api: 4.9.0
-version: 0.1.29
+api: [4.21.1, 5.0.0]
+version: 0.1.30
 author: Muqsit

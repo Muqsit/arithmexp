@@ -24,5 +24,11 @@
     ],
     "require-dev": {
         "phpunit/phpunit": "^9"
+    },
+    "extra": {
+        "virion": {
+            "spec": "3.0",
+            "namespace-root": "muqsit\\arithmexp"
+        }
     }
 }
