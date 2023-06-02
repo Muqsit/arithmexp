@@ -16,26 +16,8 @@ final class OperatorList{
 	 * @param array<string, UnaryOperator> $unary
 	 */
 	public function __construct(
-		readonly private OperatorAssignment $assignment,
-		readonly private array $binary,
-		readonly private array $unary
+		readonly public OperatorAssignment $assignment,
+		readonly public array $binary,
+		readonly public array $unary
 	){}
-
-	public function getAssignment() : OperatorAssignment{
-		return $this->assignment;
-	}
-
-	/**
-	 * @return array<string, BinaryOperator>
-	 */
-	public function getBinary() : array{
-		return $this->binary;
-	}
-
-	/**
-	 * @return array<string, UnaryOperator>
-	 */
-	public function getUnary() : array{
-		return $this->unary;
-	}
 }

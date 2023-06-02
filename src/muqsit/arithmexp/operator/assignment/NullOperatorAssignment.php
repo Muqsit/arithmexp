@@ -25,7 +25,7 @@ final class NullOperatorAssignment implements OperatorAssignment{
 
 	public function traverse(OperatorList $list, array &$tokens) : Generator{
 		$state = new OperatorAssignmentTraverserState($tokens);
-		$operators = $list->getUnary();
+		$operators = $list->unary;
 		for($i = count($tokens) - 1; $i >= 0; --$i){
 			$token = $tokens[$i];
 			if($token instanceof UnaryOperatorToken && isset($operators[$token->operator])){

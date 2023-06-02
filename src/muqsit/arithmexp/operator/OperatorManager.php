@@ -27,8 +27,8 @@ final class OperatorManager{
 	private ?array $by_precedence_cached = null;
 
 	public function __construct(
-		readonly private BinaryOperatorRegistry $binary_registry,
-		readonly private UnaryOperatorRegistry $unary_registry
+		readonly public BinaryOperatorRegistry $binary_registry,
+		readonly public UnaryOperatorRegistry $unary_registry
 	){
 		$this->binary_registry->registerChangeHandler(function(BinaryOperatorRegistry $_) : void{
 			$this->sortedByPrecedence();
@@ -43,14 +43,6 @@ final class OperatorManager{
 			$this->by_precedence_cached = null;
 		});
 		$this->getByPrecedence(); // init by_precedence_cache
-	}
-
-	public function getBinaryRegistry() : BinaryOperatorRegistry{
-		return $this->binary_registry;
-	}
-
-	public function getUnaryRegistry() : UnaryOperatorRegistry{
-		return $this->unary_registry;
 	}
 
 	/**

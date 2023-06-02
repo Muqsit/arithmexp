@@ -162,7 +162,7 @@ final class ExpressionTest extends TestCase{
 	}
 
 	public function testNonstandardBinaryOperator() : void{
-		$this->parser->operator_manager->getBinaryRegistry()->register(new SimpleBinaryOperator(
+		$this->parser->operator_manager->binary_registry->register(new SimpleBinaryOperator(
 			"..",
 			"Random Range",
 			0,
@@ -177,7 +177,7 @@ final class ExpressionTest extends TestCase{
 	}
 
 	public function testNonstandardBinaryOperatorWithExistingSymbol() : void{
-		$this->parser->operator_manager->getBinaryRegistry()->register(new SimpleBinaryOperator(
+		$this->parser->operator_manager->binary_registry->register(new SimpleBinaryOperator(
 			"//",
 			"Integer Division",
 			OperatorPrecedence::MULTIPLICATION_DIVISION_MODULO,
@@ -190,7 +190,7 @@ final class ExpressionTest extends TestCase{
 	}
 
 	public function testNonstandardUnaryOperator() : void{
-		$this->parser->operator_manager->getUnaryRegistry()->register(new SimpleUnaryOperator(
+		$this->parser->operator_manager->unary_registry->register(new SimpleUnaryOperator(
 			"±",
 			"Modulus",
 			OperatorPrecedence::UNARY_NEGATIVE_POSITIVE,
@@ -202,7 +202,7 @@ final class ExpressionTest extends TestCase{
 	}
 
 	public function testNonstandardUnaryOperatorWithExistingSymbol() : void{
-		$this->parser->operator_manager->getUnaryRegistry()->register(new SimpleUnaryOperator(
+		$this->parser->operator_manager->unary_registry->register(new SimpleUnaryOperator(
 			"--",
 			"Decrement",
 			OperatorPrecedence::UNARY_NEGATIVE_POSITIVE,

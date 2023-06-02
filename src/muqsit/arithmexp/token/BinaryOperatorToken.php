@@ -23,7 +23,7 @@ final class BinaryOperatorToken extends SimpleToken{
 	}
 
 	public function writeExpressionTokens(ExpressionTokenBuilderState $state) : void{
-		$operator = $state->parser->operator_manager->getBinaryRegistry()->get($this->operator);
+		$operator = $state->parser->operator_manager->binary_registry->get($this->operator);
 		$function = $operator->getFunction();
 
 		$argument_count = 2;

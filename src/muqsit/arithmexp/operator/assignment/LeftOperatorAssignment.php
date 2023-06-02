@@ -25,7 +25,7 @@ final class LeftOperatorAssignment implements OperatorAssignment{
 
 	public function traverse(OperatorList $list, array &$tokens) : Generator{
 		$state = new OperatorAssignmentTraverserState($tokens);
-		$operators = $list->getBinary();
+		$operators = $list->binary;
 		$index = -1;
 		$count = count($tokens);
 		while(++$index < $count){
