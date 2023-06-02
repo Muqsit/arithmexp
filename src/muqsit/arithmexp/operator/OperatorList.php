@@ -16,9 +16,9 @@ final class OperatorList{
 	 * @param array<string, UnaryOperator> $unary
 	 */
 	public function __construct(
-		private OperatorAssignment $assignment,
-		private array $binary,
-		private array $unary
+		readonly private OperatorAssignment $assignment,
+		readonly private array $binary,
+		readonly private array $unary
 	){}
 
 	public function getAssignment() : OperatorAssignment{

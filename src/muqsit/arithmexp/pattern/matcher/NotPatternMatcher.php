@@ -9,7 +9,7 @@ use muqsit\arithmexp\expression\token\ExpressionToken;
 final class NotPatternMatcher implements PatternMatcher{
 
 	public function __construct(
-		private PatternMatcher $matcher
+		readonly private PatternMatcher $matcher
 	){}
 
 	public function matches(ExpressionToken|array $entry) : bool{

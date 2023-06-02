@@ -12,7 +12,7 @@ final class InstanceOfPatternMatcher implements PatternMatcher{
 	 * @param class-string<ExpressionToken> $class
 	 */
 	public function __construct(
-		private string $class
+		readonly private string $class
 	){}
 
 	public function matches(ExpressionToken|array $entry) : bool{

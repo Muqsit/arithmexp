@@ -9,10 +9,10 @@ use muqsit\arithmexp\function\FunctionInfo;
 final class SimpleUnaryOperator implements UnaryOperator{
 
 	public function __construct(
-		private string $symbol,
-		private string $name,
-		private int $precedence,
-		private FunctionInfo $function
+		readonly private string $symbol,
+		readonly private string $name,
+		readonly private int $precedence,
+		readonly private FunctionInfo $function
 	){}
 
 	public function getSymbol() : string{

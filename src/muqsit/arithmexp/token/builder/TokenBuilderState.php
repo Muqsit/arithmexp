@@ -22,10 +22,10 @@ final class TokenBuilderState{
 	 * @param int $unknown_token_seq
 	 */
 	public function __construct(
-		public string $expression,
+		readonly public string $expression,
 		public array $captured_tokens,
 		public int $offset,
-		public int $length,
+		readonly public int $length,
 		public int $unknown_token_seq
 	){}
 

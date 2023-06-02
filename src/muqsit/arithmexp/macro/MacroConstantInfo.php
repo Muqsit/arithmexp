@@ -20,7 +20,7 @@ final class MacroConstantInfo implements ConstantInfo{
 	 * @param Closure(Parser $parser, string $expression, IdentifierToken $token) : list<Token> $resolver
 	 */
 	public function __construct(
-		public Closure $resolver
+		readonly public Closure $resolver
 	){}
 
 	public function writeExpressionTokens(Parser $parser, string $expression, IdentifierToken $token, ExpressionTokenBuilderState $state) : void{

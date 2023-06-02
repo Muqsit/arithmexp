@@ -12,7 +12,7 @@ use muqsit\arithmexp\token\IdentifierToken;
 final class SimpleConstantInfo implements ConstantInfo{
 
 	public function __construct(
-		public int|float $value
+		readonly public int|float $value
 	){}
 
 	public function writeExpressionTokens(Parser $parser, string $expression, IdentifierToken $token, ExpressionTokenBuilderState $state) : void{

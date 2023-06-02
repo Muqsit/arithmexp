@@ -45,10 +45,10 @@ final class SimpleFunctionInfo implements FunctionInfo{
 	 * @param int-mask-of<FunctionFlags::*> $flags
 	 */
 	public function __construct(
-		public Closure $closure,
-		public array $fallback_param_values,
-		public bool $variadic,
-		public int $flags
+		readonly public Closure $closure,
+		readonly public array $fallback_param_values,
+		readonly public bool $variadic,
+		readonly public int $flags
 	){}
 
 	public function getClosure() : Closure{

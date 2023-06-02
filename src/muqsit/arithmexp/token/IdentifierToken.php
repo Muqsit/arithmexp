@@ -13,7 +13,7 @@ final class IdentifierToken extends SimpleToken{
 
 	public function __construct(
 		Position $position,
-		private string $label
+		readonly private string $label
 	){
 		parent::__construct(TokenType::IDENTIFIER(), $position);
 	}

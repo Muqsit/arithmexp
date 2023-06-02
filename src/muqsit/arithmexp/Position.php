@@ -29,8 +29,8 @@ final class Position{
 	}
 
 	public function __construct(
-		private int $start,
-		private int $end,
+		readonly private int $start,
+		readonly private int $end,
 	){}
 
 	public function getStart() : int{

@@ -34,12 +34,12 @@ use const NAN;
 
 final class OperatorStrengthReductionExpressionOptimizer implements ExpressionOptimizer{
 
-	private PatternMatcher $any_non_numeric_matcher;
-	private PatternMatcher $binary_operation_matcher;
-	private PatternMatcher $unary_operation_matcher;
-	private PatternMatcher $modulo_operation_matcher;
-	private PatternMatcher $multiplication_operation_matcher;
-	private PatternMatcher $exponentiation_operation_matcher;
+	readonly private PatternMatcher $any_non_numeric_matcher;
+	readonly private PatternMatcher $binary_operation_matcher;
+	readonly private PatternMatcher $unary_operation_matcher;
+	readonly private PatternMatcher $modulo_operation_matcher;
+	readonly private PatternMatcher $multiplication_operation_matcher;
+	readonly private PatternMatcher $exponentiation_operation_matcher;
 
 	public function __construct(){
 		$this->any_non_numeric_matcher = Pattern::not(Pattern::instanceof(NumericLiteralExpressionToken::class));

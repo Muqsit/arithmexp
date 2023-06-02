@@ -11,8 +11,8 @@ final class FunctionCallToken extends SimpleToken{
 
 	public function __construct(
 		Position $position,
-		private string $function,
-		private int $argument_count
+		readonly private string $function,
+		readonly private int $argument_count
 	){
 		parent::__construct(TokenType::FUNCTION_CALL(), $position);
 	}

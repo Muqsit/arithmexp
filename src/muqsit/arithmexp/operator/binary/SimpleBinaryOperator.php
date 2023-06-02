@@ -10,11 +10,11 @@ use muqsit\arithmexp\operator\assignment\OperatorAssignment;
 final class SimpleBinaryOperator implements BinaryOperator{
 
 	public function __construct(
-		private string $symbol,
-		private string $name,
-		private int $precedence,
-		private OperatorAssignment $assignment_type,
-		private FunctionInfo $function
+		readonly private string $symbol,
+		readonly private string $name,
+		readonly private int $precedence,
+		readonly private OperatorAssignment $assignment_type,
+		readonly private FunctionInfo $function
 	){}
 
 	public function getSymbol() : string{

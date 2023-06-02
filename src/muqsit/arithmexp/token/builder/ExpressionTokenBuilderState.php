@@ -24,8 +24,8 @@ final class ExpressionTokenBuilderState{
 	 * @param list<Token|ExpressionToken|list<Token|ExpressionToken>> $tokens
 	 */
 	public function __construct(
-		public Parser $parser,
-		public string $expression,
+		readonly public Parser $parser,
+		readonly public string $expression,
 		public array $tokens
 	){}
 

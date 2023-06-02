@@ -56,8 +56,8 @@ final class TokenType{
 	}
 
 	private function __construct(
-		private int $identifier,
-		private string $name
+		readonly private int $identifier,
+		readonly private string $name
 	){}
 
 	public function getIdentifier() : int{

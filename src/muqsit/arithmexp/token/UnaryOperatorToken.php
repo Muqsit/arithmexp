@@ -13,7 +13,7 @@ final class UnaryOperatorToken extends SimpleToken{
 
 	public function __construct(
 		Position $position,
-		private string $operator
+		readonly private string $operator
 	){
 		parent::__construct(TokenType::UNARY_OPERATOR(), $position);
 	}

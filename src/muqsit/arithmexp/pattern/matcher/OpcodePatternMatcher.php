@@ -23,7 +23,7 @@ final class OpcodePatternMatcher implements PatternMatcher{
 	 * @param array<OpcodeToken::OP_*, true> $entries
 	 */
 	private function __construct(
-		private array $entries
+		readonly private array $entries
 	){}
 
 	public function matches(ExpressionToken|array $entry) : bool{

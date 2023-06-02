@@ -105,8 +105,8 @@ final class MacroRegistry{
 	}
 
 	public function __construct(
-		private ConstantRegistry $constant_registry,
-		private FunctionRegistry $function_registry
+		readonly private ConstantRegistry $constant_registry,
+		readonly private FunctionRegistry $function_registry
 	){}
 
 	/**

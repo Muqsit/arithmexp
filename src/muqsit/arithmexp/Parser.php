@@ -61,12 +61,12 @@ final class Parser{
 	}
 
 	public function __construct(
-		private OperatorManager $operator_manager,
-		private ConstantRegistry $constant_registry,
-		private FunctionRegistry $function_registry,
-		private MacroRegistry $macro_registry,
-		private ExpressionOptimizerRegistry $expression_optimizer_registry,
-		private Scanner $scanner
+		readonly private OperatorManager $operator_manager,
+		readonly private ConstantRegistry $constant_registry,
+		readonly private FunctionRegistry $function_registry,
+		readonly private MacroRegistry $macro_registry,
+		readonly private ExpressionOptimizerRegistry $expression_optimizer_registry,
+		readonly private Scanner $scanner
 	){}
 
 	public function getOperatorManager() : OperatorManager{

@@ -46,8 +46,8 @@ final class ParenthesisToken extends SimpleToken{
 	 */
 	public function __construct(
 		Position $position,
-		private int $parenthesis_mark,
-		private int $parenthesis_type
+		readonly private int $parenthesis_mark,
+		readonly private int $parenthesis_type
 	){
 		parent::__construct(TokenType::PARENTHESIS(), $position);
 	}

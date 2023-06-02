@@ -14,7 +14,7 @@ final class ArrayPatternMatcher implements PatternMatcher{
 	 * @param list<PatternMatcher> $patterns
 	 */
 	public function __construct(
-		private array $patterns
+		readonly private array $patterns
 	){}
 
 	public function matches(ExpressionToken|array $entry) : bool{

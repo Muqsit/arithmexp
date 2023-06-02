@@ -17,8 +17,8 @@ trait GenericExpressionTrait{
 	 * @param list<ExpressionToken> $postfix_expression_tokens
 	 */
 	public function __construct(
-		private string $expression,
-		private array $postfix_expression_tokens
+		readonly private string $expression,
+		readonly private array $postfix_expression_tokens
 	){}
 
 	final public function getExpression() : string{

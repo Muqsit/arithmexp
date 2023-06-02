@@ -12,7 +12,7 @@ final class ConstantExpression implements Expression{
 
 	public function __construct(
 		string $expression,
-		private int|float $value
+		readonly private int|float $value
 	){
 		$this->__parentConstruct($expression, []);
 	}

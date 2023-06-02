@@ -189,8 +189,8 @@ final class ParseException extends Exception{
 	}
 
 	public function __construct(
-		private string $expression,
-		private Position $position,
+		readonly private string $expression,
+		readonly private Position $position,
 		string $message = "",
 		int $code = 0,
 		?Throwable $previous = null

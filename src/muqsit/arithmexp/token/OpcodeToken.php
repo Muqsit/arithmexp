@@ -41,8 +41,8 @@ final class OpcodeToken extends SimpleToken{
 	 */
 	public function __construct(
 		Position $position,
-		private int $code,
-		private ?Token $parent = null
+		readonly private int $code,
+		readonly private ?Token $parent = null
 	){
 		parent::__construct(TokenType::OPCODE(), $position);
 	}
