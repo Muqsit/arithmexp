@@ -279,7 +279,7 @@ final class OperatorStrengthReductionExpressionOptimizer implements ExpressionOp
 	 * @return list<ExpressionToken>|null
 	 */
 	private function processAddition(Parser $parser, OpcodeExpressionToken $operator_token, array $left, array $right) : ?array{
-		$filter = fn(array $array) : bool => $this->multiplication_operation_matcher->matches($array);
+		$filter = $this->multiplication_operation_matcher->matches(...);
 
 		$left_tree = Util::expressionTokenArrayToTree($parser, $left);
 		Util::flattenArray($left_tree, $filter);
@@ -319,7 +319,7 @@ final class OperatorStrengthReductionExpressionOptimizer implements ExpressionOp
 	 * @return list<ExpressionToken>|null
 	 */
 	private function processSubtraction(Parser $parser, OpcodeExpressionToken $operator_token, array $left, array $right) : ?array{
-		$filter = fn(array $array) : bool => $this->multiplication_operation_matcher->matches($array);
+		$filter = $this->multiplication_operation_matcher->matches(...);
 
 		$left_tree = Util::expressionTokenArrayToTree($parser, $left);
 		Util::flattenArray($left_tree, $filter);
@@ -387,7 +387,7 @@ final class OperatorStrengthReductionExpressionOptimizer implements ExpressionOp
 	 * @return list<ExpressionToken>|null
 	 */
 	private function processDivision(Parser $parser, Expression $expression, OpcodeExpressionToken $operator_token, array $left, array $right) : ?array{
-		$filter = fn(array $array) : bool => $this->multiplication_operation_matcher->matches($array);
+		$filter = $this->multiplication_operation_matcher->matches(...);
 
 		$left_tree = Util::expressionTokenArrayToTree($parser, $left);
 		Util::flattenArray($left_tree, $filter);

@@ -43,7 +43,7 @@ final class MacroRegistry{
 			ParseException::unresolvableFcallTooLessParams($expression, $token->getPos(), 2, $argument_count)
 		));
 
-		$registry->registerFunction("mt_getrandmax", Closure::fromCallable("mt_getrandmax"), static fn(Parser $parser, string $expression, Token $token, string $function_name, int $argument_count, array $args) : array => [
+		$registry->registerFunction("mt_getrandmax", mt_getrandmax(...), static fn(Parser $parser, string $expression, Token $token, string $function_name, int $argument_count, array $args) : array => [
 			new NumericLiteralToken($token->getPos(), mt_getrandmax())
 		], FunctionFlags::DETERMINISTIC);
 
@@ -75,7 +75,7 @@ final class MacroRegistry{
 			new BinaryOperatorToken($token->getPos(), "**")
 		], FunctionFlags::DETERMINISTIC);
 
-		$registry->registerFunction("round", Closure::fromCallable("round"), static function(Parser $parser, string $expression, Token $token, string $function_name, int $argument_count, array $args) : ?array{
+		$registry->registerFunction("round", round(...), static function(Parser $parser, string $expression, Token $token, string $function_name, int $argument_count, array $args) : ?array{
 			if($argument_count !== 3){
 				return null;
 			}
@@ -96,7 +96,7 @@ final class MacroRegistry{
 			return [$args[0], $args[1], new NumericLiteralToken($argument->getPos(), $replacement), $token];
 		}, FunctionFlags::DETERMINISTIC | FunctionFlags::IDEMPOTENT);
 
-		$registry->registerFunction("sqrt", Closure::fromCallable("sqrt"), static fn(Parser $parser, string $expression, Token $token, string $function_name, int $argument_count, array $args) : array => [
+		$registry->registerFunction("sqrt", sqrt(...), static fn(Parser $parser, string $expression, Token $token, string $function_name, int $argument_count, array $args) : array => [
 			$args[0],
 			new NumericLiteralToken($token->getPos(), 0.5),
 			new BinaryOperatorToken($token->getPos(), "**")
