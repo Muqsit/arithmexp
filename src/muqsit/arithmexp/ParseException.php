@@ -189,20 +189,12 @@ final class ParseException extends Exception{
 	}
 
 	public function __construct(
-		readonly private string $expression,
-		readonly private Position $position,
+		readonly public string $expression,
+		readonly public Position $position,
 		string $message = "",
 		int $code = 0,
 		?Throwable $previous = null
 	){
 		parent::__construct($message, $code, $previous);
-	}
-
-	public function getExpression() : string{
-		return $this->expression;
-	}
-
-	public function getPos() : Position{
-		return $this->position;
 	}
 }
