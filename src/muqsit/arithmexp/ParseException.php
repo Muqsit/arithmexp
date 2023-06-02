@@ -37,7 +37,7 @@ final class ParseException extends Exception{
 			$exception->getMessage() . ($exception->position->length() === strlen($exception->expression) ? "" :
 				PHP_EOL .
 				" | " . $exception->expression . PHP_EOL .
-				" | " . str_repeat(" ", $exception->position->getStart()) . str_repeat("^", $exception->position->length())
+				" | " . str_repeat(" ", $exception->position->start) . str_repeat("^", $exception->position->length())
 			),
 			$exception->code,
 			$exception->getPrevious()
@@ -52,8 +52,8 @@ final class ParseException extends Exception{
 		return self::generateWithHighlightedSubstring(new self($expression, $position, sprintf(
 			"No left operand specified for binary operator at \"%s\" (%d:%d) in \"%s\"",
 			$position->in($expression),
-			$position->getStart(),
-			$position->getEnd(),
+			$position->start,
+			$position->end,
 			$expression
 		), self::ERR_NO_OPERAND_BINARY_LEFT));
 	}
@@ -62,8 +62,8 @@ final class ParseException extends Exception{
 		return self::generateWithHighlightedSubstring(new self($expression, $position, sprintf(
 			"No right operand specified for binary operator at \"%s\" (%d:%d) in \"%s\"",
 			$position->in($expression),
-			$position->getStart(),
-			$position->getEnd(),
+			$position->start,
+			$position->end,
 			$expression
 		), self::ERR_NO_OPERAND_BINARY_RIGHT));
 	}
@@ -72,8 +72,8 @@ final class ParseException extends Exception{
 		return self::generateWithHighlightedSubstring(new self($expression, $position, sprintf(
 			"No closing parenthesis specified for opening parenthesis at \"%s\" (%d:%d) in \"%s\"",
 			$position->in($expression),
-			$position->getStart(),
-			$position->getEnd(),
+			$position->start,
+			$position->end,
 			$expression
 		), self::ERR_NO_CLOSING_PAREN));
 	}
@@ -82,8 +82,8 @@ final class ParseException extends Exception{
 		return self::generateWithHighlightedSubstring(new self($expression, $position, sprintf(
 			"No opening parenthesis specified for closing parenthesis at \"%s\" (%d:%d) in \"%s\"",
 			$position->in($expression),
-			$position->getStart(),
-			$position->getEnd(),
+			$position->start,
+			$position->end,
 			$expression
 		), self::ERR_NO_OPENING_PAREN));
 	}
@@ -92,8 +92,8 @@ final class ParseException extends Exception{
 		return self::generateWithHighlightedSubstring(new self($expression, $position, sprintf(
 			"Unexpected parenthesis type specified at \"%s\" (%d:%d) in \"%s\"",
 			$position->in($expression),
-			$position->getStart(),
-			$position->getEnd(),
+			$position->start,
+			$position->end,
 			$expression
 		), self::ERR_UNEXPECTED_PAREN));
 	}
@@ -102,8 +102,8 @@ final class ParseException extends Exception{
 		return self::generateWithHighlightedSubstring(new self($expression, $position, sprintf(
 			"No operand specified for unary operator at \"%s\" (%d:%d) in \"%s\"",
 			$position->in($expression),
-			$position->getStart(),
-			$position->getEnd(),
+			$position->start,
+			$position->end,
 			$expression
 		), self::ERR_NO_OPERAND_UNARY));
 	}
@@ -113,8 +113,8 @@ final class ParseException extends Exception{
 			"Unexpected %s token encountered at \"%s\" (%d:%d) in \"%s\"",
 			$token->getType()->getName(),
 			$token->getPos()->in($expression),
-			$token->getPos()->getStart(),
-			$token->getPos()->getEnd(),
+			$token->getPos()->start,
+			$token->getPos()->end,
 			$expression
 		), self::ERR_UNEXPECTED_TOKEN));
 	}
@@ -133,8 +133,8 @@ final class ParseException extends Exception{
 		return new self($expression, $position, sprintf(
 			"Cannot resolve function call at \"%s\" (%d:%d) in \"%s\": %s",
 			$position->in($expression),
-			$position->getStart(),
-			$position->getEnd(),
+			$position->start,
+			$position->end,
 			$expression,
 			$reason
 		), self::ERR_UNRESOLVABLE_FCALL, $previous);
@@ -173,8 +173,8 @@ final class ParseException extends Exception{
 		return new self($expression, $position, sprintf(
 			"Cannot resolve expression at \"%s\" (%d:%d) in \"%s\": %s",
 			$position->in($expression),
-			$position->getStart(),
-			$position->getEnd(),
+			$position->start,
+			$position->end,
 			$expression,
 			$reason
 		), self::ERR_UNRESOLVABLE_EXPRESSION, $previous);

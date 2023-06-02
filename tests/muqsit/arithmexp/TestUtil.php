@@ -22,8 +22,8 @@ final class TestUtil{
 			$parser->parse($expression);
 		}catch(ParseException $e){
 			TestCase::assertEquals($code, $e->getCode());
-			TestCase::assertEquals($start_pos, $e->position->getStart());
-			TestCase::assertEquals($end_pos, $e->position->getEnd());
+			TestCase::assertEquals($start_pos, $e->position->start);
+			TestCase::assertEquals($end_pos, $e->position->end);
 			return;
 		}
 

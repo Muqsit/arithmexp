@@ -44,7 +44,7 @@ final class FunctionCallTokenBuilder implements TokenBuilder{
 
 			$open_parentheses = 0;
 			$argument_count = 0;
-			$end_pos = $token->getPos()->getEnd();
+			$end_pos = $token->getPos()->end;
 			for($j = $i + 2; $j < $count; ++$j){
 				$inner_token = $state->captured_tokens[$j];
 				if($inner_token instanceof ParenthesisToken){
@@ -59,7 +59,7 @@ final class FunctionCallTokenBuilder implements TokenBuilder{
 					}
 					if($parenthesis_type === ParenthesisToken::MARK_CLOSING){
 						if(--$open_parentheses < 0){
-							$end_pos = $inner_token->getPos()->getEnd();
+							$end_pos = $inner_token->getPos()->end;
 							break;
 						}
 						continue;
@@ -80,7 +80,7 @@ final class FunctionCallTokenBuilder implements TokenBuilder{
 				}
 			}
 
-			$state->captured_tokens[$i] = new FunctionCallToken(new Position($token->getPos()->getStart(), $end_pos), $token->getLabel(), $argument_count);
+			$state->captured_tokens[$i] = new FunctionCallToken(new Position($token->getPos()->start, $end_pos), $token->getLabel(), $argument_count);
 		}
 	}
 }
