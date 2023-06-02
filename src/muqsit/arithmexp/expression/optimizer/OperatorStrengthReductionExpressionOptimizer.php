@@ -391,9 +391,11 @@ final class OperatorStrengthReductionExpressionOptimizer implements ExpressionOp
 
 		$left_tree = Util::expressionTokenArrayToTree($parser, $left);
 		Util::flattenArray($left_tree, $filter);
+		/** @var list<ExpressionToken> $left_tree */
 
 		$right_tree = Util::expressionTokenArrayToTree($parser, $right);
 		Util::flattenArray($right_tree, $filter);
+		/** @var list<ExpressionToken> $right_tree */
 
 		$changes = 0;
 		do{

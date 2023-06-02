@@ -91,6 +91,8 @@ final class ConstantFoldingExpressionOptimizer implements ExpressionOptimizer{
 
 					$arg_tokens = array_slice($entry, $i - $token->argument_count, $token->argument_count);
 					Util::flattenArray($arg_tokens);
+					/** @var list<ExpressionToken> $arg_tokens */
+
 					$value = self::evaluateDeterministicTokens($parser, $expression, $token, $arg_tokens);
 					if($value === null){
 						continue;
