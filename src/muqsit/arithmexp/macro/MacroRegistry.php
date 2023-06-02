@@ -83,7 +83,7 @@ final class MacroRegistry{
 			if(!($argument instanceof IdentifierToken)){
 				return null;
 			}
-			$replacement = match($argument->getLabel()){
+			$replacement = match($argument->label){
 				"HALF_UP" => PHP_ROUND_HALF_UP,
 				"HALF_DOWN" => PHP_ROUND_HALF_DOWN,
 				"HALF_EVEN" => PHP_ROUND_HALF_EVEN,

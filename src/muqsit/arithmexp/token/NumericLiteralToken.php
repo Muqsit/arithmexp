@@ -12,13 +12,9 @@ final class NumericLiteralToken extends SimpleToken{
 
 	public function __construct(
 		Position $position,
-		readonly private int|float $value
+		readonly public int|float $value
 	){
 		parent::__construct(TokenType::NUMERIC_LITERAL(), $position);
-	}
-
-	public function getValue() : int|float{
-		return $this->value;
 	}
 
 	public function repositioned(Position $position) : self{

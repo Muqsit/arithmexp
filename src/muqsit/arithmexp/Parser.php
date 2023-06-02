@@ -157,7 +157,7 @@ final class Parser{
 				continue;
 			}
 
-			if($token->getParenthesisMark() !== ParenthesisToken::MARK_OPENING){
+			if($token->parenthesis_mark !== ParenthesisToken::MARK_OPENING){
 				continue;
 			}
 
@@ -170,10 +170,10 @@ final class Parser{
 					++$j;
 					continue;
 				}
-				if($member_token->getParenthesisType() !== $token->getParenthesisType()){
+				if($member_token->parenthesis_type !== $token->parenthesis_type){
 					throw ParseException::unexpectedParenthesisType($expression, $member_token->getPos());
 				}
-				if($member_token->getParenthesisMark() !== ParenthesisToken::MARK_CLOSING){
+				if($member_token->parenthesis_mark !== ParenthesisToken::MARK_CLOSING){
 					throw ParseException::noClosingParenthesis($expression, $token->getPos());
 				}
 				break;
@@ -187,7 +187,7 @@ final class Parser{
 		}
 		foreach($tokens as $token){
 			if($token instanceof ParenthesisToken){
-				assert($token->getParenthesisMark() === ParenthesisToken::MARK_CLOSING);
+				assert($token->parenthesis_mark === ParenthesisToken::MARK_CLOSING);
 				throw ParseException::noOpeningParenthesis($expression, $token->getPos());
 			}
 		}
@@ -261,7 +261,7 @@ final class Parser{
 			for($i = count($entry) - 1; $i >= 0; --$i){
 				$token = $entry[$i];
 				if($token instanceof FunctionCallToken){
-					if(isset($entry[$i + 1]) && $token->getArgumentCount() > 0){
+					if(isset($entry[$i + 1]) && $token->argument_count > 0){
 						array_splice($entry, $i, 2, [[$token, is_array($entry[$i + 1]) ? $entry[$i + 1] : [$entry[$i + 1]]]]);
 					}else{
 						$entry[$i] = [$token];
@@ -288,14 +288,14 @@ final class Parser{
 				}
 
 				try{
-					$function = $this->function_registry->get($token->getFunction());
+					$function = $this->function_registry->get($token->function);
 				}catch(InvalidArgumentException $e){
 					throw ParseException::unresolvableFcallGeneric($expression, $token->getPos(), $e->getMessage(), $e);
 				}
 
 				$fallback_param_values = $function->getFallbackParamValues();
 
-				$args_c = $token->getArgumentCount();
+				$args_c = $token->argument_count;
 
 				$param_tokens = $entry[$i + 1] ?? [];
 				assert(is_array($param_tokens));

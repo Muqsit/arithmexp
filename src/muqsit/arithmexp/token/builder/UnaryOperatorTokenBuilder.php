@@ -41,7 +41,7 @@ final class UnaryOperatorTokenBuilder implements TokenBuilder{
 		if(
 			!($token instanceof NumericLiteralToken) &&
 			!($token instanceof IdentifierToken) &&
-			(!($token instanceof ParenthesisToken) || $token->getParenthesisMark() === ParenthesisToken::MARK_OPENING)
+			(!($token instanceof ParenthesisToken) || $token->parenthesis_mark === ParenthesisToken::MARK_OPENING)
 		){
 			$offset = $state->offset;
 			$expression = $state->expression;

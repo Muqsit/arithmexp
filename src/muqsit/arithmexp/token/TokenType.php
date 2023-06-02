@@ -56,17 +56,9 @@ final class TokenType{
 	}
 
 	private function __construct(
-		readonly private int $identifier,
-		readonly private string $name
+		readonly public int $identifier,
+		readonly public string $name
 	){}
-
-	public function getIdentifier() : int{
-		return $this->identifier;
-	}
-
-	public function getName() : string{
-		return $this->name;
-	}
 
 	/**
 	 * @param TokenType::* $identifier

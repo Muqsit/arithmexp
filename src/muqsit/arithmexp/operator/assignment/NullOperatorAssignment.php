@@ -28,7 +28,7 @@ final class NullOperatorAssignment implements OperatorAssignment{
 		$operators = $list->getUnary();
 		for($i = count($tokens) - 1; $i >= 0; --$i){
 			$token = $tokens[$i];
-			if($token instanceof UnaryOperatorToken && isset($operators[$token->getOperator()])){
+			if($token instanceof UnaryOperatorToken && isset($operators[$token->operator])){
 				$state->index = $i;
 				$state->value = $token;
 				yield $state;

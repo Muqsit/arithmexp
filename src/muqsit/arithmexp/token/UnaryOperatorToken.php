@@ -13,13 +13,9 @@ final class UnaryOperatorToken extends SimpleToken{
 
 	public function __construct(
 		Position $position,
-		readonly private string $operator
+		readonly public string $operator
 	){
 		parent::__construct(TokenType::UNARY_OPERATOR(), $position);
-	}
-
-	public function getOperator() : string{
-		return $this->operator;
 	}
 
 	public function repositioned(Position $position) : self{

@@ -9,8 +9,8 @@ use muqsit\arithmexp\Position;
 abstract class SimpleToken implements Token{
 
 	public function __construct(
-		readonly protected TokenType $type,
-		readonly protected Position $position
+		readonly public TokenType $type,
+		readonly public Position $position
 	){}
 
 	final public function getType() : TokenType{
@@ -26,7 +26,7 @@ abstract class SimpleToken implements Token{
 	 */
 	public function __debugInfo() : array{
 		return [
-			"type" => $this->type->getName(),
+			"type" => $this->type->name,
 			"pos" => $this->position
 		];
 	}

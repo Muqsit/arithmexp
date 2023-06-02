@@ -30,7 +30,7 @@ final class LeftOperatorAssignment implements OperatorAssignment{
 		$count = count($tokens);
 		while(++$index < $count){
 			$value = $tokens[$index];
-			if($value instanceof BinaryOperatorToken && isset($operators[$value->getOperator()])){
+			if($value instanceof BinaryOperatorToken && isset($operators[$value->operator])){
 				$state->index = $index;
 				$state->value = $value;
 				yield $state;

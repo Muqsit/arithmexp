@@ -41,7 +41,7 @@ final class BinaryOperatorTokenBuilder implements TokenBuilder{
 		if(
 			$token instanceof NumericLiteralToken ||
 			$token instanceof IdentifierToken ||
-			($token instanceof ParenthesisToken && $token->getParenthesisMark() === ParenthesisToken::MARK_CLOSING)
+			($token instanceof ParenthesisToken && $token->parenthesis_mark === ParenthesisToken::MARK_CLOSING)
 		){
 			$offset = $state->offset;
 			$expression = $state->expression;

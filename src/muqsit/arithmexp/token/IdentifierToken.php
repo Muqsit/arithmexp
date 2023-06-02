@@ -13,13 +13,9 @@ final class IdentifierToken extends SimpleToken{
 
 	public function __construct(
 		Position $position,
-		readonly private string $label
+		readonly public string $label
 	){
 		parent::__construct(TokenType::IDENTIFIER(), $position);
-	}
-
-	public function getLabel() : string{
-		return $this->label;
 	}
 
 	public function repositioned(Position $position) : self{

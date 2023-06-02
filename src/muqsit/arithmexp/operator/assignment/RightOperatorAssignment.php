@@ -29,7 +29,7 @@ final class RightOperatorAssignment implements OperatorAssignment{
 		$index = count($tokens);
 		while(--$index >= 0){
 			$value = $tokens[$index];
-			if($value instanceof BinaryOperatorToken && isset($operators[$value->getOperator()])){
+			if($value instanceof BinaryOperatorToken && isset($operators[$value->operator])){
 				$state->index = $index;
 				$state->value = $value;
 				yield $state;

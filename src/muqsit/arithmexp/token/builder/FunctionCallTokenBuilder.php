@@ -36,8 +36,8 @@ final class FunctionCallTokenBuilder implements TokenBuilder{
 			$next_token = $state->captured_tokens[$i + 1];
 			if(
 				!($next_token instanceof ParenthesisToken) ||
-				$next_token->getParenthesisMark() !== ParenthesisToken::MARK_OPENING ||
-				$next_token->getParenthesisType() !== ParenthesisToken::TYPE_ROUND
+				$next_token->parenthesis_mark !== ParenthesisToken::MARK_OPENING ||
+				$next_token->parenthesis_type !== ParenthesisToken::TYPE_ROUND
 			){
 				continue;
 			}
@@ -48,11 +48,11 @@ final class FunctionCallTokenBuilder implements TokenBuilder{
 			for($j = $i + 2; $j < $count; ++$j){
 				$inner_token = $state->captured_tokens[$j];
 				if($inner_token instanceof ParenthesisToken){
-					if($inner_token->getParenthesisType() !== ParenthesisToken::TYPE_ROUND){
+					if($inner_token->parenthesis_type !== ParenthesisToken::TYPE_ROUND){
 						continue;
 					}
 
-					$parenthesis_type = $inner_token->getParenthesisMark();
+					$parenthesis_type = $inner_token->parenthesis_mark;
 					if($parenthesis_type === ParenthesisToken::MARK_OPENING){
 						++$open_parentheses;
 						continue;
@@ -80,7 +80,7 @@ final class FunctionCallTokenBuilder implements TokenBuilder{
 				}
 			}
 
-			$state->captured_tokens[$i] = new FunctionCallToken(new Position($token->getPos()->start, $end_pos), $token->getLabel(), $argument_count);
+			$state->captured_tokens[$i] = new FunctionCallToken(new Position($token->getPos()->start, $end_pos), $token->label, $argument_count);
 		}
 	}
 }

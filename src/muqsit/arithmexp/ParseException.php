@@ -111,7 +111,7 @@ final class ParseException extends Exception{
 	public static function unexpectedToken(string $expression, Token $token) : self{
 		return self::generateWithHighlightedSubstring(new self($expression, $token->getPos(), sprintf(
 			"Unexpected %s token encountered at \"%s\" (%d:%d) in \"%s\"",
-			$token->getType()->getName(),
+			$token->getType()->name,
 			$token->getPos()->in($expression),
 			$token->getPos()->start,
 			$token->getPos()->end,
@@ -145,7 +145,7 @@ final class ParseException extends Exception{
 	}
 
 	public static function unresolvableFcallNoDefaultParamValue(string $expression, FunctionCallToken $token, int $parameter) : self{
-		return self::generateWithHighlightedSubstring(self::unresolvableFcall($expression, $token->getPos(), sprintf("Function \"%s\" does not have a default value for parameter #%d", $token->getFunction(), $parameter)));
+		return self::generateWithHighlightedSubstring(self::unresolvableFcall($expression, $token->getPos(), sprintf("Function \"%s\" does not have a default value for parameter #%d", $token->function, $parameter)));
 	}
 
 	public static function unresolvableFcallTooLessParams(string $expression, Position $position, int $expected, int $params_c) : self{

@@ -50,7 +50,7 @@ final class ConstantFoldingExpressionOptimizer implements ExpressionOptimizer{
 				$rvalue_flattened = [$arguments[1]];
 				Util::flattenArray($rvalue_flattened);
 				$pos = Util::positionContainingExpressionTokens($rvalue_flattened);
-				match($previous->getOperator()){
+				match($previous->operator){
 					"/" => throw ParseException::unresolvableExpressionDivisionByZero($expression->getExpression(), $pos),
 					"%" => throw ParseException::unresolvableExpressionModuloByZero($expression->getExpression(), $pos),
 					default => null
