@@ -29,6 +29,7 @@ final class ConstantRegistry{
 
 	public static function createDefault() : self{
 		$registry = new self();
+		$registry->registerLabel("false", false);
 		$registry->registerLabel("pi", M_PI);
 		$registry->registerLabel("e", M_E);
 		$registry->registerLabel("log2e", M_LOG2E);
@@ -44,6 +45,7 @@ final class ConstantRegistry{
 		$registry->registerLabel("sqrt2", M_SQRT2);
 		$registry->registerLabel("sqrt3", M_SQRT3);
 		$registry->registerLabel("sqrt12", M_SQRT1_2);
+		$registry->registerLabel("true", true);
 		$registry->registerLabel("lnpi", M_LNPI);
 		$registry->registerLabel("euler", M_EULER);
 		$registry->registerLabel("nan", NAN);

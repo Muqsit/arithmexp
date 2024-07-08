@@ -6,7 +6,6 @@ namespace muqsit\arithmexp;
 
 use muqsit\arithmexp\operator\OperatorManager;
 use muqsit\arithmexp\token\builder\BinaryOperatorTokenBuilder;
-use muqsit\arithmexp\token\builder\BooleanLiteralTokenBuilder;
 use muqsit\arithmexp\token\builder\FunctionCallTokenBuilder;
 use muqsit\arithmexp\token\builder\IdentifierTokenBuilder;
 use muqsit\arithmexp\token\builder\NumericLiteralTokenBuilder;
@@ -24,7 +23,6 @@ final class Scanner{
 			new ParenthesisTokenBuilder(),
 			new NumericLiteralTokenBuilder(),
 			new FunctionCallTokenBuilder(),
-			new BooleanLiteralTokenBuilder(),
 			new IdentifierTokenBuilder(),
 			UnaryOperatorTokenBuilder::createDefault($operator_manager->unary_registry),
 			BinaryOperatorTokenBuilder::createDefault($operator_manager->binary_registry)
