@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace muqsit\arithmexp\expression;
 
 use InvalidArgumentException;
+use muqsit\arithmexp\expression\token\BooleanLiteralExpressionToken;
 use muqsit\arithmexp\expression\token\ExpressionToken;
 use muqsit\arithmexp\expression\token\FunctionCallExpressionToken;
 use muqsit\arithmexp\expression\token\NumericLiteralExpressionToken;
@@ -48,7 +49,8 @@ final class RawExpression implements Expression{
 					OpcodeToken::OP_UNARY_NVE => 6,
 					OpcodeToken::OP_UNARY_PVE => 7
 				},
-				$token instanceof NumericLiteralExpressionToken => 8,
+				$token instanceof NumericLiteralExpressionToken,
+				$token instanceof BooleanLiteralExpressionToken => 8,
 				$token instanceof VariableExpressionToken => 9,
 				$token instanceof FunctionCallExpressionToken => 10,
 				default => 15
@@ -108,7 +110,7 @@ final class RawExpression implements Expression{
 					$stack[$ptr] = +$stack[$ptr];
 					break;
 				case 8:
-					assert($token instanceof NumericLiteralExpressionToken);
+					assert($token instanceof BooleanLiteralExpressionToken || $token instanceof NumericLiteralExpressionToken);
 					$stack[++$ptr] = $token->value;
 					break;
 				case 9:
