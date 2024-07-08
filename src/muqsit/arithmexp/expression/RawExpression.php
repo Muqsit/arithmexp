@@ -56,7 +56,7 @@ final class RawExpression implements Expression{
 		}
 	}
 
-	public function evaluate(array $variable_values = []) : int|float{
+	public function evaluate(array $variable_values = []) : int|float|bool{
 		$stack = [];
 		$ptr = -1;
 		foreach($this->by_kind as $index => $token){

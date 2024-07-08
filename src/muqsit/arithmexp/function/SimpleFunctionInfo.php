@@ -26,11 +26,11 @@ final class SimpleFunctionInfo implements FunctionInfo{
 	 */
 	public static function from(Closure $callback, int $flags) : self{
 		$_function = new ReflectionFunction($callback);
-		return new self($callback, array_map(static function(ReflectionParameter $_parameter) : int|float|null{
+		return new self($callback, array_map(static function(ReflectionParameter $_parameter) : int|float|bool|null{
 			if($_parameter->isDefaultValueAvailable()){
 				$value = $_parameter->getDefaultValue();
-				if(!is_int($value) && !is_float($value)){
-					throw new InvalidArgumentException("Expected default parameter value to be int|float, got " . gettype($value) . " for parameter \"{$_parameter->getName()}\"");
+				if(!is_int($value) && !is_float($value) && !is_bool($value)){
+					throw new InvalidArgumentException("Expected default parameter value to be int|float|bool, got " . gettype($value) . " for parameter \"{$_parameter->getName()}\"");
 				}
 				return $value;
 			}
@@ -40,7 +40,7 @@ final class SimpleFunctionInfo implements FunctionInfo{
 
 	/**
 	 * @param Closure $closure
-	 * @param list<int|float|null> $fallback_param_values
+	 * @param list<int|float|bool|null> $fallback_param_values
 	 * @param bool $variadic
 	 * @param int-mask-of<FunctionFlags::*> $flags
 	 */

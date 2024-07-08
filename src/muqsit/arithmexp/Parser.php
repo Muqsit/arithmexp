@@ -13,6 +13,7 @@ use muqsit\arithmexp\function\FunctionRegistry;
 use muqsit\arithmexp\macro\MacroRegistry;
 use muqsit\arithmexp\operator\OperatorManager;
 use muqsit\arithmexp\token\BinaryOperatorToken;
+use muqsit\arithmexp\token\BooleanLiteralToken;
 use muqsit\arithmexp\token\builder\ExpressionTokenBuilderState;
 use muqsit\arithmexp\token\FunctionCallArgumentSeparatorToken;
 use muqsit\arithmexp\token\FunctionCallToken;
@@ -29,6 +30,9 @@ use function array_unshift;
 use function assert;
 use function count;
 use function is_array;
+use function is_bool;
+use function is_float;
+use function is_int;
 use function iterator_to_array;
 use function min;
 
@@ -336,7 +340,12 @@ final class Parser{
 				for($j = 0; $j < $params_c; ++$j){
 					if($params[$j] === null){
 						if(isset($fallback_param_values[$j])){
-							$params[$j] = new NumericLiteralToken($token->getPos()->offset($l, $l), $fallback_param_values[$j]);
+							$params[$j] = match(true){
+								is_float($fallback_param_values[$j]),
+								is_int($fallback_param_values[$j]) => new NumericLiteralToken($token->getPos()->offset($l, $l), $fallback_param_values[$j]),
+								is_bool($fallback_param_values[$j]) => new BooleanLiteralToken($token->getPos()->offset($l, $l), $fallback_param_values[$j]),
+								default => throw new RuntimeException("Default value for function call ({$token->function}) parameter " . ($j + 1) . " is of an invalid type " . gettype($fallback_param_values[$j]))
+							};
 							++$l;
 						}else{
 							throw ParseException::unresolvableFcallNoDefaultParamValue($expression, $token, $j + 1);

@@ -7,17 +7,23 @@ namespace muqsit\arithmexp\token;
 final class TokenType{
 
 	public const BINARY_OPERATOR = 0;
-	public const FUNCTION_CALL = 1;
-	public const FUNCTION_CALL_ARGUMENT_SEPARATOR = 2;
-	public const IDENTIFIER = 3;
-	public const NUMERIC_LITERAL = 4;
-	public const OPCODE = 5;
-	public const PARENTHESIS = 6;
-	public const UNARY_OPERATOR = 7;
+	public const BOOLEAN_LITERAL = 1;
+	public const FUNCTION_CALL = 2;
+	public const FUNCTION_CALL_ARGUMENT_SEPARATOR = 3;
+	public const IDENTIFIER = 4;
+	public const NUMERIC_LITERAL = 5;
+	public const OPCODE = 6;
+	public const PARENTHESIS = 7;
+	public const UNARY_OPERATOR = 8;
 
 	public static function BINARY_OPERATOR() : self{
 		static $instance = null;
 		return $instance ??= new self(self::BINARY_OPERATOR, "Binary Operator");
+	}
+
+	public static function BOOLEAN_LITERAL() : self{
+		static $instance = null;
+		return $instance ??= new self(self::BOOLEAN_LITERAL, "Boolean Literal");
 	}
 
 	public static function FUNCTION_CALL() : self{

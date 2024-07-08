@@ -22,8 +22,8 @@ interface Expression{
 	public function findVariables() : Generator;
 
 	/**
-	 * @param array<string, int|float> $variable_values
-	 * @return int|float
+	 * @param array<string, int|float|bool> $variable_values
+	 * @return int|float|bool
 	 */
-	public function evaluate(array $variable_values = []) : int|float;
+	public function evaluate(array $variable_values = []) : int|float|bool;
 }

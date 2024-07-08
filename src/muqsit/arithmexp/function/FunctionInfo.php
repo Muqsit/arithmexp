@@ -14,7 +14,7 @@ interface FunctionInfo{
 	public function getClosure() : Closure;
 
 	/**
-	 * @return list<int|float|null>
+	 * @return list<int|float|bool|null>
 	 */
 	public function getFallbackParamValues() : array;
 

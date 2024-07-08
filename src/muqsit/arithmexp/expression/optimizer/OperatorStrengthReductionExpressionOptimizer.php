@@ -29,6 +29,8 @@ use function array_splice;
 use function count;
 use function gettype;
 use function is_array;
+use function is_float;
+use function is_int;
 use function is_nan;
 use const NAN;
 
@@ -443,7 +445,8 @@ final class OperatorStrengthReductionExpressionOptimizer implements ExpressionOp
 			$left_operand[0] instanceof NumericLiteralExpressionToken &&
 			count($right_operand) === 1 &&
 			$right_operand[0] instanceof NumericLiteralExpressionToken &&
-			($result = ConstantFoldingExpressionOptimizer::evaluateDeterministicTokens($parser, $expression, $operator_token, [...$left_operand, ...$right_operand])) !== null
+			($result = ConstantFoldingExpressionOptimizer::evaluateDeterministicTokens($parser, $expression, $operator_token, [...$left_operand, ...$right_operand])) !== null &&
+			(is_int($result) || is_float($result))
 		){
 			return [
 				[new NumericLiteralExpressionToken(Util::positionContainingExpressionTokens($left_operand), $result)],

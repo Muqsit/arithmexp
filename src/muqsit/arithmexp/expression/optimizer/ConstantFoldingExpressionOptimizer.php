@@ -21,6 +21,8 @@ use function array_filter;
 use function array_slice;
 use function array_splice;
 use function count;
+use function is_float;
+use function is_int;
 
 final class ConstantFoldingExpressionOptimizer implements ExpressionOptimizer{
 
@@ -29,10 +31,10 @@ final class ConstantFoldingExpressionOptimizer implements ExpressionOptimizer{
 	 * @param Expression $expression
 	 * @param ExpressionToken $token
 	 * @param list<ExpressionToken> $arguments
-	 * @return int|float|null
+	 * @return int|float|bool|null
 	 * @throws ParseException
 	 */
-	public static function evaluateDeterministicTokens(Parser $parser, Expression $expression, ExpressionToken $token, array $arguments) : int|float|null{
+	public static function evaluateDeterministicTokens(Parser $parser, Expression $expression, ExpressionToken $token, array $arguments) : int|float|bool|null{
 		if(count(array_filter($arguments, static fn(ExpressionToken $token) : bool => Util::asFunctionCallExpressionToken($parser, $token) !== null || !$token->isDeterministic())) > 0){
 			return null;
 		}
@@ -94,7 +96,7 @@ final class ConstantFoldingExpressionOptimizer implements ExpressionOptimizer{
 					/** @var list<ExpressionToken> $arg_tokens */
 
 					$value = self::evaluateDeterministicTokens($parser, $expression, $token, $arg_tokens);
-					if($value === null){
+					if(!is_int($value) && !is_float($value)){
 						continue;
 					}
 

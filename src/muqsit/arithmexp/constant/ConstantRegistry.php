@@ -71,7 +71,7 @@ final class ConstantRegistry{
 		return $info;
 	}
 
-	public function registerLabel(string $identifier, int|float $value) : void{
+	public function registerLabel(string $identifier, int|float|bool $value) : void{
 		$this->register($identifier, new SimpleConstantInfo($value));
 	}
 

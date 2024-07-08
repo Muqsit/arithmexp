@@ -12,12 +12,12 @@ final class ConstantExpression implements Expression{
 
 	public function __construct(
 		string $expression,
-		readonly private int|float $value
+		readonly private int|float|bool $value
 	){
 		$this->__parentConstruct($expression, []);
 	}
 
-	public function evaluate(array $variable_values = []) : int|float{
+	public function evaluate(array $variable_values = []) : int|float|bool{
 		return $this->value;
 	}
 
