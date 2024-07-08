@@ -8,6 +8,7 @@ use DivisionByZeroError;
 use muqsit\arithmexp\expression\ConstantExpression;
 use muqsit\arithmexp\expression\Expression;
 use muqsit\arithmexp\expression\RawExpression;
+use muqsit\arithmexp\expression\token\BooleanLiteralExpressionToken;
 use muqsit\arithmexp\expression\token\ExpressionToken;
 use muqsit\arithmexp\expression\token\FunctionCallExpressionToken;
 use muqsit\arithmexp\expression\token\NumericLiteralExpressionToken;
@@ -21,6 +22,8 @@ use function array_filter;
 use function array_slice;
 use function array_splice;
 use function count;
+use function gettype;
+use function is_bool;
 use function is_float;
 use function is_int;
 
@@ -96,11 +99,17 @@ final class ConstantFoldingExpressionOptimizer implements ExpressionOptimizer{
 					/** @var list<ExpressionToken> $arg_tokens */
 
 					$value = self::evaluateDeterministicTokens($parser, $expression, $token, $arg_tokens);
-					if(!is_int($value) && !is_float($value)){
+					if($value === null){
 						continue;
 					}
 
-					array_splice($entry, $i - $token->argument_count, 1 + $token->argument_count, [new NumericLiteralExpressionToken(Util::positionContainingExpressionTokens([...$arg_tokens, $token]), $value)]);
+					$replacement = match(true){
+						is_int($value), is_float($value) => [new NumericLiteralExpressionToken(Util::positionContainingExpressionTokens([...$arg_tokens, $token]), $value)],
+						is_bool($value) => [new BooleanLiteralExpressionToken(Util::positionContainingExpressionTokens([...$arg_tokens, $token]), $value)],
+						default => throw new RuntimeException("Unexpected value type " . gettype($value))
+					};
+
+					array_splice($entry, $i - $token->argument_count, 1 + $token->argument_count, $replacement);
 					$i -= $token->argument_count;
 					$found = true;
 					++$changes;
