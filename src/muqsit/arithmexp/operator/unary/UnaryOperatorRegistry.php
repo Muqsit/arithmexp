@@ -27,6 +27,10 @@ final class UnaryOperatorRegistry{
 			SimpleFunctionInfo::from(static fn(int|float $x) : int|float => -$x, FunctionFlags::DETERMINISTIC | FunctionFlags::IDEMPOTENT),
 			static fn(Parser $parser, string $expression, Token $token, string $function_name, int $argument_count, array $args) : array => [...$args, new OpcodeToken($token->getPos(), OpcodeToken::OP_UNARY_NVE, $token)]
 		)));
+		$registry->register(new SimpleUnaryOperator("!", "Not", OperatorPrecedence::UNARY_NOT, new MacroFunctionInfo(
+			SimpleFunctionInfo::from(static fn(int|float|bool $x) : bool => !$x, FunctionFlags::DETERMINISTIC),
+			static fn(Parser $parser, string $expression, Token $token, string $function_name, int $argument_count, array $args) : array => [...$args, new OpcodeToken($token->getPos(), OpcodeToken::OP_UNARY_NOT, $token)]
+		)));
 		return $registry;
 	}
 

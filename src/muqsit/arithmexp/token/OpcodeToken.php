@@ -16,8 +16,9 @@ final class OpcodeToken extends SimpleToken{
 	public const OP_BINARY_MOD = 3;
 	public const OP_BINARY_MUL = 4;
 	public const OP_BINARY_SUB = 5;
-	public const OP_UNARY_NVE = 6;
-	public const OP_UNARY_PVE = 7;
+	public const OP_UNARY_NOT = 6;
+	public const OP_UNARY_NVE = 7;
+	public const OP_UNARY_PVE = 8;
 
 	/**
 	 * @param self::OP_* $code
@@ -30,7 +31,8 @@ final class OpcodeToken extends SimpleToken{
 			self::OP_BINARY_EXP => "**",
 			self::OP_BINARY_MOD => "%",
 			self::OP_BINARY_MUL => "*",
-			self::OP_BINARY_SUB, self::OP_UNARY_NVE => "-"
+			self::OP_BINARY_SUB, self::OP_UNARY_NVE => "-",
+			self::OP_UNARY_NOT => "!"
 		};
 	}
 

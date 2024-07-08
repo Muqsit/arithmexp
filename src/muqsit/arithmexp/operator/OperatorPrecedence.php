@@ -8,6 +8,7 @@ interface OperatorPrecedence{
 
 	public const EXPONENTIAL = 0;
 	public const UNARY_NEGATIVE_POSITIVE = 1;
-	public const MULTIPLICATION_DIVISION_MODULO = 2;
-	public const ADDITION_SUBTRACTION = 3;
+	public const UNARY_NOT = 2;
+	public const MULTIPLICATION_DIVISION_MODULO = 3;
+	public const ADDITION_SUBTRACTION = 4;
 }

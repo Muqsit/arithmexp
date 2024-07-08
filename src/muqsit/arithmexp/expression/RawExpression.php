@@ -46,13 +46,14 @@ final class RawExpression implements Expression{
 					OpcodeToken::OP_BINARY_MOD => 3,
 					OpcodeToken::OP_BINARY_MUL => 4,
 					OpcodeToken::OP_BINARY_SUB => 5,
-					OpcodeToken::OP_UNARY_NVE => 6,
-					OpcodeToken::OP_UNARY_PVE => 7
+					OpcodeToken::OP_UNARY_NOT => 6,
+					OpcodeToken::OP_UNARY_NVE => 7,
+					OpcodeToken::OP_UNARY_PVE => 8
 				},
 				$token instanceof NumericLiteralExpressionToken,
-				$token instanceof BooleanLiteralExpressionToken => 8,
-				$token instanceof VariableExpressionToken => 9,
-				$token instanceof FunctionCallExpressionToken => 10,
+				$token instanceof BooleanLiteralExpressionToken => 9,
+				$token instanceof VariableExpressionToken => 10,
+				$token instanceof FunctionCallExpressionToken => 11,
 				default => 15
 			}] = $token;
 		}
@@ -101,23 +102,28 @@ final class RawExpression implements Expression{
 					break;
 				case 6:
 					assert($token instanceof OpcodeExpressionToken);
+					assert($token->code === OpcodeToken::OP_UNARY_NOT);
+					$stack[$ptr] = !$stack[$ptr];
+					break;
+				case 7:
+					assert($token instanceof OpcodeExpressionToken);
 					assert($token->code === OpcodeToken::OP_UNARY_NVE);
 					$stack[$ptr] = -$stack[$ptr];
 					break;
-				case 7:
+				case 8:
 					assert($token instanceof OpcodeExpressionToken);
 					assert($token->code === OpcodeToken::OP_UNARY_PVE);
 					$stack[$ptr] = +$stack[$ptr];
 					break;
-				case 8:
+				case 9:
 					assert($token instanceof BooleanLiteralExpressionToken || $token instanceof NumericLiteralExpressionToken);
 					$stack[++$ptr] = $token->value;
 					break;
-				case 9:
+				case 10:
 					assert($token instanceof VariableExpressionToken);
 					$stack[++$ptr] = $variable_values[$token->label] ?? throw new InvalidArgumentException("No value supplied for variable \"{$token->label}\" in \"{$this->expression}\"");;
 					break;
-				case 10:
+				case 11:
 					assert($token instanceof FunctionCallExpressionToken);
 					$ptr -= $token->argument_count - 1;
 					$stack[$ptr] = ($token->function)(...array_slice($stack, $ptr, $token->argument_count));
