@@ -19,6 +19,7 @@ final class FunctionRegistry{
 		$registry->registerFunction("atan2", atan2(...), FunctionFlags::DETERMINISTIC);
 		$registry->registerFunction("atan", atan(...), FunctionFlags::DETERMINISTIC);
 		$registry->registerFunction("atanh", atanh(...), FunctionFlags::DETERMINISTIC);
+		$registry->registerFunction("boolval", boolval(...), FunctionFlags::DETERMINISTIC | FunctionFlags::IDEMPOTENT);
 		$registry->registerFunction("ceil", ceil(...), FunctionFlags::DETERMINISTIC | FunctionFlags::IDEMPOTENT);
 		$registry->registerFunction("cos", cos(...), FunctionFlags::DETERMINISTIC);
 		$registry->registerFunction("cosh", cosh(...), FunctionFlags::DETERMINISTIC);
@@ -26,10 +27,12 @@ final class FunctionRegistry{
 		$registry->registerFunction("exp", exp(...), FunctionFlags::DETERMINISTIC);
 		$registry->registerFunction("expm1", expm1(...), FunctionFlags::DETERMINISTIC);
 		$registry->registerFunction("fdiv", fdiv(...), FunctionFlags::DETERMINISTIC);
+		$registry->registerFunction("floatval", floatval(...), FunctionFlags::DETERMINISTIC | FunctionFlags::IDEMPOTENT);
 		$registry->registerFunction("floor", floor(...), FunctionFlags::DETERMINISTIC | FunctionFlags::IDEMPOTENT);
 		$registry->registerFunction("fmod", fmod(...), FunctionFlags::DETERMINISTIC);
 		$registry->registerFunction("hypot", hypot(...), FunctionFlags::DETERMINISTIC);
 		$registry->registerFunction("intdiv", intdiv(...), FunctionFlags::DETERMINISTIC);
+		$registry->registerFunction("intval", intval(...), FunctionFlags::DETERMINISTIC | FunctionFlags::IDEMPOTENT);
 		$registry->registerFunction("lcg_value", lcg_value(...));
 		$registry->registerFunction("log10", log10(...), FunctionFlags::DETERMINISTIC);
 		$registry->registerFunction("log1p", log1p(...), FunctionFlags::DETERMINISTIC);
