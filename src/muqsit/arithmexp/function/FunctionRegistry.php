@@ -33,6 +33,11 @@ final class FunctionRegistry{
 		$registry->registerFunction("hypot", hypot(...), FunctionFlags::DETERMINISTIC);
 		$registry->registerFunction("intdiv", intdiv(...), FunctionFlags::DETERMINISTIC);
 		$registry->registerFunction("intval", intval(...), FunctionFlags::DETERMINISTIC | FunctionFlags::IDEMPOTENT);
+		$registry->registerFunction("is_bool", is_bool(...), FunctionFlags::DETERMINISTIC | FunctionFlags::IDEMPOTENT);
+		$registry->registerFunction("is_float", is_float(...), FunctionFlags::DETERMINISTIC | FunctionFlags::IDEMPOTENT);
+		$registry->registerFunction("is_finite", is_finite(...), FunctionFlags::DETERMINISTIC | FunctionFlags::IDEMPOTENT);
+		$registry->registerFunction("is_infinite", is_infinite(...), FunctionFlags::DETERMINISTIC | FunctionFlags::IDEMPOTENT);
+		$registry->registerFunction("is_nan", is_nan(...), FunctionFlags::DETERMINISTIC | FunctionFlags::IDEMPOTENT);
 		$registry->registerFunction("lcg_value", lcg_value(...));
 		$registry->registerFunction("log10", log10(...), FunctionFlags::DETERMINISTIC);
 		$registry->registerFunction("log1p", log1p(...), FunctionFlags::DETERMINISTIC);
