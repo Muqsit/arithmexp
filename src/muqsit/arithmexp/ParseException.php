@@ -29,6 +29,7 @@ final class ParseException extends Exception{
 	public const ERR_UNEXPECTED_TOKEN = 100008;
 	public const ERR_UNRESOLVABLE_EXPRESSION = 100009;
 	public const ERR_UNRESOLVABLE_FCALL = 100010;
+	public const ERR_UNDEFINED_OPERAND_ASSOCIATIVITY = 100011;
 
 	public static function generateWithHighlightedSubstring(self $exception) : self{
 		return new self(
@@ -75,7 +76,7 @@ final class ParseException extends Exception{
 			$position->start,
 			$position->end,
 			$expression
-		), self::ERR_NO_OPERAND_BINARY_LEFT));
+		), self::ERR_UNDEFINED_OPERAND_ASSOCIATIVITY));
 	}
 
 	public static function noClosingParenthesis(string $expression, Position $position) : self{
