@@ -32,7 +32,7 @@ final class FunctionRegistry{
 		$registry->registerFunction("fmod", fmod(...), FunctionFlags::DETERMINISTIC);
 		$registry->registerFunction("hypot", hypot(...), FunctionFlags::DETERMINISTIC);
 		$registry->registerFunction("intdiv", intdiv(...), FunctionFlags::DETERMINISTIC);
-		$registry->registerFunction("intval", intval(...), FunctionFlags::DETERMINISTIC);
+		$registry->registerFunction("intval", intval(...), FunctionFlags::DETERMINISTIC | FunctionFlags::IDEMPOTENT);
 		$registry->registerFunction("is_bool", is_bool(...), FunctionFlags::DETERMINISTIC);
 		$registry->registerFunction("is_float", is_float(...), FunctionFlags::DETERMINISTIC);
 		$registry->registerFunction("is_finite", is_finite(...), FunctionFlags::DETERMINISTIC);
