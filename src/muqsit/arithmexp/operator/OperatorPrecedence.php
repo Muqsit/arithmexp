@@ -13,4 +13,9 @@ interface OperatorPrecedence{
 	public const ADDITION_SUBTRACTION = 4;
 	public const COMPARISON_GREATER_LESSER = 5;
 	public const COMPARISON_EQUALITY = 6;
+	public const AND_SYMBOL = 7;
+	public const OR_SYMBOL = 8;
+	public const AND_TEXTUAL = 9;
+	public const XOR = 10;
+	public const OR_TEXTUAL = 11;
 }

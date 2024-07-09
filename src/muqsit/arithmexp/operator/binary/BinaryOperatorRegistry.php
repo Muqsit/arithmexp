@@ -82,6 +82,26 @@ final class BinaryOperatorRegistry{
 			SimpleFunctionInfo::from(static fn(int|float|bool $x, int|float|bool $y) : int => $x <=> $y, FunctionFlags::DETERMINISTIC),
 			static fn(Parser $parser, string $expression, Token $token, string $function_name, int $argument_count, array $args) : array => [...$args, new OpcodeToken($token->getPos(), OpcodeToken::OP_BINARY_SPACESHIP, $token)]
 		)));
+		$registry->register(new SimpleBinaryOperator("&&", "And", OperatorPrecedence::AND_SYMBOL, LeftOperatorAssignment::instance(), new MacroFunctionInfo(
+			SimpleFunctionInfo::from(static fn(int|float|bool $x, int|float|bool $y) : bool => $x && $y, FunctionFlags::DETERMINISTIC),
+			static fn(Parser $parser, string $expression, Token $token, string $function_name, int $argument_count, array $args) : array => [...$args, new OpcodeToken($token->getPos(), OpcodeToken::OP_BINARY_AND_SYMBOL, $token)]
+		)));
+		$registry->register(new SimpleBinaryOperator("||", "Or", OperatorPrecedence::OR_SYMBOL, LeftOperatorAssignment::instance(), new MacroFunctionInfo(
+			SimpleFunctionInfo::from(static fn(int|float|bool $x, int|float|bool $y) : bool => $x || $y, FunctionFlags::DETERMINISTIC),
+			static fn(Parser $parser, string $expression, Token $token, string $function_name, int $argument_count, array $args) : array => [...$args, new OpcodeToken($token->getPos(), OpcodeToken::OP_BINARY_OR_SYMBOL, $token)]
+		)));
+		$registry->register(new SimpleBinaryOperator("and", "And", OperatorPrecedence::AND_TEXTUAL, LeftOperatorAssignment::instance(), new MacroFunctionInfo(
+			SimpleFunctionInfo::from(static fn(int|float|bool $x, int|float|bool $y) : bool => $x and $y, FunctionFlags::DETERMINISTIC),
+			static fn(Parser $parser, string $expression, Token $token, string $function_name, int $argument_count, array $args) : array => [...$args, new OpcodeToken($token->getPos(), OpcodeToken::OP_BINARY_AND_TEXTUAL, $token)]
+		)));
+		$registry->register(new SimpleBinaryOperator("or", "Or", OperatorPrecedence::OR_TEXTUAL, LeftOperatorAssignment::instance(), new MacroFunctionInfo(
+			SimpleFunctionInfo::from(static fn(int|float|bool $x, int|float|bool $y) : bool => $x or $y, FunctionFlags::DETERMINISTIC),
+			static fn(Parser $parser, string $expression, Token $token, string $function_name, int $argument_count, array $args) : array => [...$args, new OpcodeToken($token->getPos(), OpcodeToken::OP_BINARY_OR_TEXTUAL, $token)]
+		)));
+		$registry->register(new SimpleBinaryOperator("xor", "Xor", OperatorPrecedence::XOR, LeftOperatorAssignment::instance(), new MacroFunctionInfo(
+			SimpleFunctionInfo::from(static fn(int|float|bool $x, int|float|bool $y) : bool => $x xor $y, FunctionFlags::DETERMINISTIC),
+			static fn(Parser $parser, string $expression, Token $token, string $function_name, int $argument_count, array $args) : array => [...$args, new OpcodeToken($token->getPos(), OpcodeToken::OP_BINARY_XOR, $token)]
+		)));
 		return $registry;
 	}
 

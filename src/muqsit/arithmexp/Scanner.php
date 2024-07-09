@@ -23,9 +23,9 @@ final class Scanner{
 			new ParenthesisTokenBuilder(),
 			new NumericLiteralTokenBuilder(),
 			new FunctionCallTokenBuilder(),
-			new IdentifierTokenBuilder(),
 			UnaryOperatorTokenBuilder::createDefault($operator_manager->unary_registry),
-			BinaryOperatorTokenBuilder::createDefault($operator_manager->binary_registry)
+			BinaryOperatorTokenBuilder::createDefault($operator_manager->binary_registry),
+			new IdentifierTokenBuilder()
 		]);
 	}
 
