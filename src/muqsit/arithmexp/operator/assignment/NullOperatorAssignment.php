@@ -23,12 +23,11 @@ final class NullOperatorAssignment implements OperatorAssignment{
 		return self::TYPE_NA;
 	}
 
-	public function traverse(OperatorList $list, array &$tokens) : Generator{
+	public function traverse(OperatorList $list, string $expression, array &$tokens) : Generator{
 		$state = new OperatorAssignmentTraverserState($tokens);
-		$operators = $list->unary;
 		for($i = count($tokens) - 1; $i >= 0; --$i){
 			$token = $tokens[$i];
-			if($token instanceof UnaryOperatorToken && isset($operators[$token->operator])){
+			if($token instanceof UnaryOperatorToken && isset($list->unary[$token->operator])){
 				$state->index = $i;
 				$state->value = $token;
 				yield $state;

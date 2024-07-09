@@ -6,6 +6,7 @@ namespace muqsit\arithmexp\operator;
 
 use InvalidArgumentException;
 use muqsit\arithmexp\operator\assignment\LeftOperatorAssignment;
+use muqsit\arithmexp\operator\assignment\NonAssociativeOperatorAssignment;
 use muqsit\arithmexp\operator\assignment\NullOperatorAssignment;
 use muqsit\arithmexp\operator\assignment\OperatorAssignment;
 use muqsit\arithmexp\operator\assignment\RightOperatorAssignment;
@@ -13,6 +14,7 @@ use muqsit\arithmexp\operator\binary\BinaryOperator;
 use muqsit\arithmexp\operator\binary\BinaryOperatorRegistry;
 use muqsit\arithmexp\operator\unary\UnaryOperator;
 use muqsit\arithmexp\operator\unary\UnaryOperatorRegistry;
+use function array_key_first;
 
 final class OperatorManager{
 
@@ -69,7 +71,7 @@ final class OperatorManager{
 		foreach($sorted as $list){
 			$assignments = array_unique(array_map(static fn(BinaryOperator|UnaryOperator $operator) : int => $operator instanceof BinaryOperator ? $operator->getAssignment()->getType() : OperatorAssignment::TYPE_NA, $list));
 			if(count($assignments) > 1){
-				throw new InvalidArgumentException("Cannot process operators with same precedence ({$operator->getPrecedence()}) but different assignment types (" . implode(", ", $assignments) . ")");
+				throw new InvalidArgumentException("Cannot process operators with same precedence ({$list[array_key_first($list)]->getPrecedence()}) but different assignment types (" . implode(", ", $assignments) . ")");
 			}
 
 			$binary = [];
@@ -84,6 +86,7 @@ final class OperatorManager{
 			$result[] = new OperatorList(match($assignments[array_key_first($assignments)]){
 				OperatorAssignment::TYPE_LEFT => LeftOperatorAssignment::instance(),
 				OperatorAssignment::TYPE_RIGHT => RightOperatorAssignment::instance(),
+				OperatorAssignment::TYPE_NON_ASSOCIATIVE => NonAssociativeOperatorAssignment::instance(),
 				OperatorAssignment::TYPE_NA => NullOperatorAssignment::instance()
 			}, $binary, $unary);
 		}

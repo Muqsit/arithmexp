@@ -23,7 +23,7 @@ final class LeftOperatorAssignment implements OperatorAssignment{
 		return self::TYPE_LEFT;
 	}
 
-	public function traverse(OperatorList $list, array &$tokens) : Generator{
+	public function traverse(OperatorList $list, string $expression, array &$tokens) : Generator{
 		$state = new OperatorAssignmentTraverserState($tokens);
 		$operators = $list->binary;
 		$index = -1;

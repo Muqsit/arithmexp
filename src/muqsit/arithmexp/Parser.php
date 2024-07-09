@@ -210,7 +210,7 @@ final class Parser{
 			$prioritize = [];
 			do{
 				foreach($this->operator_manager->getByPrecedence() as $list){
-					foreach($list->assignment->traverse($list, $entry) as $state){
+					foreach($list->assignment->traverse($list, $expression, $entry) as $state){
 						$index = $state->index;
 						$token = $state->value;
 

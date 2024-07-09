@@ -38,23 +38,32 @@ final class RawExpression implements Expression{
 
 		$i = 0;
 		foreach($postfix_expression_tokens as $token){
-			$this->by_kind[($i++ << 4) | match(true){
+			$this->by_kind[($i++ << 5) | match(true){
 				$token instanceof OpcodeExpressionToken => match($token->code){
 					OpcodeToken::OP_BINARY_ADD => 0,
 					OpcodeToken::OP_BINARY_DIV => 1,
-					OpcodeToken::OP_BINARY_EXP => 2,
-					OpcodeToken::OP_BINARY_MOD => 3,
-					OpcodeToken::OP_BINARY_MUL => 4,
-					OpcodeToken::OP_BINARY_SUB => 5,
-					OpcodeToken::OP_UNARY_NOT => 6,
-					OpcodeToken::OP_UNARY_NVE => 7,
-					OpcodeToken::OP_UNARY_PVE => 8
+					OpcodeToken::OP_BINARY_EQUAL => 2,
+					OpcodeToken::OP_BINARY_EQUAL_NOT => 3,
+					OpcodeToken::OP_BINARY_EXP => 4,
+					OpcodeToken::OP_BINARY_GREATER_THAN => 5,
+					OpcodeToken::OP_BINARY_GREATER_THAN_EQUAL_TO => 6,
+					OpcodeToken::OP_BINARY_IDENTICAL => 7,
+					OpcodeToken::OP_BINARY_IDENTICAL_NOT => 8,
+					OpcodeToken::OP_BINARY_LESSER_THAN => 9,
+					OpcodeToken::OP_BINARY_LESSER_THAN_EQUAL_TO => 10,
+					OpcodeToken::OP_BINARY_MOD => 11,
+					OpcodeToken::OP_BINARY_MUL => 12,
+					OpcodeToken::OP_BINARY_SPACESHIP => 13,
+					OpcodeToken::OP_BINARY_SUB => 14,
+					OpcodeToken::OP_UNARY_NOT => 15,
+					OpcodeToken::OP_UNARY_NVE => 16,
+					OpcodeToken::OP_UNARY_PVE => 17
 				},
 				$token instanceof NumericLiteralExpressionToken,
-				$token instanceof BooleanLiteralExpressionToken => 9,
-				$token instanceof VariableExpressionToken => 10,
-				$token instanceof FunctionCallExpressionToken => 11,
-				default => 15
+				$token instanceof BooleanLiteralExpressionToken => 18,
+				$token instanceof VariableExpressionToken => 19,
+				$token instanceof FunctionCallExpressionToken => 20,
+				default => 31
 			}] = $token;
 		}
 	}
@@ -63,7 +72,7 @@ final class RawExpression implements Expression{
 		$stack = [];
 		$ptr = -1;
 		foreach($this->by_kind as $index => $token){
-			switch($index & 15){
+			switch($index & 31){
 				case 0:
 					assert($token instanceof OpcodeExpressionToken);
 					assert($token->code === OpcodeToken::OP_BINARY_ADD);
@@ -78,52 +87,115 @@ final class RawExpression implements Expression{
 					break;
 				case 2:
 					assert($token instanceof OpcodeExpressionToken);
+					assert($token->code === OpcodeToken::OP_BINARY_EQUAL);
+					$lvalue = $stack[$ptr - 1];
+					$rvalue = $stack[$ptr];
+					$stack[--$ptr] = $lvalue == $rvalue;
+					break;
+				case 3:
+					assert($token instanceof OpcodeExpressionToken);
+					assert($token->code === OpcodeToken::OP_BINARY_EQUAL_NOT);
+					$lvalue = $stack[$ptr - 1];
+					$rvalue = $stack[$ptr];
+					$stack[--$ptr] = $lvalue != $rvalue;
+					break;
+				case 4:
+					assert($token instanceof OpcodeExpressionToken);
 					assert($token->code === OpcodeToken::OP_BINARY_EXP);
 					$rvalue = $stack[$ptr];
 					$stack[--$ptr] **= $rvalue;
 					break;
-				case 3:
+				case 5:
+					assert($token instanceof OpcodeExpressionToken);
+					assert($token->code === OpcodeToken::OP_BINARY_GREATER_THAN);
+					$lvalue = $stack[$ptr - 1];
+					$rvalue = $stack[$ptr];
+					$stack[--$ptr] = $lvalue > $rvalue;
+					break;
+				case 6:
+					assert($token instanceof OpcodeExpressionToken);
+					assert($token->code === OpcodeToken::OP_BINARY_GREATER_THAN_EQUAL_TO);
+					$lvalue = $stack[$ptr - 1];
+					$rvalue = $stack[$ptr];
+					$stack[--$ptr] = $lvalue >= $rvalue;
+					break;
+				case 7:
+					assert($token instanceof OpcodeExpressionToken);
+					assert($token->code === OpcodeToken::OP_BINARY_IDENTICAL);
+					$lvalue = $stack[$ptr - 1];
+					$rvalue = $stack[$ptr];
+					$stack[--$ptr] = $lvalue === $rvalue;
+					break;
+				case 8:
+					assert($token instanceof OpcodeExpressionToken);
+					assert($token->code === OpcodeToken::OP_BINARY_IDENTICAL_NOT);
+					$lvalue = $stack[$ptr - 1];
+					$rvalue = $stack[$ptr];
+					$stack[--$ptr] = $lvalue !== $rvalue;
+					break;
+				case 9:
+					assert($token instanceof OpcodeExpressionToken);
+					assert($token->code === OpcodeToken::OP_BINARY_LESSER_THAN);
+					$lvalue = $stack[$ptr - 1];
+					$rvalue = $stack[$ptr];
+					$stack[--$ptr] = $lvalue < $rvalue;
+					break;
+				case 10:
+					assert($token instanceof OpcodeExpressionToken);
+					assert($token->code === OpcodeToken::OP_BINARY_LESSER_THAN_EQUAL_TO);
+					$lvalue = $stack[$ptr - 1];
+					$rvalue = $stack[$ptr];
+					$stack[--$ptr] = $lvalue <= $rvalue;
+					break;
+				case 11:
 					assert($token instanceof OpcodeExpressionToken);
 					assert($token->code === OpcodeToken::OP_BINARY_MOD);
 					$rvalue = $stack[$ptr];
 					$stack[--$ptr] %= $rvalue;
 					break;
-				case 4:
+				case 12:
 					assert($token instanceof OpcodeExpressionToken);
 					assert($token->code === OpcodeToken::OP_BINARY_MUL);
 					$rvalue = $stack[$ptr];
 					$stack[--$ptr] *= $rvalue;
 					break;
-				case 5:
+				case 13:
+					assert($token instanceof OpcodeExpressionToken);
+					assert($token->code === OpcodeToken::OP_BINARY_SPACESHIP);
+					$lvalue = $stack[$ptr - 1];
+					$rvalue = $stack[$ptr];
+					$stack[--$ptr] = $lvalue <=> $rvalue;
+					break;
+				case 14:
 					assert($token instanceof OpcodeExpressionToken);
 					assert($token->code === OpcodeToken::OP_BINARY_SUB);
 					$rvalue = $stack[$ptr];
 					$stack[--$ptr] -= $rvalue;
 					break;
-				case 6:
+				case 15:
 					assert($token instanceof OpcodeExpressionToken);
 					assert($token->code === OpcodeToken::OP_UNARY_NOT);
 					$stack[$ptr] = !$stack[$ptr];
 					break;
-				case 7:
+				case 16:
 					assert($token instanceof OpcodeExpressionToken);
 					assert($token->code === OpcodeToken::OP_UNARY_NVE);
 					$stack[$ptr] = -$stack[$ptr];
 					break;
-				case 8:
+				case 17:
 					assert($token instanceof OpcodeExpressionToken);
 					assert($token->code === OpcodeToken::OP_UNARY_PVE);
 					$stack[$ptr] = +$stack[$ptr];
 					break;
-				case 9:
+				case 18:
 					assert($token instanceof BooleanLiteralExpressionToken || $token instanceof NumericLiteralExpressionToken);
 					$stack[++$ptr] = $token->value;
 					break;
-				case 10:
+				case 19:
 					assert($token instanceof VariableExpressionToken);
 					$stack[++$ptr] = $variable_values[$token->label] ?? throw new InvalidArgumentException("No value supplied for variable \"{$token->label}\" in \"{$this->expression}\"");;
 					break;
-				case 11:
+				case 20:
 					assert($token instanceof FunctionCallExpressionToken);
 					$ptr -= $token->argument_count - 1;
 					$stack[$ptr] = ($token->function)(...array_slice($stack, $ptr, $token->argument_count));

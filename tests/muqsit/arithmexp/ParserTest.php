@@ -38,7 +38,7 @@ final class ParserTest extends TestCase{
 
 	public function testBinaryOperatorsOfSamePrecedence() : void{
 		$this->expectException(InvalidArgumentException::class);
-		$this->expectExceptionMessage("Cannot process operators with same precedence (" . OperatorPrecedence::ADDITION_SUBTRACTION . ") but different assignment types (0, 1)");
+		$this->expectExceptionMessage("Cannot process operators with same precedence (128) but different assignment types (0, 1)");
 		$registry = $this->parser->operator_manager->binary_registry;
 		$registry->register(new SimpleBinaryOperator("~", "BO1", 128, LeftOperatorAssignment::instance(), SimpleFunctionInfo::from(static fn(int|float $x, int|float $y) : int|float => $x + $y, FunctionFlags::DETERMINISTIC)));
 		$registry->register(new SimpleBinaryOperator("\$", "BO2", 128, RightOperatorAssignment::instance(), SimpleFunctionInfo::from(static fn(int|float $x, int|float $y) : int|float => $x + $y, FunctionFlags::DETERMINISTIC)));

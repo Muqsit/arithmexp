@@ -11,4 +11,6 @@ interface OperatorPrecedence{
 	public const UNARY_NOT = 2;
 	public const MULTIPLICATION_DIVISION_MODULO = 3;
 	public const ADDITION_SUBTRACTION = 4;
+	public const COMPARISON_GREATER_LESSER = 5;
+	public const COMPARISON_EQUALITY = 6;
 }

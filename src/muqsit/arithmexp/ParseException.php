@@ -68,6 +68,16 @@ final class ParseException extends Exception{
 		), self::ERR_NO_OPERAND_BINARY_RIGHT));
 	}
 
+	public static function undefinedOperatorAssociativity(string $expression, Position $position) : self{
+		return self::generateWithHighlightedSubstring(new self($expression, $position, sprintf(
+			"Associativity cannot be implicitly determined for operator at \"%s\" (%d:%d) in \"%s\"",
+			$position->in($expression),
+			$position->start,
+			$position->end,
+			$expression
+		), self::ERR_NO_OPERAND_BINARY_LEFT));
+	}
+
 	public static function noClosingParenthesis(string $expression, Position $position) : self{
 		return self::generateWithHighlightedSubstring(new self($expression, $position, sprintf(
 			"No closing parenthesis specified for opening parenthesis at \"%s\" (%d:%d) in \"%s\"",
