@@ -53,6 +53,23 @@ final class ExpressionTest extends TestCase{
 		self::assertIsBool($this->parser->parse("1 || 1")->evaluate());
 	}
 
+	public function testInfNanComparison() : void{
+		self::assertTrue($this->parser->parse("is_nan(nan)")->evaluate());
+		self::assertFalse($this->parser->parse("nan == nan")->evaluate());
+		self::assertTrue($this->parser->parse("is_nan(fdiv(0, 0))")->evaluate());
+		self::assertFalse($this->parser->parse("fdiv(0, 0) === nan")->evaluate());
+		self::assertFalse($this->parser->parse("fdiv(0, 0) === nan")->evaluate());
+		self::assertFalse($this->parser->parse("fdiv(0, 0) !== nan")->evaluate());
+		self::assertFalse($this->parser->parse("fdiv(0, 0) !== nan")->evaluate());
+
+		self::assertTrue($this->parser->parse("is_infinite(inf)")->evaluate());
+		self::assertTrue($this->parser->parse("inf == inf")->evaluate());
+		self::assertTrue($this->parser->parse("fdiv(1, 0) === inf")->evaluate());
+		self::assertTrue($this->parser->parse("is_infinite(fdiv(1, 0))")->evaluate());
+		self::assertTrue($this->parser->parse("is_infinite(fdiv(-1, 0))")->evaluate());
+		self::assertTrue($this->parser->parse("fdiv(-1, 0) === -inf")->evaluate());
+	}
+
 	public function testOperatorAssociativity() : void{
 		self::assertEquals(5 ** 4 ** 3 ** 2, $this->parser->parse("5 ** 4 ** 3 ** 2")->evaluate());
 		self::assertEquals(5 ** (4 ** 3 ** 2), $this->parser->parse("5 ** (4 ** 3 ** 2)")->evaluate());
