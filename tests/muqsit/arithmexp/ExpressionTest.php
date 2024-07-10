@@ -44,7 +44,13 @@ final class ExpressionTest extends TestCase{
 			self::assertIsFloat($expression->evaluate(["x" => 1, "y" => 1.0]));
 			self::assertIsFloat($expression->evaluate(["x" => 1.0, "y" => 1]));
 			self::assertIsFloat($expression->evaluate(["x" => 1.0, "y" => 1.0]));
+			self::assertIsInt($expression->evaluate(["x" => 1, "y" => true]));
+			self::assertIsInt($expression->evaluate(["x" => true, "y" => true]));
 		}
+		self::assertIsBool($this->parser->parse("true || 1")->evaluate());
+		self::assertIsBool($this->parser->parse("1 || true")->evaluate());
+		self::assertIsBool($this->parser->parse("true || true")->evaluate());
+		self::assertIsBool($this->parser->parse("1 || 1")->evaluate());
 	}
 
 	public function testOperatorAssociativity() : void{
