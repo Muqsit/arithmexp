@@ -203,6 +203,12 @@ final class ParserTest extends TestCase{
 		TestUtil::assertParserThrows($this->parser, "2*", ParseException::ERR_NO_OPERAND_BINARY_RIGHT, 1, 2);
 	}
 
+	public function testOperatorNonAssociativity() : void{
+		TestUtil::assertParserThrows($this->uo_parser, "x > y > z", ParseException::ERR_UNDEFINED_OPERAND_ASSOCIATIVITY, 6, 7);
+		TestUtil::assertParserThrows($this->uo_parser, "x == y === z", ParseException::ERR_UNDEFINED_OPERAND_ASSOCIATIVITY, 7, 10);
+		TestUtil::assertExpressionsEqual($this->uo_parser->parse("(x > y) == (x < z)"), $this->uo_parser->parse("x > y == x < z"));
+	}
+
 	public function testBadFunctionCallToUndefinedFunction() : void{
 		TestUtil::assertParserThrows($this->parser, "x * fn() / 3", ParseException::ERR_UNRESOLVABLE_FCALL, 4, 8);
 	}
