@@ -108,6 +108,9 @@ final class ExpressionTest extends TestCase{
 		self::assertEquals(2 / 3 + 4 * 5, $this->parser->parse("2 / 3 + 4 * 5")->evaluate());
 		self::assertEquals(2 ** 3 ** 4, $this->parser->parse("2 ** 3 ** 4")->evaluate());
 		self::assertEquals(2 ** 3 - 4 ** 5, $this->parser->parse("2 ** 3 - 4 ** 5")->evaluate());
+
+		self::assertFalse($this->parser->parse("true || true and false")->evaluate());
+		self::assertTrue($this->parser->parse("true || true && false")->evaluate());
 	}
 
 	public function testUnaryOperatorsInSequence() : void{
