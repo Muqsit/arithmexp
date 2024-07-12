@@ -5,7 +5,7 @@
 [`arithmexp`](https://github.com/Muqsit/arithmexp) is a powerful mathematical expression parser and evaluator library for PHP with support for [variable substitution](https://github.com/Muqsit/arithmexp#evaluating-a-mathematical-expression), [constant declaration](https://github.com/Muqsit/arithmexp/wiki), [deterministic and non-deterministic function registration](https://github.com/Muqsit/arithmexp/wiki), and more.
 
 > [!TIP]
-> Try out arithmexp parser on the [**demo site**](https://arithmexp.muqs.it/)!
+> Try out arithmexp parser on the [**demo site**](https://arithmexp.pages.dev/)!
 
 ## Installation with composer
 ```
