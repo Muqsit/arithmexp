@@ -57,6 +57,7 @@ final class OpcodeToken extends SimpleToken{
 			self::OP_BINARY_MUL => "*",
 			self::OP_BINARY_OR_SYMBOL => "||",
 			self::OP_BINARY_OR_TEXTUAL => "or",
+			self::OP_BINARY_SPACESHIP => "<=>",
 			self::OP_BINARY_SUB, self::OP_UNARY_NVE => "-",
 			self::OP_BINARY_XOR => "xor",
 			self::OP_UNARY_NOT => "!"

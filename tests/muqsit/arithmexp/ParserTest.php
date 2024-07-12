@@ -15,9 +15,17 @@ use muqsit\arithmexp\token\BinaryOperatorToken;
 use muqsit\arithmexp\token\FunctionCallToken;
 use muqsit\arithmexp\token\IdentifierToken;
 use muqsit\arithmexp\token\NumericLiteralToken;
+use muqsit\arithmexp\token\OpcodeToken;
 use muqsit\arithmexp\token\Token;
 use muqsit\arithmexp\token\UnaryOperatorToken;
 use PHPUnit\Framework\TestCase;
+use ReflectionClass;
+use RuntimeException;
+use UnhandledMatchError;
+use function array_filter;
+use function str_starts_with;
+use function strlen;
+use const ARRAY_FILTER_USE_KEY;
 use const M_PI;
 
 final class ParserTest extends TestCase{
@@ -207,6 +215,19 @@ final class ParserTest extends TestCase{
 		TestUtil::assertParserThrows($this->uo_parser, "x > y > z", ParseException::ERR_UNDEFINED_OPERAND_ASSOCIATIVITY, 6, 7);
 		TestUtil::assertParserThrows($this->uo_parser, "x == y === z", ParseException::ERR_UNDEFINED_OPERAND_ASSOCIATIVITY, 7, 10);
 		TestUtil::assertExpressionsEqual($this->uo_parser->parse("(x > y) == (x < z)"), $this->uo_parser->parse("x > y == x < z"));
+	}
+
+	public function testOpcodeTokenToString() : void{
+		$codes = (new ReflectionClass(OpcodeToken::class))->getConstants();
+		$codes = array_filter($codes, fn(string $key) => str_starts_with($key, "OP_"), ARRAY_FILTER_USE_KEY);
+		foreach($codes as $name => $code){
+			try{
+				$string = OpcodeToken::opcodeToString($code);
+			}catch(UnhandledMatchError $e){
+				throw new RuntimeException("Failed to stringify opcode {$name}", $e->getCode(), $e);
+			}
+			$this->assertGreaterThan(0, strlen($string));
+		}
 	}
 
 	public function testBadFunctionCallToUndefinedFunction() : void{
