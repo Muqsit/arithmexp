@@ -8,13 +8,14 @@ use Closure;
 use muqsit\arithmexp\Parser;
 use muqsit\arithmexp\token\builder\ExpressionTokenBuilderState;
 use muqsit\arithmexp\token\Token;
+use UnitEnum;
 
 interface FunctionInfo{
 
 	public function getClosure() : Closure;
 
 	/**
-	 * @return list<int|float|bool|null>
+	 * @return list<int|float|bool|UnitEnum|null>
 	 */
 	public function getFallbackParamValues() : array;
 

@@ -12,6 +12,7 @@ use muqsit\arithmexp\token\builder\ExpressionTokenBuilderState;
 use muqsit\arithmexp\token\Token;
 use ReflectionFunction;
 use ReflectionParameter;
+use UnitEnum;
 use function array_map;
 use function gettype;
 use function is_float;
@@ -26,10 +27,10 @@ final class SimpleFunctionInfo implements FunctionInfo{
 	 */
 	public static function from(Closure $callback, int $flags) : self{
 		$_function = new ReflectionFunction($callback);
-		return new self($callback, array_map(static function(ReflectionParameter $_parameter) : int|float|bool|null{
+		return new self($callback, array_map(static function(ReflectionParameter $_parameter) : int|float|bool|UnitEnum|null{
 			if($_parameter->isDefaultValueAvailable()){
 				$value = $_parameter->getDefaultValue();
-				if(!is_int($value) && !is_float($value) && !is_bool($value)){
+				if(!is_int($value) && !is_float($value) && !is_bool($value) && !($value instanceof UnitEnum)){
 					throw new InvalidArgumentException("Expected default parameter value to be int|float|bool, got " . gettype($value) . " for parameter \"{$_parameter->getName()}\"");
 				}
 				return $value;
@@ -40,7 +41,7 @@ final class SimpleFunctionInfo implements FunctionInfo{
 
 	/**
 	 * @param Closure $closure
-	 * @param list<int|float|bool|null> $fallback_param_values
+	 * @param list<int|float|bool|UnitEnum|null> $fallback_param_values
 	 * @param bool $variadic
 	 * @param int-mask-of<FunctionFlags::*> $flags
 	 */
